@@ -2,11 +2,11 @@
 
 ## GitHub publication · 12 November 2026
 
-The release target is `appdevmanwill/NTK-SoundLab-Studio`, branch `main`, tag `v2026.11.11.2`. The README and setup guides were rewritten for app users and source contributors. New binary downloads are release attachments, with a flat SHA-256 manifest. The signed AAB and public upload certificate are included.
+**VERIFIED · published.** Source commit `87c5a9446b223da255b34658f276233421b1240a` is on `appdevmanwill/NTK-SoundLab-Studio`, tagged `v2026.11.11.2`. The [GitHub preview release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2) contains eight packages and four supporting files. All 12 attachment sizes and GitHub SHA-256 digests match the local files. The README and setup guides were rewritten for app users and source contributors. New binaries are release attachments, with a flat checksum manifest.
 
 Pre-publication checks passed for the Go desktop core, four helper tests and 24 Laravel tests with 108 assertions. Composer's production lock audit reported no advisories. A source review found no private keys or provider tokens in the staged changes. Physical-device and hosted-service acceptance retain the limits recorded below.
 
-The GitHub release is a preview because phone endurance, graphical Linux installation and actual provider recognition are still open. The existing repository baseline is retained for rollback. The Firebase site and external accounts use their existing deployment arrangements.
+The GitHub release is a preview because phone endurance, graphical Linux installation and actual provider recognition are still open. The previous repository baseline `827b43f` is available for rollback. Publication receipts are under `working/EVIDENCE/github-release-2026-11-12`. Local audit inputs and intermediate release archives were preserved in the workspace.
 
 ## Signed Play bundle follow-up · 11 November 2026
 

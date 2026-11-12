@@ -1,5 +1,7 @@
 # Remaining verification
 
+- [x] Publish the current source, rewritten guides and 12 verified release attachments to GitHub as `v2026.11.11.2`.
+
 ## SoundLab identity release · 2026.11.11.2
 
 - [x] Apply NTK's chosen fresh Android ID `com.ntkhub.soundlabstudio` and create its private SoundLab signing identity.

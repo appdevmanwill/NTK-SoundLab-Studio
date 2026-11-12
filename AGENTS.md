@@ -8,7 +8,7 @@
 - **Project Name:** NTK SoundLab Studio (Short Name: `NTK SoundLab`)
 - **Purpose:** Universal multi-platform media downloader, client-side video demuxer, Meta HTDemucs v4 2-stem/4-stem neural stem separator, 5-track synchronized audio mixing console, waveform trimmer, mastering FX, and 1080p karaoke visualizer video generator.
 - **Primary Users:** Music producers, vocalists, remixers, karaoke creators and digital media editors using local processing with optional provider-based recognition.
-- **Current Phase:** GitHub preview release preparation (v2026.11.11.2).
+- **Current Phase:** GitHub preview v2026.11.11.2, published 12 November 2026.
 - **Latest Verified Milestone:** Windows installer and browser checks, Linux headless package checks, Android APK installation and offline editor rendering, signed AAB validation, and local PHP package smoke. Physical-phone endurance, graphical Linux installation and current hosted PHP acceptance are open.
 - **Authoritative Source References:** `README.md`, `SOFTWARE/README-LATEST.md`, `DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md`.
 

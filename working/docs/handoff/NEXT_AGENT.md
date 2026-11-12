@@ -1,5 +1,11 @@
 # Continuation
 
+## GitHub preview published · 12 November 2026
+
+Use [the release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2) and source tag `v2026.11.11.2`. The tagged application source is commit `87c5a94`. The public README links to release downloads, and all 12 assets were checked against local hashes. The eight main packages are listed in `SOFTWARE/SHA256SUMS.txt`.
+
+The application binaries are the locally verified 2026.11.11.2 files. User and developer guides were rewritten for this publication. The remaining work is physical-device and hosted-service acceptance, plus trusted Windows signing access. Preserve the SoundLab Android signing pair outside Git.
+
 ## Current SoundLab identity release · 2026.11.11.2
 
 Use [CURRENT_STATE.md](CURRENT_STATE.md) and the [release guide](../../../SOFTWARE/README-LATEST.md). NTK approved a fresh Android identity `com.ntkhub.soundlabstudio`. Preserve the private SoundLab signing pair for its future updates. Use `soundlab_helper.py` for the Python helper and `soundlab-api.js` for the frontend client. Desktop data compatibility and historical records can reference earlier names.
