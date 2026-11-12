@@ -60,7 +60,8 @@ export class TutorialManager {
 
   checkFirstVisit() {
     try {
-      const seen = localStorage.getItem('omnistream_tutorial_seen');
+      const seen = localStorage.getItem('soundlab_tutorial_seen')
+        ?? localStorage.getItem('omnistream_tutorial_seen');
       if (!seen) {
         // Highlight the newbie banner with subtle animation
         const banner = document.getElementById('noviceGuideBanner');
@@ -84,7 +85,7 @@ export class TutorialManager {
     if (modal) {
       modal.classList.remove('open');
       try {
-        localStorage.setItem('omnistream_tutorial_seen', 'true');
+        localStorage.setItem('soundlab_tutorial_seen', 'true');
       } catch (_) {}
     }
     if (this.app && typeof this.app.showToast === 'function') {

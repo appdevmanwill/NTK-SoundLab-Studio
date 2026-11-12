@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
-class OmniStreamController extends Controller
+class SoundLabController extends Controller
 {
     protected UniversalMediaService $mediaService;
 

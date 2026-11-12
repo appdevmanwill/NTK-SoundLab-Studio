@@ -1,10 +1,10 @@
 /**
- * NTK OmniStream Studio - In-Browser Video & Audio Demuxer
+ * NTK SoundLab Studio - In-Browser Video & Audio Demuxer
  * High-performance, non-blocking video to PCM audio & poster frame extractor.
  * Processes local video files (.mp4, .mov, .mkv, .webm, .avi) without freezing the UI or uploading data.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.3.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
 
 export class VideoDemuxer {
   /**

@@ -21,17 +21,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Montserrat:wght@700;800;900&family=Orbitron:wght@700;900&family=Poppins:wght@700;800&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
 
   <!-- Modular CSS System -->
-  <link rel="stylesheet" href="css/style.css?v=2026.11.3.1" />
-  <link rel="stylesheet" href="css/components.css?v=2026.11.3.1" />
-  <link rel="stylesheet" href="css/tutorial.css?v=2026.11.3.1" />
-  <link rel="stylesheet" href="css/player.css?v=2026.11.3.1" />
-  <link rel="stylesheet" href="css/visualizer.css?v=2026.11.3.1" />
+  <link rel="stylesheet" href="css/style.css?v=2026.11.11.2" />
+  <link rel="stylesheet" href="css/components.css?v=2026.11.11.2" />
+  <link rel="stylesheet" href="css/tutorial.css?v=2026.11.11.2" />
+  <link rel="stylesheet" href="css/player.css?v=2026.11.11.2" />
+  <link rel="stylesheet" href="css/visualizer.css?v=2026.11.11.2" />
 
-  <link rel="stylesheet" href="css/transcribe.css?v=2026.11.3.1" />
+  <link rel="stylesheet" href="css/transcribe.css?v=2026.11.11.2" />
 
   <!-- Bundled MP3 Encoder (lamejs) + ZIP Packager (JSZip) with CDN fallbacks -->
-  <script src="lib/lame.all.js?v=2026.11.3.1"></script>
-  <script src="lib/jszip.min.js?v=2026.11.3.1"></script>
+  <script src="lib/lame.all.js?v=2026.11.11.2"></script>
+  <script src="lib/jszip.min.js?v=2026.11.11.2"></script>
   <script>
     if (typeof window.lamejs === 'undefined') {
       const s = document.createElement('script');
@@ -46,7 +46,7 @@
   </script>
 
   <!-- Main ES Module Application -->
-  <script type="module" src="js/app.js?v=2026.11.3.1"></script>
+  <script type="module" src="js/app.js?v=2026.11.11.2"></script>
 </head>
 <body>
 
@@ -2047,10 +2047,10 @@
         <div>
           <span style="font-size:0.75rem;font-weight:700;color:var(--accent-amber)">1. Start local Studio + HTDemucs AI server:</span>
           <div class="code-box">
-            <code>python helper/omni_helper.py --serve --port 8899</code>
+            <code>python helper/soundlab_helper.py --serve --port 8899</code>
             <button
               class="btn btn-secondary btn-sm"
-              onclick="app.copyToClipboard('python helper/omni_helper.py --serve --port 8899')"
+              onclick="app.copyToClipboard('python helper/soundlab_helper.py --serve --port 8899')"
             >
               Copy
             </button>
@@ -2356,6 +2356,15 @@
           <span id="vaultModalModelsStatus" style="font-weight:700;color:#f59e0b">On-Demand</span>
         </div>
       </div>
+
+      <section class="offline-model-panel" aria-labelledby="offlineModelHeading">
+        <h3 id="offlineModelHeading">Offline stem separation</h3>
+        <p>Import the optional 180 MB HTDemucs model. The packaged apps include the neural runtime.</p>
+        <a id="offlineModelDownload" target="_blank" rel="noopener noreferrer">Download the model from its source</a>
+        <label for="offlineModelFile">Import an ONNX model file</label>
+        <input id="offlineModelFile" type="file" accept=".onnx" aria-describedby="offlineModelStatus" />
+        <p id="offlineModelStatus" role="status"></p>
+      </section>
 
       <div style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:space-between;align-items:center">
         <div style="display:flex;gap:0.5rem">

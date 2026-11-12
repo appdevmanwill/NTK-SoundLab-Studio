@@ -1,6 +1,16 @@
 # Continuation
 
-## Latest continuation — Transcribe delivered locally
+## Current SoundLab identity release · 2026.11.11.2
+
+Use [CURRENT_STATE.md](CURRENT_STATE.md) and the [release guide](../../../SOFTWARE/README-LATEST.md). NTK approved a fresh Android identity `com.ntkhub.soundlabstudio`. Preserve the private SoundLab signing pair for its future updates. Use `soundlab_helper.py` for the Python helper and `soundlab-api.js` for the frontend client. Desktop data compatibility and historical records can reference earlier names.
+
+Read the exact package evidence under `working/EVIDENCE/rebrand-2026-11-11` and `working/EVIDENCE/play-bundle-2026-11-11`. The signed AAB is now available beside the APK. Its generated APK matches the direct app's code, assets and signer. Remaining acceptance uses a test Android phone, Linux desktop, reference recordings with an eligible Groq account, and the intended hosting target. Play Console enrollment and upload need the intended account. Trusted Windows signing needs an approved signing identity.
+
+## Previous maintenance candidate — 2026.11.11.1
+
+Start with [CURRENT_STATE.md](CURRENT_STATE.md) and the [release guide](../../../SOFTWARE/README-LATEST.md). Use the versioned artifacts and their generated SHA-256 values. The optional model remains separate from the app archives. For remaining acceptance, use a Linux desktop with a supported browser, a test Android phone, an eligible Groq account with owner-provided recordings, and the intended AlwaysData site. For WebGPU testing, compare a reference clip against WASM on the selected adapter. Preserve the established signing and storage identities.
+
+## 2026.11.3.1 continuation record
 
 Start with SOFTWARE/README-LATEST.md, CURRENT_STATE.md's2026.11.3.1 section and
 working/EVIDENCE/transcribe-2026-11-03/release-manifest.json. Dedicated Transcribe is

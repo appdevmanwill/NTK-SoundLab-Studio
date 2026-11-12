@@ -73,7 +73,7 @@ class UniversalMediaService
         $budget = (int) config('media.download_budget_bytes', 524288000);
 
         return [
-            'status' => 'ok', 'server' => 'NTK OmniStream Studio (Laravel Edition)', 'php_version' => PHP_VERSION,
+            'status' => 'ok', 'server' => 'NTK SoundLab Studio (Laravel Edition)', 'php_version' => PHP_VERSION,
             'yt_dlp' => (bool) config('media.extractor_egress_sandboxed') && (bool) $this->findBinary(['yt-dlp', 'yt-dlp.exe']),
             'ffmpeg' => (bool) $this->findBinary(['ffmpeg', 'ffmpeg.exe']),
             'mobile_api_bypass' => false, 'zero_disk_streaming' => false,

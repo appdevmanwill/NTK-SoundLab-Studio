@@ -12,14 +12,18 @@ import (
 )
 
 func linuxBrowserArgs(appURL, dataDir string) []string {
-	return []string{"--app=" + appURL, "--user-data-dir=" + filepath.Join(dataDir, "profile"), "--class=OmniStreamStudio", "--window-size=1280,900", "--no-first-run", "--no-default-browser-check"}
+	return []string{"--app=" + appURL, "--user-data-dir=" + filepath.Join(dataDir, "profile"), "--class=NTKSoundLabStudio", "--window-size=1280,900", "--no-first-run", "--no-default-browser-check"}
 }
 
 func launchBrowser(appURL, dataDir string) error {
 	// An explicit executable override is useful for distro-specific installations.
 	// This is a path, never a shell command, and browser sandboxing stays enabled.
 	candidates := []string{"chromium", "chromium-browser", "google-chrome-stable", "google-chrome", "microsoft-edge-stable", "microsoft-edge", "brave-browser"}
-	if override := os.Getenv("NTK_OMNISTREAM_BROWSER"); override != "" {
+	override := os.Getenv("NTK_SOUNDLAB_BROWSER")
+	if override == "" {
+		override = os.Getenv("NTK_OMNISTREAM_BROWSER")
+	}
+	if override != "" {
 		executable, err := exec.LookPath(override)
 		if err != nil {
 			return fmt.Errorf("configured browser executable was not found: %w", err)
@@ -35,7 +39,7 @@ func launchBrowser(appURL, dataDir string) error {
 		log.Print("No Chromium-based browser found; opening the stable local URL in the default browser. Storage belongs to that browser profile.")
 		return startLinuxBrowser(opener, appURL)
 	}
-	return errors.New("no supported browser was found. Install Chromium, Chrome, Edge or a default browser with xdg-utils, then reopen OmniStream Studio; saved data has not been changed")
+	return errors.New("no supported browser was found. Install Chromium, Chrome, Edge or a default browser with xdg-utils, then reopen NTK SoundLab Studio; saved data has not been changed")
 }
 
 func startLinuxBrowser(executable string, args ...string) error {

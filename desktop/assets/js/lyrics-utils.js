@@ -1,5 +1,5 @@
 /**
- * Suno Downloader Pro - Lyrics & Subtitle Engine
+ * NTK SoundLab Studio - Lyrics & Subtitle Engine
  * Parses lyrics/prompts into timed karaoke cues and exports .TXT, .LRC, and .SRT formats.
  */
 

@@ -1,9 +1,10 @@
 /**
- * NTK OmniStream Studio - Universal PWA Service Worker
+ * NTK SoundLab Studio - Universal PWA Service Worker
  * Provides offline app-shell caching while keeping streaming and API endpoints network-direct.
  */
 
-const CACHE_NAME = 'ntk-omnistream-studio-v2026-11-r3-transcribe1';
+const CACHE_NAME = 'ntk-soundlab-studio-v2026.11.11.2';
+const ONNX_RUNTIME_CACHE = 'ntk-soundlab-onnx-1.20.1';
 
 const APP_SHELL_ASSETS = [
   './',
@@ -36,7 +37,7 @@ const APP_SHELL_ASSETS = [
   './js/network-policy.js',
   './js/image-cropper.js',
   './js/tutorial.js',
-  './js/omni-api.js',
+  './js/soundlab-api.js',
   './js/video-demuxer.js',
   './js/suno-api.js',
   './js/crypto-engine.js',
@@ -46,6 +47,7 @@ const APP_SHELL_ASSETS = [
   './js/lyrics-utils.js',
   './js/vault-db.js',
   './js/stem-engine.js',
+  './js/offline-model.js',
   './js/stem-mixer.js',
   './js/audio-fx.js',
   './js/zip-packager.js',
@@ -75,7 +77,8 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
-          if (key.startsWith('ntk-omnistream-studio-') && key !== CACHE_NAME) {
+          if (key !== CACHE_NAME &&
+              (key.startsWith('ntk-soundlab-studio-') || key.startsWith('ntk-omnistream-studio-'))) {
             return caches.delete(key);
           }
           return null;
@@ -92,7 +95,11 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
 
   // Never intercept local API endpoints or cross-origin media/model streams
-  if (url.origin !== self.location.origin || url.pathname.includes('/api/')) {
+  if (url.origin !== self.location.origin || url.pathname.includes('/api/') || url.pathname.includes('/models/')) {
+    return;
+  }
+  if (url.pathname.includes('/lib/onnxruntime/1.20.1/')) {
+    event.respondWith(caches.open(ONNX_RUNTIME_CACHE).then(async cache => await cache.match(req) || fetch(req)));
     return;
   }
 

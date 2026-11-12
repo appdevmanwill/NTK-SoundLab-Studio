@@ -1,5 +1,5 @@
 /**
- * Suno Downloader Pro - Crypto Engine
+ * NTK SoundLab Studio - Crypto Engine
  * Implements Mango DRM (2026 Edition) AES-GCM + AES-CTR Key Derivation and Decryption
  */
 

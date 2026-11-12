@@ -1,5 +1,5 @@
 /**
- * Suno Downloader Pro - ID3v2.3 Metadata & Cover Art Tagger
+ * NTK SoundLab Studio - ID3v2.3 Metadata & Cover Art Tagger
  * Embeds Title, Artist, Album, Genre Tags, Lyrics (USLT), and High-Res Cover Art (APIC)
  * directly into MP3 Blobs completely client-side.
  */

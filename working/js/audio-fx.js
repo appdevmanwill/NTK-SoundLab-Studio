@@ -1,9 +1,9 @@
 /**
- * Suno Downloader Pro - Waveform Audio Trimmer & Mastering FX Engine
+ * NTK SoundLab Studio - Waveform Audio Trimmer & Mastering FX Engine
  * High-speed OfflineAudioContext mastering, trimming, fades, normalization, and creative FX presets.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.3.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
 
 export class AudioFXEngine {
   static PRESETS = [

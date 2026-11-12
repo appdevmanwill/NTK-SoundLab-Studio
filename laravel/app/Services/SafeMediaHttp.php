@@ -152,7 +152,7 @@ class SafeMediaHttp
             CURLOPT_TIMEOUT => 90,
             CURLOPT_LOW_SPEED_LIMIT => 128,
             CURLOPT_LOW_SPEED_TIME => 20,
-            CURLOPT_USERAGENT => 'NTK-Hub-OmniStream/2026.11',
+            CURLOPT_USERAGENT => 'NTK-Hub-SoundLab/2026.11',
             CURLOPT_HEADERFUNCTION => function ($handle, string $line) use (&$status, &$responseHeaders, &$limitExceeded, $maxBytes): int {
                 if (preg_match('#^HTTP/\S+\s+(\d+)#', $line, $match)) {
                     $status = (int) $match[1];

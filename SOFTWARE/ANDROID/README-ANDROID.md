@@ -1,69 +1,56 @@
-# OmniStream Studio for Android
+# SoundLab for Android
 
-NTK Hub · 2026.11.3.1-android.2 · Android 10 or later
+The Android app wraps the shared studio in a native activity with navigation, Files integration and a share sheet. Editing runs in Android System WebView, and the bundled interface opens without a hosted website.
 
-This APK uses a native Android activity, navigation, dialogs, document pickers,
-Back handling and share sheet around the shared local studio engine. Audio,
-lyrics and video processing run in Android System WebView. Keep WebView updated.
-It is a hybrid Android application; it does not require a hosted website.
+Android 10 or later is required. Keep System WebView updated.
 
 ## Install and use
 
-Copy the release APK from `SOFTWARE/ANDROID` to the phone and open it in Files.
-Android may ask you to allow installation from that particular Files/browser
-app. The APK is locally signed by NTK Hub and is not a Play Store release.
+Install the APK from the [release page](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2). Android may ask for permission to install files opened by your browser or Files app.
 
-- **Import audio or video** on Library opens Android Files; multiple files are supported.
-- **Transcribe** opens dedicated transcription, local history and TXT/SRT/LRC downloads.
-- **Library** keeps imported tracks on this device. Open a track's tools or select
-  **Karaoke** to choose a song, add lyrics and create its video.
-- **Tools** contains storage, optional AI keys, session import/export and help.
-- Exported files first show **Save a copy to Files** and **Share with another app**.
-  A cancelled save leaves the generated file available under Tools for this session.
-  Temporary exports older than 24 hours are removed on a later launch; save important copies.
-- Back closes the active editor/fullscreen view before asking to close the app.
-  Keep the studio visible while rendering. Backgrounding pauses playback and
-  cancels a running render instead of delivering an incomplete file.
+Tap **Import audio or video** to choose a recording. **Transcribe** opens the transcript editor. **Karaoke** opens the video tools, and **Tools** contains storage, optional provider keys and session import/export.
 
-The initial mobile video preset is 720p/30fps. Lower it to 480p for slower phones.
-Available formats depend on the installed WebView: the tested WebView 124 exports
-WebM with VP9/Opus. Do not rename WebM to MP4. Export transfers are bounded at 512 MB;
-large media/stem jobs also depend on device memory and storage.
+After an export, choose **Save a copy to Files** or **Share with another app**. Save important files before closing the session. Temporary exports older than 24 hours are cleaned up on a later launch.
 
-## Offline, privacy and limits
+Keep the app visible while rendering. Backgrounding pauses playback and cancels a running render. The initial video preset is 720p at 30 fps. Available output formats depend on WebView.
 
-Bundled importing, editing, playback, tap-to-sync, subtitles and supported exports
-open on first launch offline. AI recognition, remote media and neural-model
-downloads need internet. AI remains optional and requires the existing explicit
-free-account/upload confirmation. Actual sung-audio recognition accuracy has not
-been tested in this release. Desktop Python helpers, server extraction/conversion
-and first-launch neural models are not included.
+## Saved data and upgrades
 
-No microphone, camera, broad-storage or contact permissions are requested. A
-stable HTTPS asset origin provides local IndexedDB/storage. Native access uses a
-main-frame message port targeted to that exact origin; remote frames are blocked.
-Remote navigation opens the system browser only after a user gesture. No general
-native proxy, arbitrary file-path bridge or unrestricted JavaScript interface exists.
+The application ID is `com.ntkhub.soundlabstudio`. This app installs separately from the earlier Android package. Export media and session metadata from that app before switching.
 
-Provider keys and local projects are app data, not separately encrypted by this
-application. Android backup is disabled. Uninstalling or clearing app data removes
-them. Export media before doing either; session JSON contains metadata, not audio.
-Updates with the same signing key/application ID retain app data.
+Projects, cached media and provider keys are stored in app data. Clearing app data or uninstalling removes them. Android backup is disabled. Session JSON contains metadata and lyrics, so retain separate media files.
 
-## Build and signing
+Recognition and remote link imports need internet access. Local editing works without an AI account. Browser stem processing also needs the optional imported model.
 
-Run `powershell -File android/build.ps1` from the workspace, or pass `-DebugBuild`
-for emulator QA. The builder uses the installed JDK 21, Android platform 36.1,
-build-tools 36.1.0, Python and Windows DPAPI. It does not use Gradle or download
-dependencies. The canonical desktop allowlist selects 42 shared frontend assets;
-only the staged Android entry page gets Android CSS/JS and offline font changes.
+## Build on Windows
 
-Release debugging is disabled. The private signing key lives outside this project
-under `%LOCALAPPDATA%\NTKOmniStreamStudio\android-signing`, with its password
-protected for this Windows account by DPAPI. Never include that directory in a
-release/handoff. Preserve it privately for future updates; do not regenerate a key
-to update an existing installation. Signing identity is not Play Store verification.
+The current builder uses JDK 21, Python, Android platform 36.1 and build-tools 36.1.0. Set `JAVA_HOME` and `ANDROID_SDK_ROOT` if your installed tools use different directories.
 
-Actual test scope and screenshots are recorded under
-`working/EVIDENCE/android-2026-11-03`. Physical-phone performance, long renders,
-real AI-provider recognition and human listening remain separate acceptance work.
+Stage the frontend, then build the APK from the repository root.
+
+```powershell
+powershell -File desktop/build.ps1 -StageOnly
+powershell -File android/build.ps1
+```
+
+Use `-DebugBuild` for emulator debugging. Use `-InitializeSigning` only when creating a new app signing identity. Routine updates reuse the existing key.
+
+To build the signed Play bundle as well, run the following command.
+
+```powershell
+powershell -File android/build.ps1 -Bundle
+```
+
+That build requires `bundletool-all-1.18.3.jar` under `%LOCALAPPDATA%\NTKSoundLabStudio\build-tools`, or a path supplied with `-BundleToolPath`. The builder checks the JAR against the official release digest. [Bundletool 1.18.3](https://github.com/google/bundletool/releases/tag/1.18.3)
+
+## Signing and Google Play
+
+The builder keeps the private keystore outside the source tree at `%LOCALAPPDATA%\NTKSoundLabStudio\android-signing\soundlab-release.p12`. Its password is protected for the current Windows account by DPAPI. Keep a private, recoverable backup for future updates.
+
+The release includes a signed AAB and its public upload certificate. The AAB passed local signature and bundle validation. Its generated APK matched the direct APK's signer, DEX and 62 bundled assets.
+
+Play App Signing enrollment and Play Console acceptance still need the intended developer account. To keep compatibility with direct APK installs, provide the existing SoundLab app signing key through Google's encrypted transfer procedure during enrollment. [Android signing guide](https://developer.android.com/studio/publish/app-signing)
+
+## Test status
+
+The current APK installed alongside the earlier app and opened Transcribe offline in an API 35 emulator. Android System UI errors limited further interaction. Physical-phone endurance, large exports and real singing recognition still need testing.

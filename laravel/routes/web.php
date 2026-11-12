@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\OmniStreamController;
+use App\Http\Controllers\SoundLabController;
 use App\Http\Controllers\SunoProxyController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,22 +26,22 @@ Route::options('/api/{any}', function () {
 // Proxy API Routes (Directly callable by client-side browser) with rate limiting
 Route::prefix('api')->middleware(['throttle:60,1'])->group(function () {
     // Health & Capabilities
-    Route::get('/health', [OmniStreamController::class, 'capabilities']);
-    Route::get('/capabilities', [OmniStreamController::class, 'capabilities']);
+    Route::get('/health', [SoundLabController::class, 'capabilities']);
+    Route::get('/capabilities', [SoundLabController::class, 'capabilities']);
 
-    // Universal Media Extractor (OmniStream)
-    Route::get('/omni/resolve', [OmniStreamController::class, 'resolve']);
-    Route::get('/omni/passthrough', [OmniStreamController::class, 'passthrough']);
-    Route::post('/omni/download', [OmniStreamController::class, 'download'])->middleware('throttle:10,1');
-    Route::get('/omni/status/{id}', [OmniStreamController::class, 'status']);
-    Route::get('/omni/stream/{id}', [OmniStreamController::class, 'stream']);
-    Route::get('/omni/cookies', [OmniStreamController::class, 'getCookies']);
-    Route::post('/omni/cookies', [OmniStreamController::class, 'saveCookies']);
-    Route::get('/omni/storage-stats', [OmniStreamController::class, 'storageStats']);
-    Route::get('/storage/stats', [OmniStreamController::class, 'storageStats']);
+    // Universal Media Extractor
+    Route::get('/omni/resolve', [SoundLabController::class, 'resolve']);
+    Route::get('/omni/passthrough', [SoundLabController::class, 'passthrough']);
+    Route::post('/omni/download', [SoundLabController::class, 'download'])->middleware('throttle:10,1');
+    Route::get('/omni/status/{id}', [SoundLabController::class, 'status']);
+    Route::get('/omni/stream/{id}', [SoundLabController::class, 'stream']);
+    Route::get('/omni/cookies', [SoundLabController::class, 'getCookies']);
+    Route::post('/omni/cookies', [SoundLabController::class, 'saveCookies']);
+    Route::get('/omni/storage-stats', [SoundLabController::class, 'storageStats']);
+    Route::get('/storage/stats', [SoundLabController::class, 'storageStats']);
 
     // Stems Engine Status
-    Route::get('/stems/capabilities', [OmniStreamController::class, 'stemCapabilities']);
+    Route::get('/stems/capabilities', [SoundLabController::class, 'stemCapabilities']);
 
     // Suno AI Mango DRM, Audio Streaming & Metadata Proxy
     Route::post('/mango/rights', [SunoProxyController::class, 'mangoRights']);

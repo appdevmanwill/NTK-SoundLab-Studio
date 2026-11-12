@@ -7,18 +7,18 @@
 ## A. Project Identity
 - **Project Name:** NTK SoundLab Studio (Short Name: `NTK SoundLab`)
 - **Purpose:** Universal multi-platform media downloader, client-side video demuxer, Meta HTDemucs v4 2-stem/4-stem neural stem separator, 5-track synchronized audio mixing console, waveform trimmer, mastering FX, and 1080p karaoke visualizer video generator.
-- **Primary Users:** Music producers, vocalists, remixers, karaoke creators, and digital media editors requiring zero-upload, 100% client-side privacy.
-- **Current Phase:** Production & Release Distribution (v2026.11.3.1)
-- **Latest Verified Milestone:** Multi-target builds verified (Windows Portable, Windows Setup Installer, Linux AppImage, Linux .deb, Android APK, Web PWA, AlwaysData package) and live deployment on Firebase Hosting.
+- **Primary Users:** Music producers, vocalists, remixers, karaoke creators and digital media editors using local processing with optional provider-based recognition.
+- **Current Phase:** GitHub preview release preparation (v2026.11.11.2).
+- **Latest Verified Milestone:** Windows installer and browser checks, Linux headless package checks, Android APK installation and offline editor rendering, signed AAB validation, and local PHP package smoke. Physical-phone endurance, graphical Linux installation and current hosted PHP acceptance are open.
 - **Authoritative Source References:** `README.md`, `SOFTWARE/README-LATEST.md`, `DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md`.
 
 ---
 
 ## B. Verified Technology Stack
 - **Frontend / PWA:** Vanilla modern JavaScript (ES6+), Web Audio API, Web Workers, IndexedDB (v2 vault), lamejs (MP3 320kbps), HTML5 Canvas visualizer.
-- **Backend / API:** Laravel 11 (PHP 8.2+), Python 3.12 (yt-dlp, PyTorch Meta HTDemucs v4).
-- **Desktop Runtime:** Go 1.22+ launcher with Windows and Linux native webview runners, Inno Setup 6 installer compiler.
-- **Mobile Target:** Android Studio Native Shell (Java/WebView), Android SDK 34 / build-tools 34.0.0, APK signing v1/v2/v3 (RSA-3072).
+- **Backend / API:** Laravel 13 with PHP `^8.4.1`, plus an optional Python helper for yt-dlp and PyTorch HTDemucs.
+- **Desktop Runtime:** Go launcher with a dedicated system-browser profile on Windows and Linux, and Inno Setup 6 for the Windows installer.
+- **Mobile Target:** Java/WebView shell, Android platform 36.1 and build-tools 36.1.0, minimum Android 10, target API 36. The current APK has a v3 signature using RSA-3072.
 - **Packaging:** AppImageKit (`appimagetool`), `dpkg-deb` (WSL Ubuntu-26.04), Inno Setup (`ISCC.exe`).
 - **Hosting / Distribution:** Firebase Hosting (Spark $0 plan), AlwaysData PHP hosting, GitHub Releases / Repositories.
 
@@ -38,7 +38,7 @@
   "C:\Users\NTK\AppData\Local\Programs\Inno Setup 6\ISCC.exe" desktop/installer.iss
 
   # Linux Packaging (WSL)
-  wsl --exec bash -c "cd /mnt/c/Users/NTK/Projects/NTK\ Projects/NTKStreamStudio/desktop/linux && ./package-linux.sh"
+  powershell -File desktop/linux/build.ps1 -AppImageTool <appimagetool-path> -AppImageRuntime <runtime-path>
 
   # Android APK Build
   cd android

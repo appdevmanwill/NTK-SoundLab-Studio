@@ -1,4 +1,4 @@
-package com.ntkhub.omnistream;
+package com.ntkhub.soundlabstudio;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -16,7 +16,7 @@ public final class ExportProvider extends ContentProvider {
     @Override public boolean onCreate() { return true; }
     private File file(Uri uri) throws FileNotFoundException {
         String name = uri.getLastPathSegment();
-        if (!"com.ntkhub.omnistream.exports".equals(uri.getAuthority()) || uri.getPathSegments().size() != 1 || name == null || !name.matches("[a-zA-Z0-9._ -]{1,150}") || name.contains("..")) throw new FileNotFoundException();
+        if (!(getContext().getPackageName() + ".exports").equals(uri.getAuthority()) || uri.getPathSegments().size() != 1 || name == null || !name.matches("[a-zA-Z0-9._ -]{1,150}") || name.contains("..")) throw new FileNotFoundException();
         File f = new File(new File(getContext().getCacheDir(), "exports"), name);
         if (!f.isFile()) throw new FileNotFoundException();
         return f;

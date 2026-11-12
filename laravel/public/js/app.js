@@ -1,31 +1,32 @@
-import { TranscribeStudio } from './transcribe-studio.js?v=2026.11.3.1';
-import { AiPolicy } from './ai-policy.js?v=2026.11.3.1';
-import { LyricAlignment } from './lyric-alignment.js?v=2026.11.3.1';
-import { fetch } from './network-policy.js?v=2026.11.3.1';
+import { TranscribeStudio } from './transcribe-studio.js?v=2026.11.11.2';
+import { importOfflineModel, MODEL } from './offline-model.js?v=2026.11.11.2';
+import { AiPolicy } from './ai-policy.js?v=2026.11.11.2';
+import { LyricAlignment } from './lyric-alignment.js?v=2026.11.11.2';
+import { fetch } from './network-policy.js?v=2026.11.11.2';
 /**
  * NTK SoundLab Studio - Universal Media Downloader & Neural Stem Separator
  * Main Application Orchestrator
  */
 
-import { OmniAPI } from './omni-api.js?v=2026.11.3.1';
-import { VideoDemuxer } from './video-demuxer.js?v=2026.11.3.1';
-import { SunoAPI } from './suno-api.js?v=2026.11.3.1';
-import { CryptoEngine } from './crypto-engine.js?v=2026.11.3.1';
-import { AudioConverter } from './audio-converter.js?v=2026.11.3.1';
-import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.3.1';
-import { ID3Writer } from './id3-writer.js?v=2026.11.3.1';
-import { LyricsUtils } from './lyrics-utils.js?v=2026.11.3.1';
-import { VaultDB } from './vault-db.js?v=2026.11.3.1';
-import { StemEngine } from './stem-engine.js?v=2026.11.3.1';
-import { StemMixer } from './stem-mixer.js?v=2026.11.3.1';
-import { AudioFXEngine } from './audio-fx.js?v=2026.11.3.1';
-import { ZipPackager } from './zip-packager.js?v=2026.11.3.1';
-import { VideoGenerator } from './video-generator.js?v=2026.11.3.1';
-import { BookmarkletEngine } from './bookmarklet.js?v=2026.11.3.1';
-import { StorageManager } from './storage.js?v=2026.11.3.1';
-import { PlayerEngine } from './player.js?v=2026.11.3.1';
-import { TutorialManager } from './tutorial.js?v=2026.11.3.1';
-import { ImageCropper } from './image-cropper.js?v=2026.11.3.1';
+import { SoundLabAPI } from './soundlab-api.js?v=2026.11.11.2';
+import { VideoDemuxer } from './video-demuxer.js?v=2026.11.11.2';
+import { SunoAPI } from './suno-api.js?v=2026.11.11.2';
+import { CryptoEngine } from './crypto-engine.js?v=2026.11.11.2';
+import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
+import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.11.2';
+import { ID3Writer } from './id3-writer.js?v=2026.11.11.2';
+import { LyricsUtils } from './lyrics-utils.js?v=2026.11.11.2';
+import { VaultDB } from './vault-db.js?v=2026.11.11.2';
+import { StemEngine } from './stem-engine.js?v=2026.11.11.2';
+import { StemMixer } from './stem-mixer.js?v=2026.11.11.2';
+import { AudioFXEngine } from './audio-fx.js?v=2026.11.11.2';
+import { ZipPackager } from './zip-packager.js?v=2026.11.11.2';
+import { VideoGenerator } from './video-generator.js?v=2026.11.11.2';
+import { BookmarkletEngine } from './bookmarklet.js?v=2026.11.11.2';
+import { StorageManager } from './storage.js?v=2026.11.11.2';
+import { PlayerEngine } from './player.js?v=2026.11.11.2';
+import { TutorialManager } from './tutorial.js?v=2026.11.11.2';
+import { ImageCropper } from './image-cropper.js?v=2026.11.11.2';
 
 class App {
   constructor() {
@@ -170,7 +171,7 @@ class App {
 
   setupPwa() {
     if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
-      navigator.serviceWorker.register('./sw.js?v=2026.11.3.1', { updateViaCache: 'none' }).catch((err) => {
+      navigator.serviceWorker.register('./sw.js?v=2026.11.11.2', { updateViaCache: 'none' }).catch((err) => {
         console.warn('Service worker registration skipped:', err);
       });
     }
@@ -349,6 +350,12 @@ class App {
     document.getElementById('btnPurgeVault')?.addEventListener('click', () => this.purgeEntireVault());
     document.getElementById('btnClearVaultStems')?.addEventListener('click', () => this.clearVaultStems());
     document.getElementById('btnClearVaultMasters')?.addEventListener('click', () => this.clearVaultMasters());
+    const offlineModel = document.getElementById('offlineModelFile');
+    document.getElementById('offlineModelDownload')?.setAttribute('href', MODEL.url + '?download=true');
+    offlineModel?.addEventListener('change', () => {
+      const file = offlineModel.files[0];
+      if (file) this.installOfflineModel(file, offlineModel);
+    });
 
     const clearAllBtn = document.getElementById('btnClearAll');
     if (clearAllBtn) {
@@ -554,8 +561,26 @@ class App {
     if (sizeEl) sizeEl.textContent = this.vaultSummary.formattedSize || '0 MB';
     if (mastersEl) mastersEl.textContent = String(this.vaultSummary.masterIds.size);
     if (stemsEl) stemsEl.textContent = String(this.vaultSummary.stemIds.size);
-    if (modelsEl) modelsEl.textContent = this.vaultSummary.hasOnnxModel ? 'Cached (172 MB ONNX)' : 'On-Demand';
+    if (modelsEl) modelsEl.textContent = this.vaultSummary.hasOnnxModel ? 'Weights stored' : 'Available on demand';
     modal.classList.add('open');
+  }
+
+  async installOfflineModel(file, input) {
+    const status = document.getElementById('offlineModelStatus');
+    input.disabled = true;
+    status.textContent = 'Verifying the model and preparing offline storage…';
+    try {
+      await importOfflineModel(file);
+      document.getElementById('vaultModalModelsStatus').textContent = 'Weights stored';
+      status.textContent = 'Model prepared for offline separation on this device.';
+      await this.refreshVaultSummary(false);
+      document.getElementById('vaultModalSizeText').textContent = this.vaultSummary.formattedSize;
+    } catch (error) {
+      status.textContent = error.message || 'Could not prepare the model. Check available storage and try again.';
+    } finally {
+      input.value = '';
+      input.disabled = false;
+    }
   }
 
   async clearVaultStems() {
@@ -598,7 +623,7 @@ class App {
     const txt = textarea.value.trim();
     await VaultDB.saveCookies(txt);
     try {
-      await OmniAPI.saveCookies(txt);
+      await SoundLabAPI.saveCookies(txt);
     } catch (e) {}
     this.showToast('Saved user session cookies for private/age-restricted media!', 'emerald');
     document.getElementById('cookieModal')?.classList.remove('open');
@@ -606,7 +631,7 @@ class App {
 
   async checkProxyStatus() {
     const [helperCaps, demucsCaps] = await Promise.all([
-      OmniAPI.checkLocalHelper(),
+      SoundLabAPI.checkLocalHelper(),
       StemEngine.checkLocalDemucs()
     ]);
 
@@ -649,7 +674,7 @@ class App {
     for (const item of lines) {
       this.showToast(`Resolving link: ${item.slice(0, 36)}...`, 'cyan');
       try {
-        const info = await OmniAPI.resolveUrl(item);
+        const info = await SoundLabAPI.resolveUrl(item);
         if (info.type === 'playlist') {
           const clips = info.clips || [];
           for (let i = 0; i < clips.length; i++) {
@@ -668,7 +693,7 @@ class App {
       } catch (err) {
         // Fallback check if Suno link or UUID
         let targetUuid = null;
-        const sunoMatch = item.match(OmniAPI.SUNO_UUID_REGEX);
+        const sunoMatch = item.match(SoundLabAPI.SUNO_UUID_REGEX);
         if (sunoMatch) {
           targetUuid = sunoMatch[0].toLowerCase();
         } else if (item.toLowerCase().includes('suno.com') || item.toLowerCase().includes('suno.ai')) {
@@ -758,7 +783,7 @@ class App {
     // Check if track is a Suno AI track (by platform tag, Suno URL, or Suno UUID format)
     const isSuno = (storedSong && storedSong.platform === 'Suno AI') ||
                    (storedSong && storedSong.url && (storedSong.url.includes('suno.com') || storedSong.url.includes('suno.ai'))) ||
-                   (!String(uuid).startsWith('omni-') && !String(uuid).startsWith('direct-') && !String(uuid).startsWith('local-') && OmniAPI.SUNO_UUID_REGEX.test(String(uuid)));
+                   (!String(uuid).startsWith('omni-') && !String(uuid).startsWith('direct-') && !String(uuid).startsWith('local-') && SoundLabAPI.SUNO_UUID_REGEX.test(String(uuid)));
 
     // Universal Media (YouTube, TikTok, SoundCloud, etc.)
     if (!isSuno && (String(uuid).startsWith('omni-') || (storedSong && storedSong.platform && storedSong.platform !== 'Suno AI'))) {
@@ -767,8 +792,8 @@ class App {
       }
       onProgress(`Connecting to OmniHelper for stream extraction...`);
       const isAudioOnly = true;
-      const jobId = await OmniAPI.startDownload(storedSong.url, 'wav', isAudioOnly);
-      const downloadUrl = await OmniAPI.pollJob(jobId, (pct, msg) => {
+      const jobId = await SoundLabAPI.startDownload(storedSong.url, 'wav', isAudioOnly);
+      const downloadUrl = await SoundLabAPI.pollJob(jobId, (pct, msg) => {
         onProgress(`Extracting stream (${pct}%): ${msg}`);
       });
       onProgress('Downloading extracted lossless audio stream...');
@@ -5198,7 +5223,7 @@ Your job is to polish song lyrics:
   }
 }
 
-window.OmniAPI = OmniAPI;
+window.SoundLabAPI = SoundLabAPI;
 window.VaultDB = VaultDB;
 window.VideoDemuxer = VideoDemuxer;
 window.app = new App();

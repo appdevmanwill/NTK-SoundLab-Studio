@@ -1,6 +1,53 @@
-# OmniStream Studio — current delivery state
+# NTK SoundLab Studio · delivery state
 
-## Current release: dedicated Transcribe — 2026.11.3.1
+## GitHub publication · 12 November 2026
+
+The release target is `appdevmanwill/NTK-SoundLab-Studio`, branch `main`, tag `v2026.11.11.2`. The README and setup guides were rewritten for app users and source contributors. New binary downloads are release attachments, with a flat SHA-256 manifest. The signed AAB and public upload certificate are included.
+
+Pre-publication checks passed for the Go desktop core, four helper tests and 24 Laravel tests with 108 assertions. Composer's production lock audit reported no advisories. A source review found no private keys or provider tokens in the staged changes. Physical-device and hosted-service acceptance retain the limits recorded below.
+
+The GitHub release is a preview because phone endurance, graphical Linux installation and actual provider recognition are still open. The existing repository baseline is retained for rollback. The Firebase site and external accounts use their existing deployment arrangements.
+
+## Signed Play bundle follow-up · 11 November 2026
+
+- **VERIFIED · AAB.** `SOFTWARE/ANDROID/NTKSoundLab-2026.11.11.2.aab` is signed with the existing SoundLab key. Strict JAR signature verification and bundletool 1.18.3 validation passed. A bundle-generated universal APK verified against the same public signing certificate, package ID and version code. Its DEX and 62 assets match the published direct APK. The public certificate and AAB verification manifest are alongside the bundle.
+- The normal entry point `powershell -File android/build.ps1 -Bundle` creates the APK, signed AAB and public certificate. Bundletool is pinned by its official SHA-256 digest and stored outside the repository in the local SoundLab build-tools directory.
+- The generated download table and checksum catalog now cover eight release files. Evidence is in `working/EVIDENCE/play-bundle-2026-11-11/verification.json`.
+- **BLOCKED · trusted Windows signing.** No code-signing certificate was available in the current-user or machine personal certificate stores. A trusted certificate or approved signing-service access is needed. SignPath Foundation's free open source signing requires application approval and verified build provenance. [Provider terms](https://signpath.org/terms.html)
+- **NOT_TESTED · Play Console.** Enrollment, upload and Google acceptance require the intended developer account. AAB generation and local signing are complete.
+
+## SoundLab identity release 2026.11.11.2 · 11 November 2026
+
+- NTK selected a fresh Android release with ID `com.ntkhub.soundlabstudio`. The Java sources, export provider authority, certificate subject and keystore alias use SoundLab. This Android app has its own data and signer. Export media and session metadata from the earlier app before switching.
+- The new private Android key is outside the project at `%LOCALAPPDATA%\NTKSoundLabStudio\android-signing\soundlab-release.p12`. The password is protected for the current Windows account. A repeated open of the existing key matched the APK's public certificate. No signing material is tracked or packaged. Google Play delivery still requires an AAB and enrollment.
+- Current Windows program names, Linux executable and package, Go module, Python helper, JavaScript client, Laravel controller, current documentation and app data defaults use SoundLab. Previous desktop profiles, helper cookies, saved libraries, tutorial preferences and package upgrades have compatibility handling. Historical records contain their original names.
+- **VERIFIED · distribution.** The seven rebuilt packages match the generated [checksum catalog](../../../SOFTWARE/SHA256SUMS.txt). Downloads and rollback paths are in the [release guide](../../../SOFTWARE/README-LATEST.md). The files are a local release candidate.
+- **VERIFIED · application checks.** Windows Go tests, 13 Linux Go tests, four Python helper tests and 24 Laravel tests with 108 assertions passed. The Windows package passed 14 transcription checks, four codec and offline checks, three interaction checks and 25 karaoke checks. Additional browser checks covered earlier library reads, SoundLab writes and clearing both storage keys.
+- **VERIFIED · Windows installer.** The exact setup installed in a clean offline Windows Sandbox. Upgrading the earlier setup used the SoundLab program path and preserved its profile fixture. Uninstall retained the fixture. Both Windows EXEs are unsigned.
+- **VERIFIED · Linux core.** The AppImage launched through FUSE and extract-and-run in WSL. The extracted Debian core served the correct version and assets. Shutdown on the configured heartbeat timeout passed. The Debian package is `ntk-soundlab-studio` and declares replacement of the earlier package.
+- **VERIFIED · offline and PHP.** The rebuilt Windows app imported the verified model and produced the reference four stems and instrumental after an offline reload in Edge using WASM on Intel Gen 9. The PHP archive migrated a fresh scratch database and passed app, health, runtime MIME and private-path checks.
+- **PARTIAL · Android emulator.** The signed APK installed in airplane mode alongside the earlier Android app. The new SoundLab native navigation opened Transcribe offline. Android System UI errors covered the editor during the check, limiting further interaction. APK metadata, certificate, Java namespace, provider authority and shared assets match the fresh identity. Physical-device acceptance is open.
+- **NOT_TESTED · remaining acceptance.** Physical-phone endurance, graphical Linux installation, WebGPU quality on other adapters, real singing recognition and live hosting require their target environments.
+
+Evidence is in [rebrand-2026-11-11](../../EVIDENCE/rebrand-2026-11-11/). Work is based on commit `827b43fa2b528ce32ea70171505a0d01e35f5473` plus the preserved local maintenance changes.
+
+## NTK SoundLab Studio 2026.11.11.1 maintenance candidate — 11 November 2026
+
+- Candidate distribution and rollback paths are in [SOFTWARE/README-LATEST.md](../../../SOFTWARE/README-LATEST.md). The previous files remain available at their original paths. The desktop app origin and profile, Windows AppId, Debian package identity and Android application ID and signer carry forward.
+- Transcript writes compare revisions in an IndexedDB transaction. A stale draft can be saved as a copy. Upload consent follows the recording and Groq key, and the new fingerprint covers every block of the file. Legacy partial records offer an explicit original-file confirmation.
+- The Python helper requires a loopback session, restricts allowed assets and writes cookie data to private local configuration. The desktop proxy rejects HTML as upstream audio and limits provider redirects. Go and Python regression checks covered these boundaries.
+- **VERIFIED · offline stems.** A clean browser profile imported the full verified model, reloaded offline, and produced four stems and a combined instrumental through the bundled ONNX Runtime Web 1.20.1. The Windows build repeated this with Microsoft Edge and a real Intel Gen 9 adapter. The app uses WASM on that adapter after WebGPU produced out-of-range samples on a quiet test clip. The WASM peaks matched the reference run. The model is a separate local file and publisher download.
+- **VERIFIED · distribution.** Seven versioned files match the generated [SHA-256 catalog](../../../SOFTWARE/SHA256SUMS.txt). The candidate was built from local changes based on Git commit `827b43fa2b528ce32ea70171505a0d01e35f5473`. The previous files and their catalog are available for rollback.
+- **VERIFIED · Windows and Linux cores.** The Windows Sandbox installed the exact setup in a clean offline guest, upgraded from the previous installer, and uninstalled while retaining a synthetic profile. WSL served the exact release core and assets from the AppImage using both FUSE and extract-and-run, and from the unpacked Debian archive. All three Linux test processes shut down on the configured heartbeat timeout.
+- **VERIFIED · transcription memory.** Three sequential one-hour PCM jobs in the Windows build before the Intel graphics fix each processed 15 windows with a simulated provider. The preview, file and decoder references were released after each completed job. Sampled renderer working sets after garbage collection ranged from 161.6 to 165.3 MiB across the three jobs. The final build changed only the stem engine among the shared assets and passed the packaged browser suites again.
+- **VERIFIED · packaged browser regressions.** The exact Windows portable passed 14 transcription checks, four format and offline checks, three mobile and recovery checks, and 25 karaoke checks. The browser tests used synthetic data and simulated recognition. Both Windows EXEs are unsigned.
+- **VERIFIED · packaged PHP smoke.** Laravel 13 migrated a new scratch SQLite database. The packaged app and health endpoint returned HTTP 200, configuration paths returned 404, and anonymous cookie access returned 403. The updated production Symfony packages were present. Composer's locked audit returned zero advisories. The Linux and Windows Go tests, three Python helper tests, and 24 Laravel tests with 108 assertions passed.
+- **PARTIAL · Android.** The final APK carries the previous signer and installed over the existing QA app in airplane mode. The library rendered. An Android System UI error interrupted the native Transcribe test. The offline editor and phone endurance still need runtime evidence.
+- **NOT_TESTED · release acceptance.** Graphical Linux launch, WebGPU quality on other adapters, real Groq singing accuracy and actual AlwaysData hosting remain open.
+
+Local QA evidence is in [maintenance-2026-11-11](../../EVIDENCE/maintenance-2026-11-11/). The [release guide](../../../SOFTWARE/README-LATEST.md) points to the exact downloads and previous release.
+
+## Previous release · dedicated Transcribe — 2026.11.3.1
 
 NTK authorized the dedicated workflow with **both 1 hour and 150 MB limits**.
 Shared web/Windows/Linux/Android source and packages now include audio/video

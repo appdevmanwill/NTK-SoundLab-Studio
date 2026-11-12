@@ -1,5 +1,5 @@
 /**
- * Suno Downloader Pro - MP3 Encoder
+ * NTK SoundLab Studio - MP3 Encoder
  * High-performance, chunked in-browser MP3 encoder powered by lamejs (320kbps Studio Bitrate)
  */
 

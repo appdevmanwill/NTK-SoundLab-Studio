@@ -1,5 +1,5 @@
 /**
- * Suno Downloader Pro - High-Precision Interactive Image Cropper
+ * NTK SoundLab Studio - High-Precision Interactive Image Cropper
  * Pure vanilla HTML5 Canvas implementation with zero external dependencies.
  * Supports Freeform, 1:1 Square, 16:9 Landscape, 9:16 Story, 4:3, Zoom, Rotation & Flip.
  */

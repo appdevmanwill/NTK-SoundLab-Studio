@@ -12,7 +12,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->isolatedStorage = sys_get_temp_dir().DIRECTORY_SEPARATOR.'omnistream-tests-'.bin2hex(random_bytes(8));
+        $this->isolatedStorage = sys_get_temp_dir().DIRECTORY_SEPARATOR.'soundlab-tests-'.bin2hex(random_bytes(8));
         foreach (['app/downloads', 'framework/views', 'framework/cache/data', 'framework/sessions', 'logs'] as $directory) {
             File::ensureDirectoryExists($this->isolatedStorage.DIRECTORY_SEPARATOR.$directory);
         }
@@ -25,7 +25,7 @@ abstract class TestCase extends BaseTestCase
     {
         $path = $this->isolatedStorage;
         parent::tearDown();
-        if ($path !== null && str_starts_with($path, sys_get_temp_dir().DIRECTORY_SEPARATOR.'omnistream-tests-') && ! is_link($path)) {
+        if ($path !== null && str_starts_with($path, sys_get_temp_dir().DIRECTORY_SEPARATOR.'soundlab-tests-') && ! is_link($path)) {
             File::deleteDirectory($path);
         }
     }

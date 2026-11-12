@@ -9,11 +9,36 @@ import (
 	"net/http/httptest"
 	"net/netip"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
 	"time"
 )
+
+func TestSoundLabDataDirKeepsExistingProfile(t *testing.T) {
+	base := t.TempDir()
+	current := filepath.Join(base, "NTKSoundLabStudio")
+	previous := filepath.Join(base, "NTKOmniStreamStudio")
+	if got := defaultDataDir(base); got != current {
+		t.Fatalf("fresh default: got %q, want %q", got, current)
+	}
+	for _, path := range []string{filepath.Join(current, "android-signing"), filepath.Join(current, "models"), filepath.Join(previous, "profile")} {
+		if err := os.MkdirAll(path, 0700); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if got := defaultDataDir(base); got != previous {
+		t.Fatalf("upgrade default: got %q, want %q", got, previous)
+	}
+	if err := os.Mkdir(filepath.Join(current, "profile"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	if got := defaultDataDir(base); got != current {
+		t.Fatalf("existing SoundLab default: got %q, want %q", got, current)
+	}
+}
 
 type roundTripFunc func(*http.Request) (*http.Response, error)
 
@@ -194,5 +219,32 @@ func TestProxySizeAndRange(t *testing.T) {
 	a.routes().ServeHTTP(w, r)
 	if w.Code != 206 || w.Body.String() != "0123456789" || w.Header().Get("Content-Range") != "bytes 10-19/100" {
 		t.Fatalf("range forwarding failed: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestProviderStreamRejectsHTMLAndUntrustedRedirects(t *testing.T) {
+	a := testApp()
+	a.client.Transport = roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		return &http.Response{
+			StatusCode: 200,
+			Header:     http.Header{"Content-Type": []string{"text/html"}},
+			Body:       io.NopCloser(strings.NewReader("<!doctype html><p>fixture</p>")),
+			Request:    r,
+		}, nil
+	})
+	w := serve(a, "GET", "/api/suno/stream/12345678-1234-1234-1234-123456789abc", "", true)
+	if w.Code != 502 || strings.Contains(w.Body.String(), "<!doctype") {
+		t.Fatalf("provider HTML passed through: %d %s", w.Code, w.Body.String())
+	}
+
+	client := providerClient(safeClient(), "provider.example")
+	for _, target := range []string{"http://provider.example/audio", "https://unrelated.example/audio"} {
+		u, err := url.Parse(target)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if client.CheckRedirect(&http.Request{URL: u}, nil) == nil {
+			t.Fatalf("accepted unsafe redirect %s", target)
+		}
 	}
 }

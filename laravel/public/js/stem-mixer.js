@@ -1,9 +1,9 @@
 /**
- * Suno Downloader Pro - 4-Track Synchronized Multi-Stem Console Mixer
+ * NTK SoundLab Studio - 4-Track Synchronized Multi-Stem Console Mixer
  * Sample-accurate Web Audio multi-track playback with Mute, Solo, Volume Faders, and Live Meters.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.3.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
 
 export class StemMixer {
   static TWO_STEM_TRACKS = ['vocals', 'instrumental'];

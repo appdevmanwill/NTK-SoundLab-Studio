@@ -1,101 +1,81 @@
-# NTK SoundLab Studio • Universal Media & Neural Stem Separator
+# NTK SoundLab Studio
 
-[![Release](https://img.shields.io/badge/Release-2026.11.3.1-blue.svg)](SOFTWARE/SHA256SUMS.txt)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20Android%20%7C%20Web-purple.svg)](#downloads--distributions)
-[![Privacy](https://img.shields.io/badge/Privacy-100%25%20Client--Side-brightgreen.svg)](#privacy--architecture)
+SoundLab is an audio and karaoke editor for Windows, Linux, Android and the web. Import a recording, trim or mix it, add lyrics, and export audio or a lyric video.
 
-**NTK SoundLab Studio** (formerly NTK OmniStream Studio) is an all-in-one universal media workstation, client-side video demuxer, Meta HTDemucs v4 neural stem separator, 5-track audio mixing console, waveform mastering studio, and 1080p karaoke visualizer.
+It also has optional stem separation and transcription. Editing runs on your device. Transcription sends audio to your chosen provider after you confirm the upload.
 
----
+Built by NTK for NTK Hub.
 
-## Live Web App & Deployments
+## Download
 
-- **Production Live PWA**: [https://studio-5090403114-fc98b.web.app](https://studio-5090403114-fc98b.web.app)
-- **AlwaysData Deployment Package**: Located in [`DEPLOY_MANUAL/NTK_SoundLab_Studio_AlwaysData.zip`](DEPLOY_MANUAL/NTK_SoundLab_Studio_AlwaysData.zip) (see [`DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md`](DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md) for full instructions).
+Version **2026.11.11.2** is a preview release. Start with the Windows installer or Android APK if you want to use the app. The AAB is for publishing through Google Play.
 
----
+<!-- release-downloads:start -->
 
-## Downloads & Distributions
+| Platform | Download |
+| --- | --- |
+| Windows x64 | [Portable EXE](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-Portable-2026.11.11.2.exe) |
+| Windows x64 | [Setup installer](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-Setup-2026.11.11.2.exe) |
+| Linux x64 | [AppImage](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-2026.11.11.2-x86_64.AppImage) |
+| Linux x64 | [Debian package](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/ntk-soundlab_2026.11.11.2-1_amd64.deb) |
+| Android 10+ | [APK](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-2026.11.11.2.apk) |
+| Web | [Static PWA ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-Static-2026.11.11.2.zip) |
+| PHP hosting | [AlwaysData ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTK_SoundLab_Studio_AlwaysData-2026.11.11.2.zip) |
+| Google Play | [Signed AAB](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-2026.11.11.2.aab) |
 
-All software binaries are built, verified, and checksum-validated in the [`SOFTWARE/`](SOFTWARE/) directory:
+<!-- release-downloads:end -->
 
-| Platform | Format | File | SHA-256 Checksum |
-| :--- | :--- | :--- | :--- |
-| **Windows** | Setup Installer | [`SOFTWARE/INSTALLERS/WINDOWS/NTKSoundLab-Setup.exe`](SOFTWARE/INSTALLERS/WINDOWS/NTKSoundLab-Setup.exe) | `26938a9e22300b95d90ee2b638c4c34cb3c4f7fa32bf1fc453531bfeea091d31` |
-| **Windows** | Portable EXE | [`SOFTWARE/PORTABLE/WINDOWS/NTKSoundLab-Portable.exe`](SOFTWARE/PORTABLE/WINDOWS/NTKSoundLab-Portable.exe) | `52ca5a74e27f6dd2b44249a5155fbe906cb581f185f40398bb9b1f28b74ddbc6` |
-| **Linux** | AppImage (x86_64) | [`SOFTWARE/LINUX/NTKSoundLab-2026.11.3.1-x86_64.AppImage`](SOFTWARE/LINUX/NTKSoundLab-2026.11.3.1-x86_64.AppImage) | `61f6e2467d0cf0c4fb68d90ca1e9cb14c4c23db2e6eebff3c9657f9c2bfb9ce4` |
-| **Linux** | Debian (`.deb`) | [`SOFTWARE/LINUX/ntk-soundlab_2026.11.3.1-1_amd64.deb`](SOFTWARE/LINUX/ntk-soundlab_2026.11.3.1-1_amd64.deb) | `86803e1e626df0f8eb86a60db56d47f9ff90ef340da9fe1eb9feea11306c5478` |
-| **Android** | Native APK | [`SOFTWARE/ANDROID/NTKSoundLab-2026.11.3.1-android.2.apk`](SOFTWARE/ANDROID/NTKSoundLab-2026.11.3.1-android.2.apk) | `1ef982a727d216503c0a520bf2db7159f81da67c30a59f9393ff7ef21a24d9c4` |
-| **Web** | Static PWA Bundle | [`SOFTWARE/WEB/NTKSoundLab-Static-2026.11.3.1.zip`](SOFTWARE/WEB/NTKSoundLab-Static-2026.11.3.1.zip) | `4fbe29fefc5f2122616f73ba93f3554471936c3e98197171e2efc75ff32c918c` |
+[Release notes and all files](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2) · [Checksums](SOFTWARE/SHA256SUMS.txt) · [Setup guide](SOFTWARE/README-LATEST.md)
 
-Full checksum catalog available at [`SOFTWARE/SHA256SUMS.txt`](SOFTWARE/SHA256SUMS.txt).
+Windows needs Microsoft Edge. Linux needs an installed browser such as Chromium, Chrome, Edge or Brave. Android requires Android 10 or later and an updated System WebView. The Windows files are unsigned, so Windows may show an unknown-publisher warning.
 
----
+## First session
 
-## Key Features
+1. Open SoundLab and choose **Import Video or Audio**. On Android, tap **Import audio or video**.
+2. Select a short file from your device. Its card in the library gives you the audio, trim, stem and video tools.
+3. Open **Trim & FX** to cut a section or apply an effect. Use the audio export controls to save WAV or MP3.
+4. For a lyric video, open **Video Studio**, add or import lyrics, adjust the timing, and preview before exporting.
 
-1. **Neural Stem Separation (Meta HTDemucs v4)**:
-   - **2-Stem Separation**: Vocal Acapella and Instrumental backing track with zero vocal bleed.
-   - **4-Stem Demixing**: Discrete separation of Vocals, Drums, Bass, and Other Melodies.
-   - **Dual Architecture**: Native hardware-accelerated PyTorch helper or zero-install WebGPU / ONNX in-browser runtime.
+Video formats depend on the browser or WebView. A file that fails to import may need converting to WAV or a supported video format first.
 
-2. **5-Track Audio Mixing Console**:
-   - Sample-synchronized multitrack playback.
-   - Individual track Solo (`S`), Mute (`M`), volume faders (`0%` to `150%`), peak meters, and 1-click preset recipes.
-   - Master custom mix bounce directly to 320kbps MP3 or studio WAV.
+## Stems and transcripts
 
-3. **In-Browser Video & Audio Demuxer**:
-   - Pure client-side demuxing for `.mp4`, `.mov`, `.mkv`, `.webm`, `.mp3`, `.wav`, `.flac`, and `.m4a`.
-   - Extracts high-resolution poster artwork frames and lossless audio streams.
+**Stem separation** uses HTDemucs to produce vocals, drums, bass and other instruments. The app can also combine the backing tracks into an instrumental. Results depend on the recording, and vocals can still bleed into other stems.
 
-4. **Waveform Trimmer & Mastering FX**:
-   - Dual-handle waveform trimming with microsecond precision, customizable fade-in/out, and `-0.5 dBFS` peak normalization.
-   - 6 Instant mastering FX presets: *Studio Master*, *Slowed + Reverb*, *Nightcore*, *808 Bass Boost*, *Lo-Fi Radio*, and *Clean*.
+For browser processing, import the optional model under **Offline Storage**. The matching runtime ships with the app. The model is about 180 MB and is downloaded separately from its publisher. [Offline model setup](SOFTWARE/OFFLINE_MODELS/README.md)
 
-5. **1080p Karaoke Video Studio**:
-   - High-definition video generator supporting `16:9` widescreen, `9:16` vertical (TikTok / Reels / Shorts), and `1:1` square.
-   - Audio-reactive visualizer particle engines (*Frequency Bars*, *Neon Wave*, *Radial Ring*).
-   - Synchronized lyric rendering with standalone `.LRC`, `.SRT`, and `.TXT` export.
+**Transcribe** accepts audio or video up to one hour and 150 MB. It uses your Groq key and uploads the audio in sections. You can cancel, keep completed sections, edit the saved text, and export TXT, SRT or LRC. Recognition needs internet access and an eligible provider account. Singing accuracy has not yet been measured against reference lyrics.
 
-6. **ID3v2.3 Tagging & Packaging**:
-   - Client-side MP3 encoding at up to 320kbps with embedded cover artwork, title, artist, album, and synchronized lyrics.
-   - 1-Click ZIP packaging of separated stems with metadata.
+## What stays on the device
 
-7. **Smart Environment Detection**:
-   - Automatic PWA install button management: only shown in standard web browsers, hidden in native desktop, Windows installer, and Android APK builds.
-   - Integrated **Novice Guide** interactive walkthrough built directly into the UI.
+Local imports, trimming, mixing, effects and video rendering run on the device. Saved projects, transcripts and cached media belong to that app or browser profile.
 
----
+Remote links, model downloads and optional AI tools use the network. The web version can also request fonts. The app asks for confirmation before transcription uploads. A provider key does not establish that an account has free capacity, so check the account's billing and quota settings.
 
-## Privacy & Architecture
+Save important exports outside the app. Session JSON contains metadata and lyrics. Keep separate copies of the audio and video files.
 
-NTK SoundLab Studio is built on a **Zero-Upload, 100% Client-Side Privacy** philosophy:
-- Demuxing, waveform processing, audio mastering, and visualization run locally via the Web Audio API, Web Workers, and WebGPU.
-- Your personal files never leave your machine during standard editing and playback.
+## Link imports
 
----
+The packaged desktop app supports Suno links and direct public media URLs. Other sites can need the optional Python helper or a configured server extractor. Availability depends on the site, its access restrictions and the extractor.
 
-## Repository Structure
+A link working in a normal browser does not guarantee that SoundLab can download it. Local file import is the most predictable starting point.
 
-```
-NTKStreamStudio/
-├── android/          # Native Android Studio project & APK build scripts
-├── desktop/          # Go-based native desktop application & installer scripts
-│   ├── installer.iss # Inno Setup 6 Windows installer script
-│   └── linux/        # AppImage & Debian packaging scripts
-├── laravel/          # Laravel 11 backend API & web endpoints
-├── DEPLOY_MANUAL/    # Production deployment packages for AlwaysData / web servers
-├── SOFTWARE/         # Official compiled binaries (Windows, Linux, Android, Web)
-├── working/          # Primary static PWA web application & assets
-├── .gitignore        # Monorepo ignore rules
-└── README.md         # Master repository documentation
-```
+## Current test coverage
 
----
+The Windows installer was checked in a clean offline Sandbox, including upgrade and uninstall with a saved profile fixture. AppImage and Debian cores were checked under WSL. Browser checks covered audio decoding, transcript saving, exports and karaoke rendering. The signed Android bundle was validated, and its generated APK matched the direct APK's code and assets.
 
-## Author & Credits
+The Android APK opened the editor offline in an emulator, but Android System UI errors limited further interaction. Physical-phone endurance, graphical Linux installation, real singing transcription and production PHP hosting still need testing.
 
-- **Product**: NTK SoundLab Studio (NTK Hub)
-- **Author**: NTK Autonomous Engineering Standard
-- **Powered by**: Meta HTDemucs v4, Web Audio API, Go, Inno Setup, Android SDK, and Laravel
+## Working on the source
+
+The shared browser app is in `working/`. The platform wrappers and backend are in `desktop/`, `android/` and `laravel/`.
+
+- [Run and develop the browser app](working/README.md)
+- [Build Android packages](android/README.md)
+- [Linux installation and packaging](desktop/linux/README-LINUX.md)
+- [Run the Laravel backend](laravel/README.md)
+- [Deploy the PHP package](DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md)
+
+## License
+
+SoundLab's own code is MIT licensed. Bundled libraries and the optional model have their own terms. [Project license](LICENSE) · [Third-party notices](working/THIRD_PARTY_NOTICES.md)

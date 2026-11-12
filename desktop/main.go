@@ -145,9 +145,26 @@ func safeClient() *http.Client {
 		if len(via) >= 5 {
 			return errors.New("too many redirects")
 		}
+		if len(via) > 0 && via[len(via)-1].URL.Scheme == "https" && req.URL.Scheme != "https" {
+			return errors.New("insecure media redirect blocked")
+		}
 		_, err := validateURL(req.URL.String())
 		return err
 	}}
+}
+
+func providerClient(base *http.Client, host string) *http.Client {
+	client := *base
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if req.URL.Scheme != "https" || !strings.EqualFold(req.URL.Hostname(), host) {
+			return errors.New("provider redirect blocked")
+		}
+		if base.CheckRedirect != nil {
+			return base.CheckRedirect(req, via)
+		}
+		return nil
+	}
+	return &client
 }
 
 func jsonResponse(w http.ResponseWriter, status int, value any) {
@@ -252,11 +269,15 @@ func (a *desktopApp) request(ctx context.Context, method, target string, body io
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", "NTK-OmniStream-Studio/2026.11")
+	req.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
-	return a.client.Do(req)
+	client := a.client
+	if req.URL.Hostname() == "studio-api.prod.suno.com" {
+		client = providerClient(client, req.URL.Hostname())
+	}
+	return client.Do(req)
 }
 
 func (a *desktopApp) proxyJSON(w http.ResponseWriter, r *http.Request, method, target string, body io.Reader) {
@@ -301,12 +322,12 @@ func (a *desktopApp) resolveSuno(ctx context.Context, raw string) (string, error
 		return id, nil
 	}
 	u, err := validateURL(raw)
-	if err != nil || !sunoHost(u.Hostname()) || !strings.HasPrefix(u.Path, "/s/") {
+	if err != nil || u.Scheme != "https" || !sunoHost(u.Hostname()) || !strings.HasPrefix(u.Path, "/s/") {
 		return "", errors.New("a Suno song URL, shortlink or UUID is required")
 	}
 	client := *a.client
 	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		if len(via) >= 5 || !sunoHost(req.URL.Hostname()) {
+		if len(via) >= 5 || req.URL.Scheme != "https" || !sunoHost(req.URL.Hostname()) {
 			return errors.New("Suno redirect destination blocked")
 		}
 		_, err := validateURL(req.URL.String())
@@ -334,7 +355,7 @@ func (a *desktopApp) routes() http.Handler {
 		if !method(w, r, "GET") {
 			return
 		}
-		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11-repair", "persistent_origin": true})
+		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11.11.2", "persistent_origin": true})
 	}
 	mux.HandleFunc("/api/desktop/status", status)
 	mux.HandleFunc("/api/health", status)
@@ -350,7 +371,7 @@ func (a *desktopApp) routes() http.Handler {
 		if !method(w, r, "GET") {
 			return
 		}
-		jsonResponse(w, 200, map[string]any{"server": "OmniStream Desktop", "mode": "standalone-native", "yt_dlp": false, "ffmpeg": false, "download_jobs": false, "suno_drm": true, "demucs": map[string]any{"available": false, "engine": "Browser engine requires its runtime and model", "local_model": a.modelPath("htdemucs_embedded.onnx") != ""}})
+		jsonResponse(w, 200, map[string]any{"server": "NTK SoundLab Desktop", "mode": "standalone-native", "yt_dlp": false, "ffmpeg": false, "download_jobs": false, "suno_drm": true, "demucs": map[string]any{"available": false, "engine": "Browser engine requires compatible model weights", "local_model": a.modelPath("htdemucs_embedded.onnx") != ""}})
 	})
 	mux.HandleFunc("/api/mango/rights", func(w http.ResponseWriter, r *http.Request) {
 		if !method(w, r, "POST") {
@@ -435,7 +456,7 @@ func (a *desktopApp) routes() http.Handler {
 			}
 			req.Header.Set("Range", rangeHeader)
 		}
-		resp, err := a.client.Do(req)
+		resp, err := providerClient(a.client, req.URL.Hostname()).Do(req)
 		if err != nil {
 			apiError(w, 502, "Could not reach the audio provider")
 			return
@@ -449,7 +470,15 @@ func (a *desktopApp) routes() http.Handler {
 			apiError(w, 502, "Audio exceeds the desktop streaming limit")
 			return
 		}
-		for _, h := range []string{"Content-Length", "Content-Range", "Accept-Ranges", "Content-Type"} {
+		kind, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+		switch kind {
+		case "audio/mp4", "audio/m4a", "audio/x-m4a", "video/mp4", "application/octet-stream", "binary/octet-stream":
+		default:
+			apiError(w, 502, "The audio provider returned an unexpected content type")
+			return
+		}
+		w.Header().Set("Content-Type", "audio/mp4")
+		for _, h := range []string{"Content-Length", "Content-Range", "Accept-Ranges"} {
 			if v := resp.Header.Get(h); v != "" {
 				w.Header().Set(h, v)
 			}
@@ -650,6 +679,20 @@ func run(cfg config) error {
 	}
 }
 
+func defaultDataDir(base string) string {
+	current := filepath.Join(base, "NTKSoundLabStudio")
+	previous := filepath.Join(base, "NTKOmniStreamStudio")
+	// Keep opening the earlier profile in place on upgraded installations.
+	for _, name := range []string{"profile", "models"} {
+		for _, candidate := range []string{current, previous} {
+			if info, err := os.Stat(filepath.Join(candidate, name)); err == nil && info.IsDir() {
+				return candidate
+			}
+		}
+	}
+	return current
+}
+
 func main() {
 	base := os.Getenv("LOCALAPPDATA")
 	if base == "" {
@@ -657,7 +700,7 @@ func main() {
 	}
 	var cfg config
 	flag.IntVar(&cfg.port, "port", defaultPort, "Stable loopback port; changing it selects different browser storage")
-	flag.StringVar(&cfg.dataDir, "data-dir", filepath.Join(base, "NTKOmniStreamStudio"), "Durable app data directory (use a separate directory for tests)")
+	flag.StringVar(&cfg.dataDir, "data-dir", defaultDataDir(base), "Durable app data directory (use a separate directory for tests)")
 	flag.BoolVar(&cfg.headless, "headless", false, "Start only the loopback service; do not open a browser or existing profile")
 	flag.DurationVar(&cfg.idleTimeout, "idle-timeout", 90*time.Second, "Exit after this interval without a heartbeat")
 	flag.DurationVar(&cfg.startupTimeout, "startup-timeout", 90*time.Second, "Exit if no UI connects within this interval")

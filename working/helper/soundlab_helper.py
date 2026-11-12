@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NTK OmniStream Studio - Universal Media Helper & Local Server
+NTK SoundLab Studio - Universal Media Helper & Local Server
 Features:
 - Serves the frontend web app on http://127.0.0.1:8899
 - Universal yt-dlp extractor for 1,000+ sites (YouTube, TikTok, SoundCloud, Instagram, Twitter/X, Vimeo, Facebook, etc.)
@@ -21,12 +21,15 @@ import argparse
 import io
 import wave
 import time
+import tempfile
 import uuid as uuid_lib
 import threading
 import subprocess
 import urllib.request
 import urllib.parse
-from http.server import HTTPServer, ThreadingHTTPServer, SimpleHTTPRequestHandler
+from pathlib import Path
+
+from local_server import STUDIO_ROOT, StudioHandler, create_server
 
 try:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -43,7 +46,15 @@ except ImportError:
 JOBS = {}
 JOBS_LOCK = threading.Lock()
 
-COOKIE_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user_cookies.txt")
+MAX_COOKIE_BYTES = 64 * 1024
+MAX_STEM_BYTES = 640 * 1024 * 1024
+CONFIG_ROOT = (
+    Path(os.environ.get('LOCALAPPDATA') or Path.home() / 'AppData' / 'Local')
+    if os.name == 'nt' else Path(os.environ.get('XDG_CONFIG_HOME') or Path.home() / '.config')
+)
+COOKIE_FILE_PATH = CONFIG_ROOT / 'NTKSoundLabStudio' / 'helper' / 'user_cookies.txt'
+PREVIOUS_PRIVATE_COOKIE_FILE = CONFIG_ROOT / 'NTKOmniStreamStudio' / 'helper' / 'user_cookies.txt'
+LEGACY_COOKIE_FILE = Path(__file__).resolve().with_name('user_cookies.txt')
 
 UUID_REGEX = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', re.I)
 PLAYLIST_URL_REGEX = re.compile(r'/playlist/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})', re.I)
@@ -60,18 +71,52 @@ def is_suno_url(url: str) -> bool:
 # UNIVERSAL MEDIA RESOLUTION & EXTRACTION VIA YT-DLP
 # =========================================================================
 
+def write_private_cookies(contents, replace=True):
+    COOKIE_FILE_PATH.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=COOKIE_FILE_PATH.parent, delete=False) as handle:
+            temporary = Path(handle.name)
+            handle.write(contents)
+        if replace:
+            os.replace(temporary, COOKIE_FILE_PATH)
+        else:
+            os.link(temporary, COOKIE_FILE_PATH)
+    except FileExistsError:
+        if replace:
+            raise
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def copy_legacy_cookies():
+    if COOKIE_FILE_PATH.exists():
+        return
+    for source in (PREVIOUS_PRIVATE_COOKIE_FILE, LEGACY_COOKIE_FILE):
+        if source.is_symlink() or not source.is_file():
+            continue
+        try:
+            with source.open('rb') as handle:
+                contents = handle.read(MAX_COOKIE_BYTES + 1)
+            if len(contents) <= MAX_COOKIE_BYTES:
+                write_private_cookies(contents, replace=False)
+        except OSError:
+            print('Could not import the previous cookie file. Open the local helper and import it again if needed.')
+        return
+
+
 def get_ytdl_base_opts():
     opts = {
         'quiet': True,
         'no_warnings': True,
         'extract_flat': False,
-        'nocheckcertificate': True,
         'ignoreerrors': False,
         'logtostderr': False,
         'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
     }
-    if os.path.isfile(COOKIE_FILE_PATH) and os.path.getsize(COOKIE_FILE_PATH) > 0:
-        opts['cookiefile'] = COOKIE_FILE_PATH
+    if not COOKIE_FILE_PATH.is_symlink() and COOKIE_FILE_PATH.is_file() and COOKIE_FILE_PATH.stat().st_size > 0:
+        opts['cookiefile'] = str(COOKIE_FILE_PATH)
     return opts
 
 
@@ -616,27 +661,8 @@ def _run_demucs_job(job_id: str, wav_bytes: bytes):
         job["stage"] = f"Stem separation error: {exc}"
 
 
-class OmniStudioHTTPHandler(SimpleHTTPRequestHandler):
-    def _send_json(self, status_code: int, payload: dict):
-        resp_bytes = json.dumps(payload).encode('utf-8')
-        self.send_response(status_code)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', str(len(resp_bytes)))
-        self.end_headers()
-        self.wfile.write(resp_bytes)
-
-    def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Range, Authorization, X-Requested-With')
-        self.send_header('Access-Control-Expose-Headers', 'Content-Length, Content-Range, Content-Disposition')
-        super().end_headers()
-
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.end_headers()
-
-    def do_GET(self):
+class SoundLabHTTPHandler(StudioHandler):
+    def handle_api_get(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
 
@@ -682,7 +708,7 @@ class OmniStudioHTTPHandler(SimpleHTTPRequestHandler):
         if path in ('/api/capabilities', '/api/health'):
             caps = {
                 'status': 'ok',
-                'server': 'NTK OmniStream Studio Helper v2026.5',
+                'server': 'NTK SoundLab Studio Helper v2026.5',
                 'yt_dlp': bool(yt_dlp),
                 'ffmpeg': self._check_ffmpeg(),
                 'demucs': check_demucs_available()
@@ -778,20 +804,20 @@ class OmniStudioHTTPHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
             return
 
-        # Fallback: Serve static directory
-        super().do_GET()
+        super().handle_api_get()
 
-    def do_POST(self):
+    def handle_api_post(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
 
         # 0. API: Stems Split-Vocals & Separate
         if path.startswith('/api/stems/split-vocals'):
-            content_length = int(self.headers.get('Content-Length', 0))
-            if content_length <= 0:
+            wav_bytes = self.read_body(MAX_STEM_BYTES)
+            if wav_bytes is None:
+                return
+            if not wav_bytes:
                 self._send_json(400, {'error': 'Empty vocal payload'})
                 return
-            wav_bytes = self.rfile.read(content_length)
             try:
                 sr, vocal_np = decode_wav_bytes_to_stereo_float32(wav_bytes)
                 lead_np, back_np = split_lead_and_backing_vocals(vocal_np, sr)
@@ -812,12 +838,13 @@ class OmniStudioHTTPHandler(SimpleHTTPRequestHandler):
                 self._send_json(503, {'error': f"Local HTDemucs unavailable: {caps.get('error', 'missing packages')}"})
                 return
 
-            content_length = int(self.headers.get('Content-Length', 0))
-            if content_length <= 0:
+            wav_bytes = self.read_body(MAX_STEM_BYTES)
+            if wav_bytes is None:
+                return
+            if not wav_bytes:
                 self._send_json(400, {'error': 'Empty audio payload'})
                 return
 
-            wav_bytes = self.rfile.read(content_length)
             _prune_old_stem_jobs(max_jobs=3)
 
             job_id = uuid_lib.uuid4().hex[:12]
@@ -836,8 +863,15 @@ class OmniStudioHTTPHandler(SimpleHTTPRequestHandler):
             self._send_json(202, {'job_id': job_id, 'status': 'processing'})
             return
 
-        length = int(self.headers.get('Content-Length', 0))
-        body = self.rfile.read(length) if length > 0 else b''
+        if path == '/api/omni/cookies' and (
+            self.trusted_origin or self.headers.get('Origin') != self.same_origin
+            or self.headers.get_content_type() != 'application/json'
+        ):
+            self._send_json(403, {'error': 'Save cookies from the authenticated local helper page.'})
+            return
+        body = self.read_body(512 * 1024)
+        if body is None:
+            return
 
         # 1. API: Trigger download
         if path == '/api/omni/download':
@@ -873,19 +907,18 @@ class OmniStudioHTTPHandler(SimpleHTTPRequestHandler):
         # 2. API: Save Cookies
         if path == '/api/omni/cookies':
             try:
-                data = json.loads(body.decode('utf-8'))
-                cookies_text = data.get('cookies', '')
-                with open(COOKIE_FILE_PATH, 'w', encoding='utf-8') as f:
-                    f.write(cookies_text)
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'success': True, 'message': 'Cookies saved successfully.'}).encode('utf-8'))
-            except Exception as e:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'error': str(e)}).encode('utf-8'))
+                data = json.loads(body)
+                cookies = data.get('cookies') if isinstance(data, dict) else None
+                contents = cookies.encode('utf-8') if isinstance(cookies, str) else None
+                if contents is None or len(contents) > MAX_COOKIE_BYTES:
+                    self._send_json(422, {'error': 'Provide a cookie file of at most 64 KiB.'})
+                    return
+                write_private_cookies(contents)
+                self._send_json(200, {'success': True, 'message': 'Cookies saved to private local storage.'})
+            except (ValueError, UnicodeError):
+                self._send_json(400, {'error': 'Invalid cookie request.'})
+            except OSError:
+                self._send_json(500, {'error': 'Could not save the local cookie file.'})
             return
 
         # 3. Mango DRM Rights Proxy (for Suno)
@@ -920,12 +953,12 @@ class OmniStudioHTTPHandler(SimpleHTTPRequestHandler):
             return False
 
 
-def run_server(port: int = 8899, directory: str = "."):
-    handler = lambda *args, **kwargs: OmniStudioHTTPHandler(*args, directory=directory, **kwargs)
-    server = ThreadingHTTPServer(("127.0.0.1", port), handler)
+def run_server(port: int = 8899, directory=STUDIO_ROOT):
+    copy_legacy_cookies()
+    server = create_server(SoundLabHTTPHandler, port, directory)
     caps = check_demucs_available()
     print("=" * 70)
-    print(f"[*] NTK OmniStream Studio Server Active on http://127.0.0.1:{port}")
+    print(f"[*] NTK SoundLab Studio Server Active on http://127.0.0.1:{port}")
     print(f"[*] Serving web app from: {os.path.abspath(directory)}")
     print(f"[*] Universal Media Extractor (yt-dlp): {'READY' if yt_dlp else 'NOT INSTALLED'}")
     print(f"[*] Neural Stems (HTDemucs v4): {'READY (' + caps['device'].upper() + ')' if caps['available'] else 'BROWSER WEBGPU/WASM ONNX'}")
@@ -934,19 +967,22 @@ def run_server(port: int = 8899, directory: str = "."):
         server.serve_forever()
     except KeyboardInterrupt:
         print("\n[*] Server stopped.")
+    finally:
+        server.server_close()
 
 
 def main():
-    parser = argparse.ArgumentParser(description="NTK OmniStream Studio Helper & Server")
+    parser = argparse.ArgumentParser(description="NTK SoundLab Studio Helper & Server")
     parser.add_argument("url", nargs="?", help="Universal media URL to download")
     parser.add_argument("--serve", action="store_true", default=True, help="Start local web server with yt-dlp & proxy")
     parser.add_argument("--port", type=int, default=8899, help="Port for server (default 8899)")
-    parser.add_argument("--dir", default=".", help="Directory to serve")
+    parser.add_argument("--dir", default=STUDIO_ROOT, help="Studio asset directory")
     parser.add_argument("--format", default="mp3", help="Audio/video format (mp3, wav, flac, 1080p, 720p)")
     parser.add_argument("--audio-only", action="store_true", help="Fast grab audio stream only")
     args = parser.parse_args()
 
     if args.url:
+        copy_legacy_cookies()
         print(f"[*] Extracting media from: {args.url}")
         job_id = "cli-" + str(uuid_lib.uuid4())[:8]
         download_media_task(job_id, args.url, target_format=args.format, audio_only=args.audio_only, output_dir="./downloads")

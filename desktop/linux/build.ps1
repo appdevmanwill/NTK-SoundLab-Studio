@@ -17,7 +17,7 @@ try {
     $env:GOOS='linux'; $env:GOARCH='amd64'; $env:CGO_ENABLED='0'
     go test -c -o (Join-Path $stage 'desktop-linux.test') .
     if ($LASTEXITCODE -ne 0) { throw 'Linux tests did not compile' }
-    go build -buildvcs=false -trimpath -ldflags '-s -w' -o (Join-Path $stage 'omnistream-studio') .
+    go build -buildvcs=false -trimpath -ldflags '-s -w' -o (Join-Path $stage 'ntk-soundlab-studio') .
     if ($LASTEXITCODE -ne 0) { throw 'Linux build failed' }
 } finally { $env:GOOS=$priorGoOS; $env:GOARCH=$priorGoArch; $env:CGO_ENABLED=$priorCGO; Pop-Location }
 function Convert-LinuxPath([string]$Path) {
@@ -25,7 +25,7 @@ function Convert-LinuxPath([string]$Path) {
     if ($absolute -notmatch '^([A-Za-z]):\\') { throw 'Use an absolute Windows drive path.' }
     return '/mnt/' + $Matches[1].ToLowerInvariant() + '/' + $absolute.Substring(3).Replace('\','/')
 }
-& wsl -d $Distro -- (Convert-LinuxPath (Join-Path $stage 'desktop-linux.test')) '-test.v'
+& wsl -d $Distro --exec (Convert-LinuxPath (Join-Path $stage 'desktop-linux.test')) '-test.v=true'
 if ($LASTEXITCODE -ne 0) { throw 'Linux native tests failed' }
-& wsl -d $Distro -- bash (Convert-LinuxPath (Join-Path $PSScriptRoot 'package-linux.sh')) (Convert-LinuxPath (Join-Path $stage 'omnistream-studio')) (Convert-LinuxPath (Join-Path $workspaceRoot 'working\assets\icons\icon-192.png')) (Convert-LinuxPath $AppImageTool) (Convert-LinuxPath $AppImageRuntime) (Convert-LinuxPath $OutputDirectory)
+& wsl -d $Distro --exec bash (Convert-LinuxPath (Join-Path $PSScriptRoot 'package-linux.sh')) (Convert-LinuxPath (Join-Path $stage 'ntk-soundlab-studio')) (Convert-LinuxPath (Join-Path $workspaceRoot 'working\assets\icons\icon-192.png')) (Convert-LinuxPath $AppImageTool) (Convert-LinuxPath $AppImageRuntime) (Convert-LinuxPath $OutputDirectory)
 if ($LASTEXITCODE -ne 0) { throw 'Linux packaging failed; previous packages retained' }

@@ -1,10 +1,10 @@
-import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.3.1';
+import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.11.2';
 /**
- * NTK OmniStream Studio - Universal Stream & Link Resolver
+ * NTK SoundLab Studio - Universal Stream & Link Resolver
  * Multi-tier connectivity: Same-Origin Laravel Server -> Local OmniHelper -> In-Browser Fallbacks
  */
 
-export class OmniAPI {
+export class SoundLabAPI {
   static LOCAL_PROXY_URL = 'http://127.0.0.1:8899';
   static SUNO_UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
   static SUNO_PLAYLIST_REGEX = /(?:suno\.com\/playlist\/|[?&]playlist=)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i;
@@ -27,7 +27,7 @@ export class OmniAPI {
       clearTimeout(timer);
       if (res.ok) {
         const data = await res.json();
-        OmniAPI._localActive = true;
+        SoundLabAPI._localActive = true;
         return {
           active: true,
           server: data.server || 'Laravel Server',
@@ -43,13 +43,13 @@ export class OmniAPI {
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 2000);
-        const res = await fetch(`${OmniAPI.LOCAL_PROXY_URL}/api/capabilities`, {
+        const res = await fetch(`${SoundLabAPI.LOCAL_PROXY_URL}/api/capabilities`, {
           signal: controller.signal
         });
         clearTimeout(timer);
         if (res.ok) {
           const data = await res.json();
-          OmniAPI._localActive = true;
+          SoundLabAPI._localActive = true;
           return {
             active: true,
             server: 'Local Python Helper',
@@ -59,7 +59,7 @@ export class OmniAPI {
           };
         }
       } catch (e) {
-        OmniAPI._localActive = false;
+        SoundLabAPI._localActive = false;
       }
     }
 
@@ -149,17 +149,19 @@ export class OmniAPI {
    * @returns {Promise<Object>}
    */
   static async resolveUrl(url) {
-    const clean = OmniAPI.cleanUrl(url);
+    const clean = SoundLabAPI.cleanUrl(url);
     if (!clean) throw new Error('Empty URL provided.');
 
-    const classification = OmniAPI.classifyUrl(clean);
+    const classification = SoundLabAPI.classifyUrl(clean);
 
     // Fast-path: Suno AI tracks resolve directly via clip proxy / direct Suno API
     if (classification.platform === 'Suno AI') {
-      return OmniAPI.resolveSunoDirect(clean);
+      return SoundLabAPI.resolveSunoDirect(clean);
     }
 
     const q = encodeURIComponent(clean);
+    let serverMessage = '';
+    let rejected = false;
 
     // Tier 0: Same-Origin Backend Server
     try {
@@ -169,14 +171,18 @@ export class OmniAPI {
         if (data && !data.error) {
           return data;
         }
+      } else if ([400, 403, 422].includes(res.status)) {
+        serverMessage = (await res.json().catch(() => null))?.error || '';
+        rejected = res.status !== 422;
       }
     } catch (e) {}
+    if (rejected) throw new Error(serverMessage || 'This media address is not permitted.');
 
     // Tier 1: Local Python OmniHelper (Skip on HTTPS to avoid Mixed Content)
     const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
     if (!isHttps) {
       try {
-        const res = await fetch(`${OmniAPI.LOCAL_PROXY_URL}/api/omni/resolve?url=${q}`);
+        const res = await fetch(`${SoundLabAPI.LOCAL_PROXY_URL}/api/omni/resolve?url=${q}`);
         if (res.ok) {
           const data = await res.json();
           if (data && !data.error) {
@@ -213,16 +219,14 @@ export class OmniAPI {
       };
     }
 
-    throw new Error(
-      `Could not resolve "${classification.platform}" link. Verify the URL or check server connectivity.`
-    );
+    throw new Error(serverMessage || `Could not resolve "${classification.platform}" link. Use an available download service or import a local file.`);
   }
 
   /**
    * Direct Suno resolver with local proxy priority & shortlink unshortening
    */
   static async resolveSunoDirect(input) {
-    let match = input.match(OmniAPI.SUNO_UUID_REGEX);
+    let match = input.match(SoundLabAPI.SUNO_UUID_REGEX);
     let uuid = match ? match[0].toLowerCase() : null;
 
     if (!uuid) {
@@ -245,7 +249,7 @@ export class OmniAPI {
           const oRes = await fetch(`/api/omni/resolve?url=${q}`);
           if (oRes.ok) {
             const oData = await oRes.json();
-            if (oData && oData.uuid && OmniAPI.SUNO_UUID_REGEX.test(oData.uuid)) {
+            if (oData && oData.uuid && SoundLabAPI.SUNO_UUID_REGEX.test(oData.uuid)) {
               return oData;
             }
           }
@@ -256,7 +260,7 @@ export class OmniAPI {
       const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
       if (!uuid && !isHttps) {
         try {
-          const lRes = await fetch(`${OmniAPI.LOCAL_PROXY_URL}/api/suno/unshorten?url=${q}`);
+          const lRes = await fetch(`${SoundLabAPI.LOCAL_PROXY_URL}/api/suno/unshorten?url=${q}`);
           if (lRes.ok) {
             const lData = await lRes.json();
             if (lData && lData.uuid) {
@@ -389,10 +393,10 @@ export class OmniAPI {
       if (!response.ok) throw new Error(data.error || data.message || `Download server returned HTTP ${response.status}.`);
       const id = data.job_id || data.jobId;
       if (!id) throw new Error('The download server did not return a job ID.');
-      OmniAPI._jobOrigins.set(id, ''); return id;
+      SoundLabAPI._jobOrigins.set(id, ''); return id;
     }
     if (!canUseLocalHelper()) throw new Error('This host has no download backend. Import a local file or use the desktop app.');
-    const res = await fetch(`${OmniAPI.LOCAL_PROXY_URL}/api/omni/download`, {
+    const res = await fetch(`${SoundLabAPI.LOCAL_PROXY_URL}/api/omni/download`, {
       timeoutMs: 300000,
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url, format: targetFormat, audioOnly })
@@ -401,12 +405,12 @@ export class OmniAPI {
     if (!res.ok) throw new Error(data.error || 'The local download helper rejected this request.');
     const id = data.jobId || data.job_id;
     if (!id) throw new Error('The helper did not return a job ID.');
-    OmniAPI._jobOrigins.set(id, OmniAPI.LOCAL_PROXY_URL); return id;
+    SoundLabAPI._jobOrigins.set(id, SoundLabAPI.LOCAL_PROXY_URL); return id;
   }
 
   static async pollJob(jobId, onProgress = () => {}) {
-    if (!OmniAPI._jobOrigins.has(jobId)) throw new Error('The job origin is unknown. Start the download again.');
-    const base = OmniAPI._jobOrigins.get(jobId);
+    if (!SoundLabAPI._jobOrigins.has(jobId)) throw new Error('The job origin is unknown. Start the download again.');
+    const base = SoundLabAPI._jobOrigins.get(jobId);
     const deadline = Date.now() + 5 * 60 * 1000;
     try {
       while (Date.now() < deadline) {
@@ -421,7 +425,7 @@ export class OmniAPI {
         await new Promise(resolve => setTimeout(resolve, 800));
       }
       throw new Error('Download timed out.');
-    } finally { OmniAPI._jobOrigins.delete(jobId); }
+    } finally { SoundLabAPI._jobOrigins.delete(jobId); }
   }
 
   /**

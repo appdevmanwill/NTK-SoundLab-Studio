@@ -1,9 +1,9 @@
 /**
- * Suno Downloader Pro - Player Engine
+ * NTK SoundLab Studio - Player Engine
  * Manages decrypted audio playback, stem previews, and waveform visualization
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.3.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
 
 export class PlayerEngine {
   constructor() {

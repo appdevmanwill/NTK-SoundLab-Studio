@@ -1,5 +1,5 @@
 /**
- * Suno Downloader Pro - Audio Converter & Buffer Utilities
+ * NTK SoundLab Studio - Audio Converter & Buffer Utilities
  * Handles AudioContext decoding, hardware OfflineAudioContext resampling,
  * Lossless 16-bit RIFF WAV encoding, multi-stem summing, and waveform peak extraction.
  */

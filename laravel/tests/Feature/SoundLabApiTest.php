@@ -5,9 +5,10 @@ namespace Tests\Feature;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class OmniStreamApiTest extends TestCase
+class SoundLabApiTest extends TestCase
 {
     use RefreshDatabase;
+
     /**
      * Test capabilities endpoint returns operational status and storage quota info.
      */

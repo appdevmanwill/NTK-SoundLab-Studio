@@ -1,5 +1,5 @@
 /**
- * Suno Downloader Pro - Bookmarklet & Userscript Generator
+ * NTK SoundLab Studio - Bookmarklet & Userscript Generator
  * 2026 Studio Edition - In-Browser Decryption, M4A, WAV, Video & 4-Stem Neural AI Studio Launcher
  */
 

@@ -14,11 +14,14 @@ $stageRoot = Join-Path $desktopRoot ('assets-stage-' + [Guid]::NewGuid().ToStrin
 
 # Copy only application assets. No audit files, helpers, repository data, cookies,
 # environment files, scripts or previous staging leftovers enter the binary.
-$files = @('index.html','404.html','manifest.json','sw.js','robots.txt','lib/mediabunny/LICENSE.txt','lib/mediabunny/NOTICE.txt')
+$files = @('index.html','404.html','manifest.json','sw.js','robots.txt','LICENSE','THIRD_PARTY_NOTICES.md',
+    'lib/mediabunny/LICENSE.txt','lib/mediabunny/NOTICE.txt','lib/demucs-web/LICENSE.txt',
+    'lib/onnxruntime/1.20.1/LICENSE.txt','lib/onnxruntime/1.20.1/ThirdPartyNotices.txt',
+    'lib/licenses/JSZip.txt','lib/licenses/lamejs.txt')
 foreach ($rule in @(
     @{Directory='js'; Extensions=@('.js')},
     @{Directory='css'; Extensions=@('.css')},
-    @{Directory='lib'; Extensions=@('.js','.wasm')},
+    @{Directory='lib'; Extensions=@('.js','.mjs','.wasm')},
     @{Directory='assets'; Extensions=@('.svg','.png','.jpg','.jpeg','.webp','.ico','.woff','.woff2')}
 )) {
     $folder = Join-Path $source $rule.Directory
@@ -68,7 +71,7 @@ try {
     try {
         if (-not $SkipTests) { & $goPath test ./...; if ($LASTEXITCODE -ne 0) { throw 'Desktop regression tests failed.' } }
         New-Item -ItemType Directory -Force -Path $output | Out-Null
-        $binary = Join-Path $output 'OmniStreamStudio-Portable.exe'
+        $binary = Join-Path $output 'NTKSoundLab-Portable.exe'
         if (Test-Path -LiteralPath $binary) {
             $backupRoot = Join-Path $desktopRoot 'build-backups'
             New-Item -ItemType Directory -Force -Path $backupRoot | Out-Null

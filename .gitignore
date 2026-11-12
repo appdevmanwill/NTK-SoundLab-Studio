@@ -55,12 +55,25 @@ android/app/build/
 desktop/build-backups/
 desktop/linux-build-*/
 desktop/main.exe
-desktop/omnistream-studio-linux
+desktop/ntk-soundlab-studio-linux
+desktop/NTKSoundLab-Portable.exe
 desktop/OmniStreamStudio-Portable.exe
+desktop/omnistream-studio-linux
 dist/
+
+# New release downloads are published as GitHub release assets.
+SOFTWARE/**/*.exe
+SOFTWARE/**/*.apk
+SOFTWARE/**/*.aab
+SOFTWARE/**/*.AppImage
+SOFTWARE/**/*.deb
+SOFTWARE/**/*.zip
+DEPLOY_MANUAL/*.zip
 
 # Evidence & Local Test Workspaces (chrome binaries, temporary run logs)
 working/EVIDENCE/
+working/models/*.onnx
+SOFTWARE/OFFLINE_MODELS/*.onnx
 working/.firebase/
 firebase-debug.log*
 firestore-debug.log*

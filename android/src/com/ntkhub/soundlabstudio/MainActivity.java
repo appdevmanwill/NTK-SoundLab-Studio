@@ -1,4 +1,4 @@
-package com.ntkhub.omnistream;
+package com.ntkhub.soundlabstudio;
 
 import android.app.*;
 import android.content.*;
@@ -54,7 +54,7 @@ public final class MainActivity extends Activity {
         toolbar = new LinearLayout(this); toolbar.setGravity(Gravity.CENTER_VERTICAL); toolbar.setPadding(dp(20),0,dp(12),0);
         IconView logo = new IconView(2); logo.setContentDescription("NTK Hub"); toolbar.addView(logo, new LinearLayout.LayoutParams(dp(32),dp(32)));
         LinearLayout titles = new LinearLayout(this); titles.setPadding(dp(12),0,0,0); titles.setOrientation(LinearLayout.VERTICAL);
-        title = text("OmniStream",21,Color.WHITE); title.setTypeface(null,1); subtitle = text("NTK HUB  /  YOUR POCKET STUDIO",9,MUTED); subtitle.setLetterSpacing(.1f);
+        title = text("SoundLab",21,Color.WHITE); title.setTypeface(null,1); subtitle = text("NTK HUB  /  YOUR POCKET STUDIO",9,MUTED); subtitle.setLetterSpacing(.1f);
         titles.addView(title); titles.addView(subtitle); toolbar.addView(titles,new LinearLayout.LayoutParams(0,dp(48),1));
         TextView help = text("?",22,MINT); help.setGravity(Gravity.CENTER); help.setContentDescription("Help and guide"); help.setBackground(rounded(SURFACE,24)); help.setOnClickListener(v -> js("app.openTutorialModal()")); toolbar.addView(help,new LinearLayout.LayoutParams(dp(48),dp(48)));
         root.addView(toolbar,new LinearLayout.LayoutParams(-1,dp(72)));
@@ -99,7 +99,7 @@ public final class MainActivity extends Activity {
     private void toolsSheet(){
         showSheet("Studio tools","Your projects stay on this device. AI is optional.",
             new String[]{"Offline storage","AI and lyrics settings","Import a session","Export session metadata","Save or share last export","How to use the studio","About this Android app"},
-            new Runnable[]{()->js("app.openVaultModal()"),()->js("app.openAiSettingsModal()"),()->js("document.getElementById('deckJsonFileInput').click()"),()->js("app.exportDeckJson()"),()->{if(currentExport!=null&&currentExport.isFile())exportReady();else toast("Export a file from the studio first.");},()->js("app.openTutorialModal()"),()->new AlertDialog.Builder(this).setTitle("OmniStream Studio · NTK Hub").setMessage("2026.11.3.1 · Android edition\n\nLocal audio, lyrics and karaoke tools open offline. Save copies with Android Files or Share. Keep the app visible while rendering video.\n\nAI recognition needs internet, your own eligible provider account and upload confirmation. Desktop Python helpers and server download/conversion services are not bundled.\n\nUninstalling removes local projects and keys. Export important media and session metadata first; session JSON does not include audio.").setPositiveButton("Done",null).show()});
+            new Runnable[]{()->js("app.openVaultModal()"),()->js("app.openAiSettingsModal()"),()->js("document.getElementById('deckJsonFileInput').click()"),()->js("app.exportDeckJson()"),()->{if(currentExport!=null&&currentExport.isFile())exportReady();else toast("Export a file from the studio first.");},()->js("app.openTutorialModal()"),()->new AlertDialog.Builder(this).setTitle("NTK SoundLab Studio · NTK Hub").setMessage("2026.11.11.2 · Android edition\n\nLocal audio, lyrics and karaoke tools open offline. Save copies with Android Files or Share. Keep the app visible while rendering video.\n\nAI recognition needs internet, your own eligible provider account and upload confirmation. Desktop Python helpers and server download/conversion services are not bundled.\n\nUninstalling removes local projects and keys. Export important media and session metadata first; session JSON does not include audio.").setPositiveButton("Done",null).show()});
     }
     private Dialog showSheet(String heading,String detail,String[] labels,Runnable[] actions){
         Dialog dialog=new Dialog(this); LinearLayout box=new LinearLayout(this); box.setOrientation(1); box.setPadding(dp(24),dp(24),dp(24),dp(24)); box.setBackground(rounded(SURFACE,24));
@@ -145,7 +145,7 @@ public final class MainActivity extends Activity {
             if(!r.getMethod().equals("GET")||path.contains("..")||path.contains("\\"))return response(403,"text/plain","");
             if(path.equals("/"))path="/index.html";
             try {
-                InputStream bytes=getAssets().open("www"+path);String ext=path.substring(path.lastIndexOf('.')+1);String mime=MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext); if(ext.equals("js"))mime="text/javascript";if(ext.equals("wasm"))mime="application/wasm";if(mime==null)mime="application/octet-stream";
+                InputStream bytes=getAssets().open("www"+path);String ext=path.substring(path.lastIndexOf('.')+1);String mime=MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext); if(ext.equals("js")||ext.equals("mjs"))mime="text/javascript";if(ext.equals("wasm"))mime="application/wasm";if(mime==null)mime="application/octet-stream";
                 HashMap<String,String> headers=new HashMap<>();headers.put("Cache-Control","no-cache");headers.put("X-Content-Type-Options","nosniff");headers.put("Content-Security-Policy","default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; font-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; worker-src 'self' blob:");
                 return new WebResourceResponse(mime,"UTF-8",200,"OK",headers,bytes);
             } catch(IOException e){return response(404,"text/plain","Asset not found");}
@@ -179,7 +179,7 @@ public final class MainActivity extends Activity {
         if(data==null||data.length()>300000)return;
         try{JSONObject m=new JSONObject(data);String type=m.optString("type");
             if(type.equals("ready")){ready=true;web.animate().alpha(1f).setDuration(150).start();js("AndroidStudio.connected()");return;}
-            if(type.equals("state")){boolean modal=m.optBoolean("modal");title.setText(modal?"Studio":"OmniStream");nav.setVisibility(modal?View.GONE:View.VISIBLE);if(!modal)selectNav(0);return;}
+            if(type.equals("state")){boolean modal=m.optBoolean("modal");title.setText(modal?"Studio":"SoundLab");nav.setVisibility(modal?View.GONE:View.VISIBLE);if(!modal)selectNav(0);return;}
             if(type.equals("busy")){web.setKeepScreenOn(m.optBoolean("value"));return;}
             if(type.equals("clipboard")){android.content.ClipboardManager cb=(android.content.ClipboardManager)getSystemService(CLIPBOARD_SERVICE);String value="";if(cb.hasPrimaryClip()&&cb.getPrimaryClip().getItemCount()>0)value=cb.getPrimaryClip().getItemAt(0).coerceToText(this).toString();reply(m.optString("request"),true,value);return;}
             if(type.equals("begin")||type.equals("chunk")||type.equals("finish")||type.equals("abort"))io.execute(()->exportMessage(m));
@@ -202,7 +202,7 @@ public final class MainActivity extends Activity {
     private void abortExport(){if(exportStream!=null){try{exportStream.close();}catch(IOException ignored){}exportStream=null;if(currentExport!=null)currentExport.delete();currentExport=null;}exportId=null;}
     private void exportReady(){long size=currentExport.length();String label=size<1024?size+" bytes":size<1048576?String.format(Locale.ROOT,"%.1f KB",size/1024.0):String.format(Locale.ROOT,"%.1f MB",size/1048576.0);showSheet("Your export is ready",currentName+" · "+label,new String[]{"Save a copy to Files","Share with another app"},new Runnable[]{this::saveExport,this::shareExport}).setOnDismissListener(d->pendingExport=false);}
     private void saveExport(){if(saveTarget!=null){toast("Finish the current save first.");return;}saveTarget=currentExport;saveName=currentName;String ext=currentName.substring(currentName.lastIndexOf('.')+1).toLowerCase(Locale.ROOT);String saveMime=MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);if(saveMime==null)saveMime="application/octet-stream";Intent intent=new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType(saveMime).putExtra(Intent.EXTRA_TITLE,currentName);try{startActivityForResult(intent,SAVE);}catch(ActivityNotFoundException e){saveTarget=null;toast("Android Files is unavailable.");}}
-    private void shareExport(){Uri uri=new Uri.Builder().scheme("content").authority("com.ntkhub.omnistream.exports").appendPath(currentExport.getName()).build();Intent intent=new Intent(Intent.ACTION_SEND).setType(currentMime).putExtra(Intent.EXTRA_STREAM,uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);intent.setClipData(ClipData.newUri(getContentResolver(),currentName,uri));try{startActivity(Intent.createChooser(intent,"Share your export"));}catch(ActivityNotFoundException e){toast("No app can share this file yet. Save a copy to Files.");}}
+    private void shareExport(){Uri uri=new Uri.Builder().scheme("content").authority(getPackageName()+".exports").appendPath(currentExport.getName()).build();Intent intent=new Intent(Intent.ACTION_SEND).setType(currentMime).putExtra(Intent.EXTRA_STREAM,uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);intent.setClipData(ClipData.newUri(getContentResolver(),currentName,uri));try{startActivity(Intent.createChooser(intent,"Share your export"));}catch(ActivityNotFoundException e){toast("No app can share this file yet. Save a copy to Files.");}}
     private void pruneOldExports(){File dir=new File(getCacheDir(),"exports");File[] files=dir.listFiles();if(files!=null)for(File f:files)if(f.isFile()&&System.currentTimeMillis()-f.lastModified()>24L*60*60*1000)f.delete();}
 
     private final class IconView extends View {

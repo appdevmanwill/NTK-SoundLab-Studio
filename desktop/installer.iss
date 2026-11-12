@@ -1,21 +1,22 @@
-; NTK OmniStream Studio - Inno Setup Script
+; NTK SoundLab Studio - Inno Setup Script
 ; Per-user non-admin installation (Novice-Friendly)
 
 #define MyAppName "NTK SoundLab Studio"
-#define MyAppVersion "2026.11.3.1"
+#define MyAppVersion "2026.11.11.2"
 #define MyAppPublisher "NTK Hub"
-#define MyAppExeName "OmniStreamStudio.exe"
+#define MyAppExeName "NTKSoundLabStudio.exe"
 
 [Setup]
 AppId={{9F82A45C-12D3-47E8-9B21-E8A731F04C82}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={localappdata}\Programs\NTK OmniStream Studio
+DefaultDirName={localappdata}\Programs\NTK SoundLab Studio
+UsePreviousAppDir=no
 DefaultGroupName={#MyAppPublisher}\{#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=..\dist
-OutputBaseFilename=OmniStreamStudio-Setup
+OutputBaseFilename=NTKSoundLab-Setup
 SetupIconFile=icon.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -32,7 +33,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "..\dist\OmniStreamStudio-Portable.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion
+Source: "..\dist\NTKSoundLab-Portable.exe"; DestDir: "{app}"; DestName: "{#MyAppExeName}"; Flags: ignoreversion
 Source: "icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]

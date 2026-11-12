@@ -1,7 +1,7 @@
-import { AiPolicy } from './ai-policy.js?v=2026.11.3.1';
+import { AiPolicy } from './ai-policy.js?v=2026.11.11.2';
 
 /**
- * NTK OmniStream Studio - IndexedDB Universal Offline Vault
+ * NTK SoundLab Studio - IndexedDB Universal Offline Vault
  * Persists master audio buffers, 2-stem/4-stem WAV kits, 1080p video blobs,
  * ONNX neural models, and session cookies across reloads.
  */
@@ -154,21 +154,23 @@ export class VaultDB {
   /**
    * Saves ONNX Neural Model weights into IndexedDB
    */
-  static async saveAiModel(modelId, arrayBuf) {
+  static async saveAiModel(modelId, weights) {
     const db = await VaultDB.open();
-    if (!db || !arrayBuf) return;
+    if (!db || !weights) return false;
+    // Blob storage avoids Chromium's serialized ArrayBuffer record limit for large models.
+    const blob = weights instanceof Blob ? weights : new Blob([weights], { type: 'application/octet-stream' });
 
     return new Promise((resolve) => {
       try {
         const tx = db.transaction('ai_models', 'readwrite');
         tx.objectStore('ai_models').put({
           id: modelId,
-          buffer: arrayBuf.slice(0),
-          byteLength: arrayBuf.byteLength,
+          buffer: blob,
+          byteLength: blob.size,
           updatedAt: Date.now()
         });
         tx.oncomplete = () => resolve(true);
-        tx.onerror = () => resolve(false);
+        tx.onerror = tx.onabort = () => resolve(false);
       } catch (e) {
         resolve(false);
       }
@@ -200,7 +202,11 @@ export class VaultDB {
       try {
         const tx = db.transaction('ai_models', 'readonly');
         const req = tx.objectStore('ai_models').get(modelId);
-        req.onsuccess = () => resolve(req.result ? req.result.buffer : null);
+        req.onsuccess = () => {
+          const weights = req.result?.buffer;
+          if (weights instanceof Blob) weights.arrayBuffer().then(resolve, () => resolve(null));
+          else resolve(weights ?? null);
+        };
         req.onerror = () => resolve(null);
       } catch (e) {
         resolve(null);

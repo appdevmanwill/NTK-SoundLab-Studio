@@ -1,44 +1,57 @@
-# NTK SoundLab Studio — NTK Hub
+# Install SoundLab
 
-Current local release: **2026.11.3.1**, including dedicated Transcribe, Smart Install button visibility, and Novice Guide.
+The current preview is **2026.11.11.2**. Get the files from the [GitHub release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2).
 
-- Windows portable: `PORTABLE/WINDOWS/NTKSoundLab-Portable.exe` (also `OmniStreamStudio-Portable.exe`)
-- Windows installer: `INSTALLERS/WINDOWS/OmniStreamStudio-Setup.exe`
-- Android: `ANDROID/NTKSoundLab-2026.11.3.1-android.2.apk` (also `OmniStreamStudio-2026.11.3.1-android.2.apk`)
-- Linux AppImage: `LINUX/OmniStreamStudio-2026.11.3.1-x86_64.AppImage`
-- Debian: `LINUX/omnistream-studio_2026.11.3.1-1_amd64.deb`
-- Static website: `WEB/NTKSoundLab-Static-2026.11.3.1.zip` (also `OmniStreamStudio-Static-2026.11.3.1.zip`)
-- Laravel website: `../DEPLOY_MANUAL/NTK_OmniStream_Studio_AlwaysData.zip`
+## Windows
 
-Open **Transcribe**, choose audio or video (both limits apply: **1 hour and 150 MB**),
-set language or leave automatic detection, configure your own Groq key in AI Keys,
-confirm your free-account billing/upload settings, then start. Recognition sends
-audio to Groq; account quotas may interrupt long recordings. No paid fallback or
-automatic retry is used. Keep the app open. Cancel retains completed sections;
-Continue retries the unfinished section. After reopening, select the partial
-transcript from history and choose the same file to continue.
+Download `NTKSoundLab-Setup-2026.11.11.2.exe` for an installer, or `NTKSoundLab-Portable-2026.11.11.2.exe` to run a single executable.
 
-Edit or copy the result, or download TXT (default), SRT or LRC. Timed exports retain
-the original cue timings when you keep one text line per cue. Changing the line
-count makes TXT the available download until cue line breaks are restored.
-History, editing and downloads work locally/offline. Download important copies
-before clearing app/browser data or uninstalling. History does not store source
-recordings; storage is local to each installed app/browser and does not sync.
+Microsoft Edge must be installed. Python, Node.js, Go and FFmpeg are build or optional-helper tools and are unnecessary for local editing in the packaged app.
 
-Speech and singing use original-language recognition. Language coverage and singing
-accuracy vary. Translation and speaker labels are deferred. Some compressed codecs
-depend on the device; the app checks decoding support and offers a WAV alternative.
-Linux still requires an installed modern browser for its graphical app window.
-Android retains its signing identity and native Files/Share integrations.
+Both Windows files are unsigned. An unknown-publisher warning is expected.
 
-Verified locally with synthetic provider responses, actual one-hour WAV decoding,
-MP3/MP4 input, desktop/mobile browser checks, Android emulator, Windows packaged
-server, Linux AppImage/Debian payloads, native Android TXT save, and existing karaoke
-regressions. Real provider recognition accuracy, physical-phone long recordings,
-graphical Linux installation and Windows installer installation remain untested.
-The web packages are prepared; no live website was deployed.
+The installer uses a per-user directory under `%LOCALAPPDATA%\Programs\NTK SoundLab Studio`. Fresh app data goes under `%LOCALAPPDATA%\NTKSoundLabStudio`. An existing desktop profile is detected and opened in place during an upgrade.
 
-Hashes: `SHA256SUMS.txt`. Evidence and rollback details:
-`../working/EVIDENCE/transcribe-2026-11-03/` and `../working/docs/handoff/`.
-Older versioned releases are retained for rollback. MediaBunny 1.65.0 is bundled
-under MPL-2.0 with its license and corresponding-source URL in `lib/mediabunny/`.
+## Android
+
+Download `NTKSoundLab-2026.11.11.2.apk` and open it with Files on an Android 10 or later device. Android may ask you to allow installation from the app you used to open the file. Keep Android System WebView updated.
+
+This release uses `com.ntkhub.soundlabstudio` and installs separately from the earlier Android app. Export recordings and session metadata from that app before switching. Future SoundLab updates use the new ID and its SoundLab signer.
+
+Use the AAB if you are preparing a Play Console release. The public upload certificate is included on the release page. Play App Signing setup and store acceptance are still pending. [Android build and signing notes](../android/README.md)
+
+## Linux
+
+Use the AppImage for a single downloadable file, or the `.deb` for Debian and Ubuntu. Both need an installed browser. [Linux instructions](LINUX/README-LINUX.md)
+
+## Web and PHP hosting
+
+The static ZIP contains the browser app. Extract it and serve the files over HTTPS or localhost. A web server is required for browser storage, modules and offline caching.
+
+The AlwaysData ZIP contains the Laravel backend, production PHP dependencies and browser assets. It needs PHP 8.4.1 or later within the supported Composer range. [PHP setup](../DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md)
+
+## Check a download
+
+Download `SHA256SUMS.txt` from the release page into the same folder as the release files.
+
+On Windows, calculate a file's hash and compare it with the matching line.
+
+```powershell
+Get-FileHash .\NTKSoundLab-2026.11.11.2.apk -Algorithm SHA256
+```
+
+On Linux, when all listed files are in the download folder, run the following command.
+
+```sh
+sha256sum --check SHA256SUMS.txt
+```
+
+Missing files are reported if you downloaded only part of the release.
+
+## Offline use and saved work
+
+Import the optional model through **Offline Storage** before using neural stems without a connection. [Model instructions](OFFLINE_MODELS/README.md)
+
+Projects and transcripts are saved in the current app or browser profile. Export important results to your own files. Session JSON keeps metadata and lyrics, so save the media separately.
+
+The release notes list what was tested and what still needs device or hosting checks. Earlier repository files are available in Git history for recovery.

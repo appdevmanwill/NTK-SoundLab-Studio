@@ -1,85 +1,73 @@
-# NTK SoundLab Studio — AlwaysData & Production Web Deployment Manual
+# Deploy the PHP package
 
-**Prepared for NTK · NTK Hub · Release 2026.11.3.1**
+Use `NTK_SoundLab_Studio_AlwaysData-2026.11.11.2.zip` from the [release page](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2).
 
-This folder contains the verified, production-ready Laravel 11/PHP 8.4 application packages with all assets, matching Blade views, and production-only dependencies:
-* `NTK_SoundLab_Studio_AlwaysData.zip` (Primary)
-* `NTK_OmniStream_Studio_AlwaysData.zip` (Legacy compatibility)
+The archive contains Laravel 13, production Composer dependencies and the shared browser app. It has passed a local startup and database migration test. The target AlwaysData account still needs its own checks.
 
-Both archives deliberately exclude `.env`, application keys, debug caches, test suites, private storage, and development dependencies.
+## Host requirements
 
----
+The host needs a supported PHP version satisfying `^8.4.1`, outbound HTTPS with a valid certificate store, and the extensions required by Composer. The app uses fileinfo and either SQLite or MySQL, depending on the database configuration.
 
-## 1. Environment Requirements
+The site's document root must point to the application's `public/` directory. The web user needs write access to `storage/` and `bootstrap/cache/`. With SQLite, it also needs access to the database file and its directory.
 
-* **PHP Version:** PHP **8.4.1 or newer compatible version** with extensions: `curl`, `openssl`, `pdo_sqlite` (or `pdo_mysql`), `mbstring`, `fileinfo`, `zip`.
-* **HTTPS & SSL:** Valid CA certificate store for outbound HTTPS requests.
-* **Document Root:** The web server / virtual host document root **must** point to the application's `/public` subfolder.
-* **Permissions:** Writable `storage/` and `bootstrap/cache/` directories owned by your web user.
-* **Optional CLI Tools:** `ffmpeg` on the server PATH if enabling server-side direct media transcoding. (Client-side in-browser Web Audio demuxing and editing work without server FFmpeg).
+Check these capabilities on the hosting plan before uploading. Server extraction and conversion need additional tools and network controls.
 
----
+## New installation
 
-## 2. Deployment Instructions (AlwaysData / Shared / VPS)
+Extract the archive into a directory such as `/home/username/soundlab`.
 
-### Step 1: Upload and Extract
-Upload `NTK_SoundLab_Studio_AlwaysData.zip` to your application directory (e.g. `/home/username/soundlab`) and extract it:
-```bash
-unzip -q NTK_SoundLab_Studio_AlwaysData.zip -d /home/username/soundlab
-```
-
-### Step 2: Configure Environment
-Copy `.env.example` to `.env`:
-```bash
+```sh
+unzip -q NTK_SoundLab_Studio_AlwaysData-2026.11.11.2.zip -d /home/username/soundlab
 cd /home/username/soundlab
 cp .env.example .env
 ```
-Edit `.env` to set your actual production domain and environment:
+
+Set the environment for the real domain.
+
 ```ini
 APP_NAME="NTK SoundLab Studio"
 APP_ENV=production
-APP_KEY=
 APP_DEBUG=false
 APP_URL=https://your-account.alwaysdata.net
+DB_CONNECTION=sqlite
 ```
 
-### Step 3: Generate Application Key
-```bash
+Generate an application key and prepare the database.
+
+```sh
 php artisan key:generate
-```
-
-### Step 4: Database Setup (SQLite Default)
-If using SQLite:
-```bash
 touch database/database.sqlite
 php artisan migrate --force
 ```
 
-### Step 5: Web Server Routing
-Configure the AlwaysData site:
-* **Type:** PHP
-* **PHP Version:** 8.4
-* **Root Directory:** `/home/username/soundlab/public`
+In the AlwaysData site settings, choose the matching PHP version and set the root to `/home/username/soundlab/public`. Use the actual account name and installation path.
 
-### Step 6: Verify Health Endpoints
-Open your browser and verify:
-* `https://your-account.alwaysdata.net/` — Loads NTK SoundLab Studio interface.
-* `https://your-account.alwaysdata.net/api/health` — Returns JSON status `{"status": "ok"}`.
+## Updating an existing installation
 
----
+Back up the database, private files and environment before changing the release. Extract the new package into a separate directory and retain the existing `.env`, `APP_KEY` and database.
 
-## 3. Automated Storage Pruning
+Review and run pending migrations against that existing database. Check the new directory before switching the site's document root. Keep the previous directory available for rollback. Database rollback needs its own recovery plan after migrations or new writes.
 
-The backend automatically manages temporary audio/video processing files. Schedule Laravel's prune command via AlwaysData Scheduled Tasks or cron:
-```bash
+## Temporary files
+
+The backend includes a prune command for old download jobs and files.
+
+```sh
 php /home/username/soundlab/artisan omni:prune --max-age=30
 ```
-Schedule it to run every 30 minutes to ensure disk usage remains within your hosting plan limits.
 
----
+The same command is registered with Laravel's scheduler every 30 minutes. Configure either the standard Laravel scheduler or an equivalent scheduled task for this command on the host.
 
-## 4. Verification & Security Checkpoints
+## Extraction and conversion
 
-* **Privacy Guaranteed:** All neural stem separation (Meta HTDemucs v4), waveform editing, and 1080p video rendering are processed entirely client-side in the browser.
-* **Egress Safety:** Arbitrary extraction is disabled unless `MEDIA_EXTRACTOR_EGRESS_SANDBOXED=true` is explicitly set in `.env`.
-* **Zero Secret Leakage:** No database files, cookies, or secrets are bundled in the package.
+Set `YT_DLP_PATH` or `FFMPEG_PATH` only when those tools are installed and supported by the hosting plan. Cookie administration requires a server `ADMIN_KEY`.
+
+Keep `MEDIA_EXTRACTOR_EGRESS_SANDBOXED=false` until the host enforces public-network-only access for extractor subprocesses on every connection. The flag records that external control. It does not configure a sandbox.
+
+Browser editing and the optional hosted media services have different requirements. Use `/api/health` to inspect what the running server reports.
+
+## Check the deployed site
+
+Open the app over HTTPS and confirm that local file import and an audio export work. Check that `/api/health` returns a successful status.
+
+Direct requests for `/.env` and `/.git/config` should return 404 or another denial. Anonymous cookie administration should be denied. Confirm that temporary files are pruned, then test a permitted media URL if the server extractor is enabled.

@@ -1,23 +1,21 @@
-import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.3.1';
+import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.11.2';
 /**
- * Suno Downloader Pro - Hybrid Neural 4-Stem AI Separation Engine
+ * NTK SoundLab Studio - Hybrid Neural 4-Stem AI Separation Engine
  * Powered by Meta HTDemucs v4:
  *  - Tier 1 (Local Helper): Native PyTorch HTDemucs v4 via http://127.0.0.1:8899/api/stems/*
  *  - Tier 2 (Static Hosting - GitHub Pages / Firebase): In-Browser ONNX Runtime Web (WebGPU + WASM)
  *    running htdemucs_embedded.onnx cached permanently in IndexedDB.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.3.1';
-import { VaultDB } from './vault-db.js?v=2026.11.3.1';
-import { CONSTANTS, DemucsProcessor } from '../lib/demucs-web/index.js?v=2026.11.3.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
+import { VaultDB } from './vault-db.js?v=2026.11.11.2';
+import { CONSTANTS, DemucsProcessor } from '../lib/demucs-web/index.js?v=2026.11.11.2';
+import { ORT_DIRECTORY, ORT_SCRIPT, getVerifiedModel } from './offline-model.js?v=2026.11.11.2';
 
 export class StemEngine {
   static LOCAL_BASE = 'http://127.0.0.1:8899';
-  static ORT_CDN_URL = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.webgpu.min.js';
-  static ORT_WASM_DIR = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
-  static MODEL_CACHE_ID = 'htdemucs_embedded_v1';
-
-  static _browserProcessor = null;
+  static _activeBase = '';
+  static _browserSession = null;
   static _ortPromise = null;
 
   /**
@@ -33,6 +31,7 @@ export class StemEngine {
       clearTimeout(timer);
       if (res.ok) {
         const data = await res.json();
+        StemEngine._activeBase = '';
         return {
           available: Boolean(data.available),
           device: data.device || 'browser',
@@ -69,12 +68,11 @@ export class StemEngine {
    */
   static async loadOnnxRuntime() {
     if (window.ort) return window.ort;
-    if (!navigator.onLine) throw new Error('Neural separation needs its optional runtime and model. Connect to load them, or use the installed local helper; local editing and lyric tap-sync still work offline.');
     if (StemEngine._ortPromise) return StemEngine._ortPromise;
 
     StemEngine._ortPromise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = StemEngine.ORT_CDN_URL;
+      script.src = ORT_SCRIPT;
       script.async = true;
       script.onload = () => {
         if (!window.ort) {
@@ -82,7 +80,7 @@ export class StemEngine {
           reject(new Error('ONNX Runtime loaded without its API. Retry after checking the connection.'));
           return;
         }
-        window.ort.env.wasm.wasmPaths = StemEngine.ORT_WASM_DIR;
+        window.ort.env.wasm.wasmPaths = ORT_DIRECTORY.href;
         // Avoid SharedArrayBuffer crash on GitHub Pages / static hosts lacking COOP/COEP headers
         window.ort.env.wasm.numThreads = window.crossOriginIsolated
           ? Math.min(4, navigator.hardwareConcurrency || 2)
@@ -91,8 +89,9 @@ export class StemEngine {
         resolve(window.ort);
       };
       script.onerror = () => {
+        script.remove();
         StemEngine._ortPromise = null;
-        reject(new Error('Could not load ONNX Runtime Web from CDN. Check internet connection.'));
+        reject(new Error('The neural runtime is unavailable. Open the packaged app or prepare the offline model from an online browser session.'));
       };
       document.head.appendChild(script);
     });
@@ -157,7 +156,7 @@ export class StemEngine {
       const wavBytes = AudioConverter.encodeWavArrayBuffer(vocalBuffer);
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 20000);
-      const res = await fetch(`${StemEngine.LOCAL_BASE}/api/stems/split-vocals`, {
+      const res = await fetch(`${StemEngine._activeBase}/api/stems/split-vocals`, {
         method: 'POST',
         headers: { 'Content-Type': 'audio/wav' },
         body: wavBytes,
@@ -309,7 +308,7 @@ export class StemEngine {
       engine: engineLabel
     });
 
-    const startResp = await fetch(`${StemEngine.LOCAL_BASE}/api/stems/separate`, {
+    const startResp = await fetch(`${StemEngine._activeBase}/api/stems/separate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'audio/wav',
@@ -332,7 +331,7 @@ export class StemEngine {
     // Poll job progress
     while (true) {
       await new Promise(r => setTimeout(r, 450));
-      const statusResp = await fetch(`${StemEngine.LOCAL_BASE}/api/stems/status/${jobId}`);
+      const statusResp = await fetch(`${StemEngine._activeBase}/api/stems/status/${jobId}`);
       if (!statusResp.ok) {
         throw new Error(`Lost connection to local stem job (${statusResp.status})`);
       }
@@ -360,7 +359,7 @@ export class StemEngine {
     });
 
     const fetchStemWav = async (stemName) => {
-      const r = await fetch(`${StemEngine.LOCAL_BASE}/api/stems/download/${jobId}/${stemName}`);
+      const r = await fetch(`${StemEngine._activeBase}/api/stems/download/${jobId}/${stemName}`);
       if (!r.ok) throw new Error(`Failed to fetch separated ${stemName} stem`);
       return await r.arrayBuffer();
     };
@@ -395,105 +394,46 @@ export class StemEngine {
   /**
    * Tier 2: Pure Static In-Browser Neural AI (ONNX Runtime Web + WebGPU/WASM + htdemucs_embedded.onnx)
    */
-  static async separateViaBrowserOnnx(uuid, sourceBuffer, onProgress) {
-    const hasWebGpu = typeof navigator !== 'undefined' && 'gpu' in navigator;
-    const accelTag = hasWebGpu ? 'WebGPU' : 'WASM SIMD';
-    const engineLabel = `HTDemucs v4 (In-Browser ${accelTag})`;
-
-    onProgress({
-      percent: 2,
-      stage: `Loading ONNX Runtime (${accelTag})...`,
-      engine: engineLabel
-    });
-
-    const ort = await StemEngine.loadOnnxRuntime();
-
-    if (!StemEngine._browserProcessor) {
-      let modelBuffer = await VaultDB.getAiModel(StemEngine.MODEL_CACHE_ID);
-
-      if (!modelBuffer) {
-        onProgress({
-          percent: 4,
-          stage: 'Locating Meta HTDemucs v4 Neural Model (172 MB, cached in this device’s vault when storage is available)...',
-          engine: engineLabel
-        });
-
-        let modelUrl = CONSTANTS.DEFAULT_MODEL_URL;
-        try {
-          const localCheck = await fetch('/models/htdemucs_embedded.onnx', { method: 'HEAD' });
-          if (localCheck.ok) {
-            modelUrl = '/models/htdemucs_embedded.onnx';
-            onProgress({
-              percent: 5,
-              stage: 'Found local offline HTDemucs v4 model! Loading without internet...',
-              engine: engineLabel
-            });
-          }
-        } catch (e) {}
-
-        const resp = await fetch(modelUrl);
-        if (!resp.ok) {
-          throw new Error(`Could not download HTDemucs ONNX model (HTTP ${resp.status})`);
-        }
-
-        const total = parseInt(resp.headers.get('Content-Length') || '180534758', 10);
-        if (resp.body && total > 0) {
-          const reader = resp.body.getReader();
-          const chunks = [];
-          let loaded = 0;
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            chunks.push(value);
-            loaded += value.length;
-            const dlPct = Math.min(100, Math.round((loaded / total) * 100));
-            const mbLoaded = (loaded / 1048576).toFixed(1);
-            const mbTotal = (total / 1048576).toFixed(1);
-            onProgress({
-              percent: Math.min(28, 4 + Math.round((loaded / total) * 24)),
-              stage: `Downloading HTDemucs AI weights: ${mbLoaded} / ${mbTotal} MB (${dlPct}%) — saved offline after this`,
-              engine: engineLabel
-            });
-          }
-
-          const combined = new Uint8Array(loaded);
-          let pos = 0;
-          for (const c of chunks) {
-            combined.set(c, pos);
-            pos += c.length;
-          }
-          modelBuffer = combined.buffer;
-        } else {
-          modelBuffer = await resp.arrayBuffer();
-        }
-
-        await VaultDB.saveAiModel(StemEngine.MODEL_CACHE_ID, modelBuffer);
-      } else {
-        onProgress({
-          percent: 15,
-          stage: 'Loaded cached HTDemucs v4 weights from IndexedDB Vault...',
-          engine: engineLabel
-        });
-      }
-
-      onProgress({
-        percent: 29,
-        stage: `Compiling neural graph on ${accelTag}...`,
-        engine: engineLabel
+  static browserSession(onProgress) {
+    if (!StemEngine._browserSession) {
+      StemEngine._browserSession = StemEngine.initializeBrowserSession(onProgress).catch(error => {
+        StemEngine._browserSession = null;
+        throw error;
       });
-
-      const processor = new DemucsProcessor({
-        ort,
-        sessionOptions: {
-          executionProviders: hasWebGpu ? ['webgpu', 'wasm'] : ['wasm'],
-          graphOptimizationLevel: 'all'
-        }
-      });
-
-      await processor.loadModel(modelBuffer);
-      StemEngine._browserProcessor = processor;
     }
+    return StemEngine._browserSession;
+  }
+
+  static async initializeBrowserSession(onProgress) {
+    onProgress({ percent: 2, stage: 'Loading the bundled neural runtime…' });
+    const ort = await StemEngine.loadOnnxRuntime();
+    const model = await getVerifiedModel(ratio => onProgress({
+      percent: Math.round(4 + ratio * 24),
+      stage: `Loading the HTDemucs model · ${Math.round(ratio * 100)}%`,
+    }));
+    const create = async (providers, engineLabel) => {
+      onProgress({ percent: 29, stage: `Preparing ${engineLabel}…`, engine: engineLabel });
+      const processor = new DemucsProcessor({
+        ort, sessionOptions: { executionProviders: providers, graphOptimizationLevel: 'all' },
+      });
+      await processor.loadModel(model);
+      return { processor, engineLabel };
+    };
+    try {
+      const adapter = await navigator.gpu?.requestAdapter();
+      // The pinned runtime produced out-of-range stem samples on Intel Gen 9.
+      const useWasm = adapter?.info?.vendor === 'intel' && adapter.info.architecture === 'gen-9';
+      if (adapter && !useWasm) {
+        return await create(['webgpu', 'wasm'], 'HTDemucs v4 (WebGPU with WASM fallback)');
+      }
+    } catch {
+      onProgress({ percent: 29, stage: 'WebGPU initialization failed. Trying WASM…' });
+    }
+    return create(['wasm'], 'HTDemucs v4 (WASM SIMD)');
+  }
+
+  static async separateViaBrowserOnnx(uuid, sourceBuffer, onProgress) {
+    const { processor, engineLabel } = await StemEngine.browserSession(onProgress);
 
     onProgress({
       percent: 32,
@@ -505,7 +445,7 @@ export class StemEngine {
     const leftIn = stereo44k.getChannelData(0);
     const rightIn = stereo44k.getChannelData(1);
 
-    StemEngine._browserProcessor.onProgress = ({ progress, currentSegment, totalSegments }) => {
+    processor.onProgress = ({ progress, currentSegment, totalSegments }) => {
       const pct = Math.min(95, 34 + Math.round(progress * 61));
       onProgress({
         percent: pct,
@@ -514,7 +454,7 @@ export class StemEngine {
       });
     };
 
-    const rawOut = await StemEngine._browserProcessor.separate(leftIn, rightIn);
+    const rawOut = await processor.separate(leftIn, rightIn);
 
     onProgress({
       percent: 96,

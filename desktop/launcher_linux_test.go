@@ -11,7 +11,7 @@ import (
 func TestLinuxBrowserIsolation(t *testing.T) {
 	root := filepath.Join(t.TempDir(), "profile folder with spaces")
 	args := linuxBrowserArgs("http://127.0.0.1:47831", root)
-	want := []string{"--app=http://127.0.0.1:47831", "--user-data-dir=" + filepath.Join(root, "profile"), "--class=OmniStreamStudio", "--window-size=1280,900", "--no-first-run", "--no-default-browser-check"}
+	want := []string{"--app=http://127.0.0.1:47831", "--user-data-dir=" + filepath.Join(root, "profile"), "--class=NTKSoundLabStudio", "--window-size=1280,900", "--no-first-run", "--no-default-browser-check"}
 	if !reflect.DeepEqual(args, want) {
 		t.Fatalf("unsafe or unexpected browser arguments: %q", args)
 	}
@@ -19,7 +19,7 @@ func TestLinuxBrowserIsolation(t *testing.T) {
 }
 
 func TestLinuxMissingBrowserReportsRecovery(t *testing.T) {
-	t.Setenv("NTK_OMNISTREAM_BROWSER", "/nonexistent-omnistream-test/browser")
+	t.Setenv("NTK_SOUNDLAB_BROWSER", "/nonexistent-soundlab-test/browser")
 	if launchBrowser("http://127.0.0.1:47831", t.TempDir()) == nil {
 		t.Fatal("missing executable accepted")
 	}

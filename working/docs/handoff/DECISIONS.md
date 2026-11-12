@@ -39,3 +39,7 @@
 - No store publication, cloud deployment, spending or account changes. Physical
   device acceptance and actual provider recognition remain distinct from package QA.
 
+## SoundLab identity decision · 11 November 2026
+
+NTK chose `com.ntkhub.soundlabstudio` for a fresh Android release. Current application and build names use NTK SoundLab Studio. The new Android identity has a separate SoundLab signer and data directory. Desktop compatibility resolves earlier profiles and reads previous local library records. The 2026.11.11.2 downloads supersede the 2026.11.11.1 candidate.
+

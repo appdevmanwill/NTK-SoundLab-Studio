@@ -1,5 +1,5 @@
 /**
- * Suno Downloader Pro - UI Components
+ * NTK SoundLab Studio - UI Components
  */
 
 /* =========================================================================
@@ -1194,7 +1194,7 @@
 }
 
 /* =========================================================================
-   NTK OmniStream Studio - Universal Platform Badges & Vault Styles
+   NTK SoundLab Studio - Universal Platform Badges & Vault Styles
    ========================================================================= */
 .badge-youtube {
   background: rgba(239, 68, 68, 0.22);
@@ -1419,5 +1419,26 @@
 
 .slide-thumb .slide-btn-right {
   right: 2px;
+}
+
+.offline-model-panel {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.offline-model-panel h3,
+.offline-model-panel label {
+  color: var(--text-primary);
+}
+
+.offline-model-panel input {
+  width: 100%;
+  min-width: 0;
 }
 

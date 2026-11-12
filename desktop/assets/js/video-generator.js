@@ -1,14 +1,14 @@
-import { LyricAlignment } from './lyric-alignment.js?v=2026.11.3.1';
+import { LyricAlignment } from './lyric-alignment.js?v=2026.11.11.2';
 /**
- * Suno Downloader Pro - World-Class Video Generator & Karaoke Visualizer Studio
+ * NTK SoundLab Studio - World-Class Video Generator & Karaoke Visualizer Studio
  * Renders 1080p Full HD audio-visualizer videos with synchronized Karaoke Lyrics Burn-In,
  * 6 Kinetic Animation Templates (CapCut Spring Pop, Viral Highlighter, Liquid Wipe, Floating Wave, Glitch, Classic),
  * Custom Album Artwork & Spinning Vinyl Record Center Label, Custom Cinema Backdrops,
  * Audio-Reactive Particles, 4 Visualizer Engines, and 60 FPS Export.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.3.1';
-import { LyricsUtils } from './lyrics-utils.js?v=2026.11.3.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
+import { LyricsUtils } from './lyrics-utils.js?v=2026.11.11.2';
 
 export class VideoGenerator {
   static THEMES = {

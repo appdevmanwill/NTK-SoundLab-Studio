@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Http\Controllers\OmniStreamController;
+use App\Http\Controllers\SoundLabController;
 use App\Models\MediaDownload;
 use App\Services\SafeMediaHttp;
 use App\Services\UniversalMediaService;
@@ -107,7 +107,7 @@ class BackendSafetyTest extends TestCase
     {
         $service = $this->app->make(UniversalMediaService::class);
         $job = $this->job('dl_ffffffffffffffff', 'completed', false);
-        $response = $this->app->make(OmniStreamController::class)->stream($job->id);
+        $response = $this->app->make(SoundLabController::class)->stream($job->id);
         $job->forceFill(['expires_at' => now()->subHour(), 'updated_at' => now()->subHours(2)])->save();
         $this->assertSame(0, $service->pruneExpiredDownloads(30));
         $this->assertFileExists($job->file_path);

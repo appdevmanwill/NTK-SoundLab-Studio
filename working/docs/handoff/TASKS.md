@@ -1,5 +1,19 @@
 # Remaining verification
 
+## SoundLab identity release · 2026.11.11.2
+
+- [x] Apply NTK's chosen fresh Android ID `com.ntkhub.soundlabstudio` and create its private SoundLab signing identity.
+- [x] Rename current source, executable, helper, frontend client, Laravel controller and Linux package names.
+- [x] Preserve desktop profile access and earlier library reads, with checks for the new storage key.
+- [x] Rebuild seven versioned packages and generate their matching download table and checksum catalog.
+- [x] Verify the Windows installer, Linux headless launch, packaged browser suites, offline stems and local PHP archive.
+- [x] Install the current APK beside the earlier app and open the native Transcribe editor offline in the isolated emulator.
+- [ ] Complete physical-phone endurance and export acceptance.
+- [x] Build, sign and validate the AAB and compare its generated APK with the direct release.
+- [ ] Configure Play App Signing and upload through the intended developer account.
+- [ ] Obtain approved trusted Windows signing access and sign the portable and installer.
+- [ ] Verify the intended live hosting target when selected.
+
 ## Dedicated Transcribe closure — 2026.11.3.1
 
 - [x] Implement1hour/150MB limits, bounded audio/video decoding and online recognition.

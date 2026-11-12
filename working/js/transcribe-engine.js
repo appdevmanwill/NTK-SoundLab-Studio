@@ -1,5 +1,5 @@
-import { Input, BlobSource, AudioSampleSink, MP3, MP4, WAVE, OGG, FLAC, WEBM, MATROSKA, ADTS } from '../lib/mediabunny/mediabunny.js?v=2026.11.3.1';
-import { AiPolicy } from './ai-policy.js?v=2026.11.3.1';
+import { Input, BlobSource, AudioSampleSink, MP3, MP4, WAVE, OGG, FLAC, WEBM, MATROSKA, ADTS } from '../lib/mediabunny/mediabunny.js?v=2026.11.11.2';
+import { AiPolicy } from './ai-policy.js?v=2026.11.11.2';
 
 export const TRANSCRIBE_LIMITS = Object.freeze({ bytes: 150000000, seconds: 3600, chunk: 240, overlap: 2, rate: 16000 });
 const check = signal => { if (signal?.aborted) throw new DOMException('Cancelled. Completed sections are kept.', 'AbortError'); };
@@ -11,8 +11,25 @@ export function validateDuration(duration) {
   if (!Number.isFinite(duration) || duration <= 0) throw new Error('Could not determine this recording’s duration. Try a WAV or MP3 copy.');
   if (duration > TRANSCRIBE_LIMITS.seconds + 0.001) throw new Error('This recording is longer than 1 hour. Trim it first.');
 }
-export async function fingerprint(file) {
+export const FINGERPRINT_PREFIX = 'ntk-file-v2:';
+export async function fingerprint(file, signal) {
   validateFile(file);
+  // Commit to every byte without allocating a full-recording ArrayBuffer.
+  const blockSize = 1024 * 1024;
+  const header = new TextEncoder().encode(`${FINGERPRINT_PREFIX}${file.size}:`);
+  const manifest = new Uint8Array(header.length + Math.ceil(file.size / blockSize) * 32);
+  manifest.set(header);
+  for (let offset = 0, digestOffset = header.length; offset < file.size; offset += blockSize, digestOffset += 32) {
+    check(signal);
+    const block = await file.slice(offset, offset + blockSize).arrayBuffer();
+    check(signal);
+    manifest.set(new Uint8Array(await crypto.subtle.digest('SHA-256', block)), digestOffset);
+  }
+  check(signal);
+  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', manifest));
+  return FINGERPRINT_PREFIX + Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+export async function legacyFingerprint(file) {
   const bytes = await new Blob([file.slice(0, 65536), file.slice(Math.max(0, file.size - 65536))]).arrayBuffer();
   const hash = await crypto.subtle.digest('SHA-256', bytes);
   return [file.name, file.size, file.lastModified, ...new Uint8Array(hash)].join('-');

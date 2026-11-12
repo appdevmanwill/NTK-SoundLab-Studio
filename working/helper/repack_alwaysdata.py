@@ -17,8 +17,8 @@ import tempfile
 import uuid
 import zipfile
 
-ROOT_FILES = {'artisan', 'composer.json', 'composer.lock', '.env.example', '.htaccess'}
-PUBLIC_ROOT = {'index.php', 'index.html', '404.html', 'sw.js', 'manifest.json', 'robots.txt', 'favicon.ico', '.htaccess'}
+ROOT_FILES = {'artisan', 'composer.json', 'composer.lock', '.env.example', '.htaccess', 'LICENSE'}
+PUBLIC_ROOT = {'index.php', 'index.html', '404.html', 'sw.js', 'manifest.json', 'robots.txt', 'favicon.ico', '.htaccess', 'LICENSE', 'THIRD_PARTY_NOTICES.md'}
 PUBLIC_DIRS = {'assets', 'css', 'js', 'lib', 'build'}
 ASSET_EXTENSIONS = {'.php', '.html', '.json', '.js', '.mjs', '.css', '.svg', '.png', '.jpg', '.jpeg', '.webp', '.ico', '.woff', '.woff2', '.ttf', '.wasm', '.txt'}
 PRIVATE_EXTENSIONS = {'.sqlite', '.sqlite3', '.db', '.log', '.pem', '.key', '.pfx', '.p12', '.bak', '.sql'}

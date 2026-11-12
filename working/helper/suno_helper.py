@@ -21,7 +21,7 @@ import uuid as uuid_lib
 import threading
 import urllib.request
 import urllib.parse
-from http.server import HTTPServer, ThreadingHTTPServer, SimpleHTTPRequestHandler
+from local_server import STUDIO_ROOT, StudioHandler, create_server
 
 try:
     from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -553,37 +553,8 @@ def _run_demucs_job(job_id: str, wav_bytes: bytes):
         job["stage"] = f"Stem separation error: {exc}"
 
 
-class LocalProxyHandler(SimpleHTTPRequestHandler):
-    def handle(self):
-        try:
-            super().handle()
-        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError, TimeoutError):
-            pass
-
-    def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-Song-Id, Access-Control-Request-Private-Network')
-        self.send_header('Access-Control-Allow-Private-Network', 'true')
-        self.send_header('Cache-Control', 'no-cache, must-revalidate')
-        super().end_headers()
-
-    def _send_json(self, status_code: int, payload: dict):
-        try:
-            resp_bytes = json.dumps(payload).encode('utf-8')
-            self.send_response(status_code)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Content-Length', str(len(resp_bytes)))
-            self.end_headers()
-            self.wfile.write(resp_bytes)
-        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError, TimeoutError):
-            pass
-
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.end_headers()
-
-    def do_GET(self):
+class LocalProxyHandler(StudioHandler):
+    def handle_api_get(self):
         parsed_path = urllib.parse.urlparse(self.path).path
 
         if parsed_path.startswith('/api/suno/playlist/'):
@@ -608,7 +579,11 @@ class LocalProxyHandler(SimpleHTTPRequestHandler):
             self._send_json(200, {'status': 'ok', 'app': 'NTK Hub Suno Studio', 'version': '2026.4'})
             return
 
-        if parsed_path in ('/api/capabilities', '/api/stems/capabilities'):
+        if parsed_path == '/api/stems/capabilities':
+            self._send_json(200, check_demucs_available())
+            return
+
+        if parsed_path == '/api/capabilities':
             caps = check_demucs_available()
             self._send_json(200, {
                 'active': True,
@@ -652,15 +627,16 @@ class LocalProxyHandler(SimpleHTTPRequestHandler):
             self._send_json(404, {'error': 'Stem audio not found'})
             return
 
-        super().do_GET()
+        super().handle_api_get()
 
-    def do_POST(self):
+    def handle_api_post(self):
         if self.path.startswith('/api/stems/split-vocals'):
-            content_length = int(self.headers.get('Content-Length', 0))
-            if content_length <= 0:
+            wav_bytes = self.read_body(640 * 1024 * 1024)
+            if wav_bytes is None:
+                return
+            if not wav_bytes:
                 self._send_json(400, {'error': 'Empty vocal payload'})
                 return
-            wav_bytes = self.rfile.read(content_length)
             try:
                 sr, vocal_np = decode_wav_bytes_to_stereo_float32(wav_bytes)
                 lead_np, back_np = split_lead_and_backing_vocals(vocal_np, sr)
@@ -681,12 +657,13 @@ class LocalProxyHandler(SimpleHTTPRequestHandler):
                 self._send_json(503, {'error': f"Local HTDemucs unavailable: {caps.get('error', 'missing packages')}"})
                 return
 
-            content_length = int(self.headers.get('Content-Length', 0))
-            if content_length <= 0:
+            wav_bytes = self.read_body(640 * 1024 * 1024)
+            if wav_bytes is None:
+                return
+            if not wav_bytes:
                 self._send_json(400, {'error': 'Empty audio payload'})
                 return
 
-            wav_bytes = self.rfile.read(content_length)
             _prune_old_stem_jobs(max_jobs=3)
 
             job_id = uuid_lib.uuid4().hex[:12]
@@ -706,8 +683,9 @@ class LocalProxyHandler(SimpleHTTPRequestHandler):
             return
 
         if self.path.startswith('/api/mango/rights'):
-            content_length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(content_length)
+            body = self.read_body(512 * 1024)
+            if body is None:
+                return
             try:
                 data = json.loads(body.decode('utf-8'))
                 uuid = data.get('content_params', {}).get('content_id')
@@ -720,10 +698,8 @@ class LocalProxyHandler(SimpleHTTPRequestHandler):
             self.end_headers()
 
 
-def serve(port: int = 8899, directory: str = "."):
-    server_address = ('127.0.0.1', port)
-    handler = lambda *args, **kwargs: LocalProxyHandler(*args, directory=directory, **kwargs)
-    httpd = ThreadingHTTPServer(server_address, handler)
+def serve(port: int = 8899, directory=STUDIO_ROOT):
+    httpd = create_server(LocalProxyHandler, port, directory)
     caps = check_demucs_available()
     print("=" * 60)
     print(f"[*] NTK Hub Suno Studio Helper active on http://127.0.0.1:{port}")
@@ -819,7 +795,7 @@ def main():
     parser.add_argument("--zip", action="store_true", help="Package all downloaded songs into a single .zip file")
     parser.add_argument("--serve", action="store_true", help="Start local web server with Mango DRM proxy")
     parser.add_argument("--port", type=int, default=8899, help="Port for server")
-    parser.add_argument("--dir", default=".", help="Directory to serve")
+    parser.add_argument("--dir", default=STUDIO_ROOT, help="Studio asset directory")
     args = parser.parse_args()
 
     if args.serve:

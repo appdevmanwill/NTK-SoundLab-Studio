@@ -1,10 +1,11 @@
 /**
- * Suno Downloader Pro - Storage & Cache Manager
+ * NTK SoundLab Studio - Storage & Cache Manager
  * Manages song history, metadata caching, and in-memory audio buffers
  */
 
 export class StorageManager {
-  static STORAGE_KEY = 'suno_downloader_pro_v1';
+  static STORAGE_KEY = 'ntk_soundlab_studio_v1';
+  static LEGACY_STORAGE_KEY = 'suno_downloader_pro_v1';
 
   // In-memory cache for decrypted audio buffers to prevent redundant network fetches
   static _bufferCache = new Map(); // uuid -> { decryptedBuffer, audioBuffer, stems }
@@ -37,7 +38,8 @@ export class StorageManager {
    */
   static loadSongs() {
     try {
-      const data = localStorage.getItem(StorageManager.STORAGE_KEY);
+      const data = localStorage.getItem(StorageManager.STORAGE_KEY)
+        ?? localStorage.getItem(StorageManager.LEGACY_STORAGE_KEY);
       if (data) {
         const parsed = JSON.parse(data);
         if (Array.isArray(parsed)) return parsed.map(item => StorageManager.normalizeSong(item)).filter(Boolean);
@@ -94,6 +96,7 @@ export class StorageManager {
   static clearAll() {
     try {
       localStorage.removeItem(StorageManager.STORAGE_KEY);
+      localStorage.removeItem(StorageManager.LEGACY_STORAGE_KEY);
     } catch (e) {}
     StorageManager._bufferCache.clear();
   }
