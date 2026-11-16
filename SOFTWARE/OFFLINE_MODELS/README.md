@@ -1,6 +1,6 @@
 # Optional offline stem model
 
-NTK SoundLab Studio 2026.11.11.2 includes the matching ONNX Runtime Web files.
+NTK SoundLab Studio 2026.11.16.1 includes the matching ONNX Runtime Web files.
 
 1. Use the local `htdemucs_embedded.onnx` file in this folder when available, or save the [pinned model file](https://huggingface.co/timcsy/demucs-web-onnx/resolve/92e33df61cfc9eb820272aaa62d2ef6dcf4d950d/htdemucs_embedded.onnx?download=true).
 2. Open the app, choose **Offline Storage**, and select the model under **Offline stem separation**. Wait for the completion message.

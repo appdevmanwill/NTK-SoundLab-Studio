@@ -1,32 +1,32 @@
-import { TranscribeStudio } from './transcribe-studio.js?v=2026.11.11.2';
-import { importOfflineModel, MODEL } from './offline-model.js?v=2026.11.11.2';
-import { AiPolicy } from './ai-policy.js?v=2026.11.11.2';
-import { LyricAlignment } from './lyric-alignment.js?v=2026.11.11.2';
-import { fetch } from './network-policy.js?v=2026.11.11.2';
+import { TranscribeStudio } from './transcribe-studio.js?v=2026.11.16.1';
+import { importOfflineModel, MODEL } from './offline-model.js?v=2026.11.16.1';
+import { AiPolicy } from './ai-policy.js?v=2026.11.16.1';
+import { LyricAlignment } from './lyric-alignment.js?v=2026.11.16.1';
+import { fetch } from './network-policy.js?v=2026.11.16.1';
 /**
  * NTK SoundLab Studio - Universal Media Downloader & Neural Stem Separator
  * Main Application Orchestrator
  */
 
-import { SoundLabAPI } from './soundlab-api.js?v=2026.11.11.2';
-import { VideoDemuxer } from './video-demuxer.js?v=2026.11.11.2';
-import { SunoAPI } from './suno-api.js?v=2026.11.11.2';
-import { CryptoEngine } from './crypto-engine.js?v=2026.11.11.2';
-import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
-import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.11.2';
-import { ID3Writer } from './id3-writer.js?v=2026.11.11.2';
-import { LyricsUtils } from './lyrics-utils.js?v=2026.11.11.2';
-import { VaultDB } from './vault-db.js?v=2026.11.11.2';
-import { StemEngine } from './stem-engine.js?v=2026.11.11.2';
-import { StemMixer } from './stem-mixer.js?v=2026.11.11.2';
-import { AudioFXEngine } from './audio-fx.js?v=2026.11.11.2';
-import { ZipPackager } from './zip-packager.js?v=2026.11.11.2';
-import { VideoGenerator } from './video-generator.js?v=2026.11.11.2';
-import { BookmarkletEngine } from './bookmarklet.js?v=2026.11.11.2';
-import { StorageManager } from './storage.js?v=2026.11.11.2';
-import { PlayerEngine } from './player.js?v=2026.11.11.2';
-import { TutorialManager } from './tutorial.js?v=2026.11.11.2';
-import { ImageCropper } from './image-cropper.js?v=2026.11.11.2';
+import { SoundLabAPI } from './soundlab-api.js?v=2026.11.16.1';
+import { VideoDemuxer } from './video-demuxer.js?v=2026.11.16.1';
+import { SunoAPI } from './suno-api.js?v=2026.11.16.1';
+import { CryptoEngine } from './crypto-engine.js?v=2026.11.16.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.16.1';
+import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.16.1';
+import { ID3Writer } from './id3-writer.js?v=2026.11.16.1';
+import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.1';
+import { VaultDB } from './vault-db.js?v=2026.11.16.1';
+import { StemEngine } from './stem-engine.js?v=2026.11.16.1';
+import { StemMixer } from './stem-mixer.js?v=2026.11.16.1';
+import { AudioFXEngine } from './audio-fx.js?v=2026.11.16.1';
+import { ZipPackager } from './zip-packager.js?v=2026.11.16.1';
+import { VideoGenerator } from './video-generator.js?v=2026.11.16.1';
+import { BookmarkletEngine } from './bookmarklet.js?v=2026.11.16.1';
+import { StorageManager } from './storage.js?v=2026.11.16.1';
+import { PlayerEngine } from './player.js?v=2026.11.16.1';
+import { TutorialManager } from './tutorial.js?v=2026.11.16.1';
+import { ImageCropper } from './image-cropper.js?v=2026.11.16.1';
 
 class App {
   constructor() {
@@ -109,19 +109,20 @@ class App {
     try {
       const clipText = (await navigator.clipboard.readText()).trim();
       if (!clipText) {
-        this.showToast('Your clipboard is empty. Copy a Suno song link first!', 'amber');
+        this.showToast('Your clipboard is empty. Copy a song or media link first!', 'amber');
         return;
       }
 
+      const hasHttpUrl = /https?:\/\//i.test(clipText);
       const uuids = SunoAPI.extractUuids(clipText);
       const inputArea = document.getElementById('songUrlInput');
 
-      if (uuids.length === 0) {
+      if (!hasHttpUrl && uuids.length === 0) {
         if (inputArea) {
           inputArea.value = clipText;
           inputArea.focus();
         }
-        this.showToast('Pasted clipboard text, but no Suno song UUID was detected.', 'amber');
+        this.showToast('Pasted clipboard text, but no supported media link or song UUID was detected.', 'amber');
         return;
       }
 
@@ -171,7 +172,7 @@ class App {
 
   setupPwa() {
     if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
-      navigator.serviceWorker.register('./sw.js?v=2026.11.11.2', { updateViaCache: 'none' }).catch((err) => {
+      navigator.serviceWorker.register('./sw.js?v=2026.11.16.1', { updateViaCache: 'none' }).catch((err) => {
         console.warn('Service worker registration skipped:', err);
       });
     }
@@ -691,19 +692,31 @@ class App {
           totalAdded++;
         }
       } catch (err) {
-        // Fallback check if Suno link or UUID
+        // Fallback check strictly for bare Suno UUID or explicit suno.com / suno.ai URL
         let targetUuid = null;
-        const sunoMatch = item.match(SoundLabAPI.SUNO_UUID_REGEX);
-        if (sunoMatch) {
-          targetUuid = sunoMatch[0].toLowerCase();
-        } else if (item.toLowerCase().includes('suno.com') || item.toLowerCase().includes('suno.ai')) {
+        const trimmedItem = item.trim();
+        const isExplicitSuno = (() => {
+          if (/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(trimmedItem)) return true;
           try {
-            const uRes = await fetch(`/api/suno/unshorten?url=${encodeURIComponent(item)}`);
-            if (uRes.ok) {
-              const uData = await uRes.json();
-              if (uData && uData.uuid) targetUuid = uData.uuid.toLowerCase();
-            }
-          } catch (eUn) {}
+            const h = new URL(trimmedItem).hostname.toLowerCase();
+            return h === 'suno.com' || h.endsWith('.suno.com') || h === 'suno.ai' || h.endsWith('.suno.ai');
+          } catch {
+            return false;
+          }
+        })();
+        if (isExplicitSuno) {
+          const sunoMatch = trimmedItem.match(SoundLabAPI.SUNO_UUID_REGEX);
+          if (sunoMatch) {
+            targetUuid = sunoMatch[0].toLowerCase();
+          } else {
+            try {
+              const uRes = await fetch(`/api/suno/unshorten?url=${encodeURIComponent(trimmedItem)}`);
+              if (uRes.ok) {
+                const uData = await uRes.json();
+                if (uData && uData.uuid) targetUuid = uData.uuid.toLowerCase();
+              }
+            } catch (eUn) {}
+          }
         }
 
         if (targetUuid) {
@@ -760,9 +773,18 @@ class App {
 
     const storedSong = StorageManager.loadSongs().find((s) => s.uuid === uuid);
 
-    // Direct Media File (MP3, WAV, M4A, etc.)
-    if (String(uuid).startsWith('direct-') || (storedSong && storedSong.platform === 'Direct Media File')) {
-      const mediaUrl = (storedSong && (storedSong.streamUrl || storedSong.url)) || '';
+    // Check if track is a Suno AI track (only by platform tag, Suno domain, or exact bare Suno UUID)
+    const bareUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(uuid));
+    const isSuno = (storedSong && storedSong.platform === 'Suno AI') ||
+                   (storedSong && storedSong.url && (storedSong.url.includes('suno.com') || storedSong.url.includes('suno.ai'))) ||
+                   (bareUuid && (!storedSong || !storedSong.platform));
+
+    // Direct Media File or Proxied Stream (ACE Music, Flow Music, Treblo, Audius, Vocaroo, Direct MP3/WAV/M4A/AAC)
+    const directStreamUrl = storedSong && (storedSong.streamUrl || storedSong.direct_stream_url || '');
+    const isManifest = /\.(m3u8|mpd)(\?|$)/i.test(directStreamUrl || (storedSong && storedSong.url) || '') ||
+                       (storedSong && storedSong.platform === 'HLS/DASH Stream');
+    if (!isSuno && !isManifest && (String(uuid).startsWith('direct-') || (storedSong && storedSong.platform === 'Direct Media File') || Boolean(directStreamUrl))) {
+      const mediaUrl = directStreamUrl || (storedSong && storedSong.url) || '';
       if (!mediaUrl) throw new Error('Direct media URL missing.');
       onProgress('Downloading direct audio stream...');
       const streamRes = await fetch(mediaUrl);
@@ -779,11 +801,6 @@ class App {
       await this.refreshVaultSummary(false);
       return payload;
     }
-
-    // Check if track is a Suno AI track (by platform tag, Suno URL, or Suno UUID format)
-    const isSuno = (storedSong && storedSong.platform === 'Suno AI') ||
-                   (storedSong && storedSong.url && (storedSong.url.includes('suno.com') || storedSong.url.includes('suno.ai'))) ||
-                   (!String(uuid).startsWith('omni-') && !String(uuid).startsWith('direct-') && !String(uuid).startsWith('local-') && SoundLabAPI.SUNO_UUID_REGEX.test(String(uuid)));
 
     // Universal Media (YouTube, TikTok, SoundCloud, etc.)
     if (!isSuno && (String(uuid).startsWith('omni-') || (storedSong && storedSong.platform && storedSong.platform !== 'Suno AI'))) {

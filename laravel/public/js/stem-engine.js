@@ -1,4 +1,4 @@
-import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.11.2';
+import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.16.1';
 /**
  * NTK SoundLab Studio - Hybrid Neural 4-Stem AI Separation Engine
  * Powered by Meta HTDemucs v4:
@@ -7,10 +7,10 @@ import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.11.2';
  *    running htdemucs_embedded.onnx cached permanently in IndexedDB.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.11.2';
-import { VaultDB } from './vault-db.js?v=2026.11.11.2';
-import { CONSTANTS, DemucsProcessor } from '../lib/demucs-web/index.js?v=2026.11.11.2';
-import { ORT_DIRECTORY, ORT_SCRIPT, getVerifiedModel } from './offline-model.js?v=2026.11.11.2';
+import { AudioConverter } from './audio-converter.js?v=2026.11.16.1';
+import { VaultDB } from './vault-db.js?v=2026.11.16.1';
+import { CONSTANTS, DemucsProcessor } from '../lib/demucs-web/index.js?v=2026.11.16.1';
+import { ORT_DIRECTORY, ORT_SCRIPT, getVerifiedModel } from './offline-model.js?v=2026.11.16.1';
 
 export class StemEngine {
   static LOCAL_BASE = 'http://127.0.0.1:8899';

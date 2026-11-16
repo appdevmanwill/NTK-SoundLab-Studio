@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net"
@@ -245,6 +246,258 @@ func TestProviderStreamRejectsHTMLAndUntrustedRedirects(t *testing.T) {
 		}
 		if client.CheckRedirect(&http.Request{URL: u}, nil) == nil {
 			t.Fatalf("accepted unsafe redirect %s", target)
+		}
+	}
+
+	aceAssetClient := aceMusicClient(safeClient(), true)
+	r2URL, _ := url.Parse("https://demo.r2.cloudflarestorage.com/acemusic-data-prod/track.mp3")
+	if err := aceAssetClient.CheckRedirect(&http.Request{URL: r2URL}, nil); err != nil {
+		t.Fatalf("rejected legitimate ACE Music R2 redirect: %v", err)
+	}
+	evilURL, _ := url.Parse("https://unrelated.example/track.mp3")
+	if err := aceAssetClient.CheckRedirect(&http.Request{URL: evilURL}, nil); err == nil {
+		t.Fatal("accepted untrusted ACE Music redirect")
+	}
+}
+
+func TestAceMusicResolveAndStreams(t *testing.T) {
+	a := testApp()
+	htmlPage := `<!doctype html><html><head>
+		<meta property="og:title" content="Echoes of Tomorrow par SynthWave Lab | ACE Music">
+		<meta name="description" content="Synthwave dreamscape">
+		<meta property="og:audio" content="/data/so_demo123.mp3">
+		<meta property="og:image" content="/data/co_demo123.jpg">
+	</head><body></body></html>`
+	returnHTMLOnAudio := false
+	returnHTMLOnCover := false
+	a.client = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		switch r.URL.String() {
+		case "https://acemusic.ai/song/d3wxbtudvpih":
+			return &http.Response{
+				StatusCode: 200,
+				Header:     http.Header{"Content-Type": []string{"text/html; charset=utf-8"}},
+				Body:       io.NopCloser(strings.NewReader(htmlPage)),
+				Request:    r,
+			}, nil
+		case "https://acemusic.ai/data/so_demo123.mp3":
+			if returnHTMLOnAudio {
+				return &http.Response{
+					StatusCode: 200,
+					Header:     http.Header{"Content-Type": []string{"text/html"}},
+					Body:       io.NopCloser(strings.NewReader("<html>not mp3</html>")),
+					Request:    r,
+				}, nil
+			}
+			if r.Header.Get("Range") == "bytes=2-5" {
+				return &http.Response{
+					StatusCode:    206,
+					Header:        http.Header{"Content-Type": []string{"audio/mpeg"}, "Content-Range": []string{"bytes 2-5/10"}},
+					Body:          io.NopCloser(strings.NewReader("ABCD")),
+					ContentLength: 4,
+					Request:       r,
+				}, nil
+			}
+			return &http.Response{
+				StatusCode:    200,
+				Header:        http.Header{"Content-Type": []string{"audio/mpeg"}},
+				Body:          io.NopCloser(strings.NewReader("0123456789")),
+				ContentLength: 10,
+				Request:       r,
+			}, nil
+		case "https://acemusic.ai/data/co_demo123.jpg":
+			if returnHTMLOnCover {
+				return &http.Response{
+					StatusCode: 200,
+					Header:     http.Header{"Content-Type": []string{"text/html"}},
+					Body:       io.NopCloser(strings.NewReader("<html>not image</html>")),
+					Request:    r,
+				}, nil
+			}
+			return &http.Response{
+				StatusCode:    200,
+				Header:        http.Header{"Content-Type": []string{"image/jpeg"}},
+				Body:          io.NopCloser(strings.NewReader("JPEGBYTES")),
+				ContentLength: 9,
+				Request:       r,
+			}, nil
+		default:
+			t.Fatalf("unexpected upstream request: %s", r.URL.String())
+			return nil, errors.New("unexpected")
+		}
+	})}
+
+	target := url.QueryEscape("https://acemusic.ai/fr/song/d3wxbtudvpih?sh=hcCYFakWHxi")
+	w := serve(a, "GET", "/api/omni/resolve?url="+target, "", true)
+	if w.Code != 200 {
+		t.Fatalf("ace resolve failed: %d %s", w.Code, w.Body.String())
+	}
+	var meta map[string]any
+	if err := json.Unmarshal(w.Body.Bytes(), &meta); err != nil {
+		t.Fatal(err)
+	}
+	if meta["uuid"] != "acemusic-d3wxbtudvpih" || meta["title"] != "Echoes of Tomorrow" || meta["artist"] != "SynthWave Lab" || meta["streamUrl"] != "/api/acemusic/stream/d3wxbtudvpih" || meta["imageLarge"] != "/api/acemusic/cover/d3wxbtudvpih" {
+		t.Fatalf("unexpected ace metadata: %+v", meta)
+	}
+
+	req := httptest.NewRequest("GET", "http://"+a.host+"/api/acemusic/stream/d3wxbtudvpih", nil)
+	req.AddCookie(&http.Cookie{Name: sessionCookie, Value: a.token})
+	req.Header.Set("Range", "bytes=2-5")
+	rw := httptest.NewRecorder()
+	a.routes().ServeHTTP(rw, req)
+	if rw.Code != 206 || rw.Body.String() != "ABCD" || rw.Header().Get("Content-Type") != "audio/mpeg" {
+		t.Fatalf("ace stream range failed: %d %s", rw.Code, rw.Body.String())
+	}
+
+	if cw := serve(a, "GET", "/api/acemusic/cover/d3wxbtudvpih", "", true); cw.Code != 200 || cw.Body.String() != "JPEGBYTES" {
+		t.Fatalf("ace cover failed: %d %s", cw.Code, cw.Body.String())
+	}
+
+	returnHTMLOnAudio = true
+	if badAudio := serve(a, "GET", "/api/acemusic/stream/d3wxbtudvpih", "", true); badAudio.Code != 502 {
+		t.Fatalf("expected 502 for HTML audio payload, got %d", badAudio.Code)
+	}
+	returnHTMLOnAudio = false
+
+	returnHTMLOnCover = true
+	if badCover := serve(a, "GET", "/api/acemusic/cover/d3wxbtudvpih", "", true); badCover.Code != 502 {
+		t.Fatalf("expected 502 for HTML cover payload, got %d", badCover.Code)
+	}
+}
+
+func TestDirectMediaProxyAndAudiomackTruth(t *testing.T) {
+	a := testApp()
+	calls := 0
+	returnHTML := false
+	a.client = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		calls++
+		if r.URL.String() != "https://cdn.example/audio/track.mp3" {
+			t.Fatalf("unexpected direct fetch: %s", r.URL.String())
+		}
+		if r.Method == "HEAD" {
+			return &http.Response{StatusCode: http.StatusMethodNotAllowed, Header: http.Header{}, Body: io.NopCloser(strings.NewReader("")), Request: r}, nil
+		}
+		if returnHTML {
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"text/html"}}, Body: io.NopCloser(strings.NewReader("<html>bad</html>")), Request: r}, nil
+		}
+		return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"audio/mpeg"}}, Body: io.NopCloser(strings.NewReader("MP3DATA")), ContentLength: 7, Request: r}, nil
+	})}
+
+	amURL := url.QueryEscape("https://audiomack.com/artist/song/track")
+	w := serve(a, "GET", "/api/omni/resolve?url="+amURL, "", true)
+	if w.Code != 422 || !strings.Contains(w.Body.String(), "OAuth") || calls != 0 {
+		t.Fatalf("unexpected audiomack response (%d, calls=%d): %s", w.Code, calls, w.Body.String())
+	}
+
+	directURL := url.QueryEscape("https://cdn.example/audio/track.mp3")
+	dw := serve(a, "GET", "/api/omni/resolve?url="+directURL, "", true)
+	if dw.Code != 200 {
+		t.Fatalf("direct resolve failed after 405 HEAD fallback: %d %s", dw.Code, dw.Body.String())
+	}
+	var meta map[string]any
+	if err := json.Unmarshal(dw.Body.Bytes(), &meta); err != nil {
+		t.Fatal(err)
+	}
+	streamPath, _ := meta["streamUrl"].(string)
+	if !strings.HasPrefix(streamPath, "/api/omni/direct-stream?url=") {
+		t.Fatalf("expected proxied direct-stream URL, got %q", streamPath)
+	}
+
+	sw := serve(a, "GET", streamPath, "", true)
+	if sw.Code != 200 || sw.Body.String() != "MP3DATA" {
+		t.Fatalf("direct-stream failed: %d %s", sw.Code, sw.Body.String())
+	}
+
+	returnHTML = true
+	if bw := serve(a, "GET", streamPath, "", true); bw.Code != 502 {
+		t.Fatalf("expected 502 when direct stream returns HTML, got %d", bw.Code)
+	}
+
+	if rw := serve(a, "GET", "/api/omni/direct-stream?url="+url.QueryEscape("https://cdn.example/page.html"), "", true); rw.Code != 422 {
+		t.Fatalf("expected 422 for non-media extension, got %d", rw.Code)
+	}
+}
+
+func TestFlowTrebloAudiusVocarooAndDRMTruth(t *testing.T) {
+	a := testApp()
+	a.client = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		switch r.URL.String() {
+		case "https://www.flowmusic.app/song/00032777-30b1-482a-8e3f-d3fd44169009":
+			page := `<html><head><meta property="og:title" content="Sunset Flow by Maker | Flow Music"/><meta property="og:audio" content="https://storage.googleapis.com/producer-app-public/clips/00032777-30b1-482a-8e3f-d3fd44169009.m4a"/><meta property="og:image" content="https://storage.googleapis.com/producer-app-public/assets/art.jpg"/></head></html>`
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"text/html"}}, Body: io.NopCloser(strings.NewReader(page)), Request: r}, nil
+		case "https://storage.googleapis.com/producer-app-public/clips/00032777-30b1-482a-8e3f-d3fd44169009.m4a":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"audio/mp4"}}, Body: io.NopCloser(strings.NewReader("FLOWM4A")), ContentLength: 7, Request: r}, nil
+		case "https://treblo.com/song/1b794faa-ad4f-483a-af70-93de2322937a":
+			page := `<html><head><meta property="og:title" content="Night Drive"/><meta property="og:audio" content="https://cdn.treblo.com/generations3/audio_1.ogg"/></head></html>`
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"text/html"}}, Body: io.NopCloser(strings.NewReader(page)), Request: r}, nil
+		case "https://cdn.treblo.com/generations3/audio_1.ogg":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"audio/ogg"}}, Body: io.NopCloser(strings.NewReader("OggS123")), ContentLength: 7, Request: r}, nil
+		case "https://api.audius.co/v1/resolve?url=https%3A%2F%2Faudius.co%2Fcamouflybeats%2Fhypermantra-86216":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"application/json"}}, Body: io.NopCloser(strings.NewReader(`{"data":{"id":"V4W8r","title":"HYPERMANTRA","duration":180,"genre":"Electronic","user":{"name":"camoufly"},"artwork":{"480x480":"https://node.audius.co/art.jpg","mirrors":["https://cn1.mainnet.audiusindex.org"]}}}`)), Request: r}, nil
+		case "https://api.audius.co/v1/tracks/V4W8r/stream":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"audio/mpeg"}}, Body: io.NopCloser(strings.NewReader("AUDMP3")), ContentLength: 6, Request: r}, nil
+		case "https://api.audius.co/v1/tracks/V4W8r":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"application/json"}}, Body: io.NopCloser(strings.NewReader(`{"data":{"id":"V4W8r","artwork":{"480x480":"https://node.audius.co/art.jpg","mirrors":["https://cn1.mainnet.audiusindex.org"]}}}`)), Request: r}, nil
+		case "https://node.audius.co/art.jpg":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"image/jpeg"}}, Body: io.NopCloser(strings.NewReader("AUART")), ContentLength: 5, Request: r}, nil
+		case "https://media1.vocaroo.com/mp3/123456789012":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"audio/mpeg"}}, Body: io.NopCloser(strings.NewReader("VOCMP3")), ContentLength: 6, Request: r}, nil
+		case "https://cdn.example/signed/track.aac":
+			if r.Method == "HEAD" {
+				return &http.Response{StatusCode: http.StatusForbidden, Header: http.Header{}, Body: io.NopCloser(strings.NewReader("")), Request: r}, nil
+			}
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"audio/aac"}}, Body: io.NopCloser(strings.NewReader("AACDATA")), ContentLength: 7, Request: r}, nil
+		default:
+			t.Fatalf("unexpected request: %s %s", r.Method, r.URL.String())
+			return nil, nil
+		}
+	})}
+
+	wf := serve(a, "GET", "/api/omni/resolve?url="+url.QueryEscape("https://www.riffusion.com/song/00032777-30b1-482a-8e3f-d3fd44169009"), "", true)
+	if wf.Code != 200 || !strings.Contains(wf.Body.String(), "/api/flowmusic/stream/00032777-30b1-482a-8e3f-d3fd44169009") {
+		t.Fatalf("flow resolve failed: %d %s", wf.Code, wf.Body.String())
+	}
+	if sf := serve(a, "GET", "/api/flowmusic/stream/00032777-30b1-482a-8e3f-d3fd44169009", "", true); sf.Code != 200 || sf.Body.String() != "FLOWM4A" {
+		t.Fatalf("flow stream failed: %d %s", sf.Code, sf.Body.String())
+	}
+
+	wt := serve(a, "GET", "/api/omni/resolve?url="+url.QueryEscape("https://sonauto.ai/song/1b794faa-ad4f-483a-af70-93de2322937a"), "", true)
+	if wt.Code != 200 || !strings.Contains(wt.Body.String(), "/api/treblo/stream/1b794faa-ad4f-483a-af70-93de2322937a") {
+		t.Fatalf("treblo resolve failed: %d %s", wt.Code, wt.Body.String())
+	}
+	if st := serve(a, "GET", "/api/treblo/stream/1b794faa-ad4f-483a-af70-93de2322937a", "", true); st.Code != 200 || st.Body.String() != "OggS123" {
+		t.Fatalf("treblo stream failed: %d %s", st.Code, st.Body.String())
+	}
+
+	wa := serve(a, "GET", "/api/omni/resolve?url="+url.QueryEscape("https://audius.co/camouflybeats/hypermantra-86216"), "", true)
+	if wa.Code != 200 || !strings.Contains(wa.Body.String(), "/api/audius/stream/V4W8r") {
+		t.Fatalf("audius resolve failed: %d %s", wa.Code, wa.Body.String())
+	}
+	if sa := serve(a, "GET", "/api/audius/stream/V4W8r", "", true); sa.Code != 200 || sa.Body.String() != "AUDMP3" {
+		t.Fatalf("audius stream failed: %d %s", sa.Code, sa.Body.String())
+	}
+	if ca := serve(a, "GET", "/api/audius/cover/V4W8r", "", true); ca.Code != 200 || ca.Body.String() != "AUART" {
+		t.Fatalf("audius cover failed: %d %s", ca.Code, ca.Body.String())
+	}
+
+	wv := serve(a, "GET", "/api/omni/resolve?url="+url.QueryEscape("https://voca.ro/123456789012"), "", true)
+	if wv.Code != 200 || !strings.Contains(wv.Body.String(), "/api/vocaroo/stream/123456789012") {
+		t.Fatalf("vocaroo resolve failed: %d %s", wv.Code, wv.Body.String())
+	}
+	if sv := serve(a, "GET", "/api/vocaroo/stream/123456789012", "", true); sv.Code != 200 || sv.Body.String() != "VOCMP3" {
+		t.Fatalf("vocaroo stream failed: %d %s", sv.Code, sv.Body.String())
+	}
+
+	w403 := serve(a, "GET", "/api/omni/resolve?url="+url.QueryEscape("https://cdn.example/signed/track.aac"), "", true)
+	if w403.Code != 200 || !strings.Contains(w403.Body.String(), "/api/omni/direct-stream") {
+		t.Fatalf("403 HEAD fallback failed for .aac: %d %s", w403.Code, w403.Body.String())
+	}
+
+	if wh := serve(a, "GET", "/api/omni/resolve?url="+url.QueryEscape("https://cdn.example/live/playlist.m3u8"), "", true); wh.Code != 422 {
+		t.Fatalf("expected 422 for HLS m3u8 in desktop native mode, got %d", wh.Code)
+	}
+	for _, drmURL := range []string{"https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT", "https://tidal.com/browse/track/1", "https://www.deezer.com/track/1"} {
+		if wd := serve(a, "GET", "/api/omni/resolve?url="+url.QueryEscape(drmURL), "", true); wd.Code != 422 || !strings.Contains(wd.Body.String(), "DRM") {
+			t.Fatalf("expected 422 DRM message for %s, got %d %s", drmURL, wd.Code, wd.Body.String())
 		}
 	}
 }

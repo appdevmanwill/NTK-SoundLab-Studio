@@ -1,5 +1,5 @@
-import { Input, BlobSource, AudioSampleSink, MP3, MP4, WAVE, OGG, FLAC, WEBM, MATROSKA, ADTS } from '../lib/mediabunny/mediabunny.js?v=2026.11.11.2';
-import { AiPolicy } from './ai-policy.js?v=2026.11.11.2';
+import { Input, BlobSource, AudioSampleSink, MP3, MP4, WAVE, OGG, FLAC, WEBM, MATROSKA, ADTS } from '../lib/mediabunny/mediabunny.js?v=2026.11.16.1';
+import { AiPolicy } from './ai-policy.js?v=2026.11.16.1';
 
 export const TRANSCRIBE_LIMITS = Object.freeze({ bytes: 150000000, seconds: 3600, chunk: 240, overlap: 2, rate: 16000 });
 const check = signal => { if (signal?.aborted) throw new DOMException('Cancelled. Completed sections are kept.', 'AbortError'); };

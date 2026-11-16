@@ -67,7 +67,7 @@ class SoundLabController extends Controller
         if (! is_string($format)) {
             return response()->json(['error' => 'Invalid output format.'], 422);
         }
-        $isAudioOnly = filter_var($request->input('is_audio_only', true), FILTER_VALIDATE_BOOLEAN);
+        $isAudioOnly = filter_var($request->input('is_audio_only', $request->input('audioOnly', true)), FILTER_VALIDATE_BOOLEAN);
 
         try {
             $job = $this->mediaService->startDownload($url, $format, $isAudioOnly);
@@ -204,6 +204,164 @@ class SoundLabController extends Controller
             'configured' => $hasCookies,
             'bytes' => strlen($cookieContent),
         ], 200);
+    }
+
+    /**
+     * GET /api/acemusic/stream/{id}
+     */
+    public function aceMusicStream(Request $request, string $id): StreamedResponse|JsonResponse
+    {
+        return $this->ogProviderStream($request, 'acemusic', $id);
+    }
+
+    /**
+     * GET /api/acemusic/cover/{id}
+     */
+    public function aceMusicCover(Request $request, string $id): StreamedResponse|JsonResponse
+    {
+        return $this->ogProviderCover($request, 'acemusic', $id);
+    }
+
+    /**
+     * GET /api/{provider}/stream/{id}
+     */
+    public function ogProviderStream(Request $request, string $provider, string $id): StreamedResponse|JsonResponse
+    {
+        $clean = preg_replace('/\.(mp3|m4a|wav|ogg|opus|aac|flac|webm)$/i', '', $id);
+        if (! preg_match('/^[a-zA-Z0-9_-]{4,64}$/', $clean)) {
+            return response()->json(['error' => 'A valid song ID is required.'], 422);
+        }
+
+        return $this->streamTempBufferedMedia($request, fn (?string $range, string $tmp) => $this->mediaService->fetchOgProviderMedia($provider, $clean, 'audio', $range, $tmp));
+    }
+
+    /**
+     * GET /api/{provider}/cover/{id}
+     */
+    public function ogProviderCover(Request $request, string $provider, string $id): StreamedResponse|JsonResponse
+    {
+        $clean = preg_replace('/\.(jpg|jpeg|png|webp)$/i', '', $id);
+        if (! preg_match('/^[a-zA-Z0-9_-]{4,64}$/', $clean)) {
+            return response()->json(['error' => 'A valid song ID is required.'], 422);
+        }
+
+        return $this->streamTempBufferedMedia($request, fn (?string $range, string $tmp) => $this->mediaService->fetchOgProviderMedia($provider, $clean, 'cover', $range, $tmp));
+    }
+
+    /**
+     * GET /api/audius/stream/{id}
+     */
+    public function audiusStream(Request $request, string $id): StreamedResponse|JsonResponse
+    {
+        $clean = preg_replace('/\.(mp3|m4a)$/i', '', $id);
+
+        return $this->streamTempBufferedMedia($request, fn (?string $range, string $tmp) => $this->mediaService->fetchAudiusMedia($clean, 'audio', $range, $tmp));
+    }
+
+    /**
+     * GET /api/audius/cover/{id}
+     */
+    public function audiusCover(Request $request, string $id): StreamedResponse|JsonResponse
+    {
+        $clean = preg_replace('/\.(jpg|jpeg|png|webp)$/i', '', $id);
+
+        return $this->streamTempBufferedMedia($request, fn (?string $range, string $tmp) => $this->mediaService->fetchAudiusMedia($clean, 'cover', $range, $tmp));
+    }
+
+    /**
+     * GET /api/vocaroo/stream/{id}
+     */
+    public function vocarooStream(Request $request, string $id): StreamedResponse|JsonResponse
+    {
+        $clean = preg_replace('/\.(mp3|ogg)$/i', '', $id);
+
+        return $this->streamTempBufferedMedia($request, fn (?string $range, string $tmp) => $this->mediaService->fetchVocarooMedia($clean, $range, $tmp));
+    }
+
+    /**
+     * GET /api/omni/direct-stream?url=<url>
+     */
+    public function directStream(Request $request): StreamedResponse|JsonResponse
+    {
+        $url = $request->query('url');
+        if (! is_string($url) || trim($url) === '') {
+            return response()->json(['error' => "Missing 'url' query parameter."], 400);
+        }
+
+        return $this->streamTempBufferedMedia($request, fn (?string $range, string $tmp) => $this->mediaService->fetchDirectMedia($url, $range, $tmp));
+    }
+
+    /** @param callable(?string, string): array{status: int, headers: array<string, string>, content_type: string} $fetcher */
+    protected function streamTempBufferedMedia(Request $request, callable $fetcher): StreamedResponse|JsonResponse
+    {
+        $range = $request->header('Range');
+        if ($range && ! preg_match('/^bytes=(?:[0-9]+-[0-9]*|-[0-9]+)$/', $range)) {
+            return response()->json(['error' => 'Only one valid byte range is supported.'], 416);
+        }
+        $dir = storage_path('app/acemusic-streams');
+        File::ensureDirectoryExists($dir, 0700);
+        $lock = fopen(storage_path('app/acemusic-streams.lock'), 'c');
+        if (! $lock || ! flock($lock, LOCK_EX | LOCK_NB)) {
+            if ($lock) {
+                fclose($lock);
+            }
+
+            return response()->json(['error' => 'Another audio transfer is active. Please retry shortly.'], 429);
+        }
+        $release = static function () use (&$lock): void {
+            if (is_resource($lock)) {
+                flock($lock, LOCK_UN);
+                fclose($lock);
+            }
+            $lock = null;
+        };
+        $temporary = tempnam($dir, 'media-');
+        if ($temporary === false) {
+            $release();
+
+            return response()->json(['error' => 'Temporary stream storage is unavailable.'], 503);
+        }
+        register_shutdown_function(static function () use ($temporary, $release): void {
+            if (is_file($temporary)) {
+                @unlink($temporary);
+            }
+            $release();
+        });
+        try {
+            $result = $fetcher($range ?: null, $temporary);
+            $headers = [
+                'Access-Control-Allow-Origin' => '*',
+                'Content-Type' => $result['content_type'],
+                'Cache-Control' => 'no-store',
+                'Accept-Ranges' => 'bytes',
+                'Content-Length' => (string) filesize($temporary),
+            ];
+            if (isset($result['headers']['content-range'])) {
+                $headers['Content-Range'] = $result['headers']['content-range'];
+            }
+
+            return response()->stream(static function () use ($temporary, $release): void {
+                $file = fopen($temporary, 'rb');
+                try {
+                    if ($file) {
+                        while (! feof($file) && ! connection_aborted()) {
+                            echo fread($file, 65536);
+                        }
+                    }
+                } finally {
+                    if ($file) {
+                        fclose($file);
+                    }
+                    @unlink($temporary);
+                    $release();
+                }
+            }, $result['status'], $headers);
+        } catch (\Throwable $e) {
+            @unlink($temporary);
+            $release();
+
+            return $this->mediaError($e);
+        }
     }
 
     /**

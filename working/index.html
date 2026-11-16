@@ -21,17 +21,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Montserrat:wght@700;800;900&family=Orbitron:wght@700;900&family=Poppins:wght@700;800&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
 
   <!-- Modular CSS System -->
-  <link rel="stylesheet" href="css/style.css?v=2026.11.11.2" />
-  <link rel="stylesheet" href="css/components.css?v=2026.11.11.2" />
-  <link rel="stylesheet" href="css/tutorial.css?v=2026.11.11.2" />
-  <link rel="stylesheet" href="css/player.css?v=2026.11.11.2" />
-  <link rel="stylesheet" href="css/visualizer.css?v=2026.11.11.2" />
+  <link rel="stylesheet" href="css/style.css?v=2026.11.16.1" />
+  <link rel="stylesheet" href="css/components.css?v=2026.11.16.1" />
+  <link rel="stylesheet" href="css/tutorial.css?v=2026.11.16.1" />
+  <link rel="stylesheet" href="css/player.css?v=2026.11.16.1" />
+  <link rel="stylesheet" href="css/visualizer.css?v=2026.11.16.1" />
 
-  <link rel="stylesheet" href="css/transcribe.css?v=2026.11.11.2" />
+  <link rel="stylesheet" href="css/transcribe.css?v=2026.11.16.1" />
 
   <!-- Bundled MP3 Encoder (lamejs) + ZIP Packager (JSZip) with CDN fallbacks -->
-  <script src="lib/lame.all.js?v=2026.11.11.2"></script>
-  <script src="lib/jszip.min.js?v=2026.11.11.2"></script>
+  <script src="lib/lame.all.js?v=2026.11.16.1"></script>
+  <script src="lib/jszip.min.js?v=2026.11.16.1"></script>
   <script>
     if (typeof window.lamejs === 'undefined') {
       const s = document.createElement('script');
@@ -46,7 +46,7 @@
   </script>
 
   <!-- Main ES Module Application -->
-  <script type="module" src="js/app.js?v=2026.11.11.2"></script>
+  <script type="module" src="js/app.js?v=2026.11.16.1"></script>
 </head>
 <body>
 
@@ -234,7 +234,7 @@
           id="songUrlInput"
           class="url-textarea"
           rows="2"
-          placeholder="Paste YouTube, TikTok, SoundCloud, Suno AI, Instagram, Twitter/X, Vimeo, HLS (.m3u8), or direct MP4/MP3 URLs..."
+          placeholder="Paste YouTube, TikTok, SoundCloud, Suno AI, ACE Music, Flow/Riffusion, Treblo, Audius, Vocaroo, Instagram, X, Vimeo, or direct MP4/MP3/AAC/HLS URLs..."
         ></textarea>
 
         <div class="input-controls">

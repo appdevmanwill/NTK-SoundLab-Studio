@@ -1,5 +1,11 @@
 # Continuation
 
+## Current release `v2026.11.16.1` · 16 November 2026
+
+- Current version is `2026.11.16.1` (`versionCode` `2026111601`), live website deployed to Firebase Hosting (`https://studio-5090403114-fc98b.web.app`), and packaged across Windows, Linux, Android, Static Web, and AlwaysData PHP (`SOFTWARE/SHA256SUMS.txt`).
+- Open environment checks remain physical Android phone endurance/playback testing, graphical Linux desktop menu install/uninstall, and uploading `DEPLOY_MANUAL/NTK_SoundLab_Studio_AlwaysData-2026.11.16.1.zip` to the target AlwaysData/Hostinger PHP host (`DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md`).
+- Keep preserving `%LOCALAPPDATA%\NTKSoundLabStudio\android-signing\soundlab-release.p12` outside Git.
+
 ## GitHub preview published · 12 November 2026
 
 Use [the release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2) and source tag `v2026.11.11.2`. The tagged application source is commit `87c5a94`. The public README links to release downloads, and all 12 assets were checked against local hashes. The eight main packages are listed in `SOFTWARE/SHA256SUMS.txt`.

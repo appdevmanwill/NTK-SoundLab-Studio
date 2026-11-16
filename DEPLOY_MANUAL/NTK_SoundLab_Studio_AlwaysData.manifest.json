@@ -1,15 +1,15 @@
 {
   "file": "NTK_SoundLab_Studio_AlwaysData.zip",
-  "bytes": 8897683,
-  "sha256": "225b7e19a978e34881e3105830c762c66ec0c7b76557be8bb5a1d13093ae8e71",
-  "entries": 6638,
-  "source": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTKStreamStudio\\working\\EVIDENCE\\transcribe-2026-11-03\\web-stage-2026.11.3.1",
+  "bytes": 14295662,
+  "sha256": "f941f4ffa29f5073a122012624a1cf73daa34f20adfdc4c72db322066ac62df4",
+  "entries": 6649,
+  "source": "C:\\Users\\NTK\\AppData\\Local\\Temp\\soundlab-ad-stage-hq_3iz4m\\laravel-stage",
   "rollback": null,
   "files": [
     {
       "path": ".env.example",
-      "bytes": 478,
-      "sha256": "ee2e37220027f857d0eb63fbe11e41652ace687a4630ce51c1cd5ae259bf3bf3"
+      "bytes": 453,
+      "sha256": "430dd8fbc00cbf531f1a0ce181359289e89dccb24003c79e89c099226c410240"
     },
     {
       "path": ".htaccess",
@@ -27,9 +27,9 @@
       "sha256": "25d1c1ef8e6cc8a376553faacfba2b07d9dfaee9bdbb84f14f77517580e9deb1"
     },
     {
-      "path": "app/Http/Controllers/OmniStreamController.php",
-      "bytes": 8753,
-      "sha256": "6856d9f5addb1d032444138901b09d3afebf89c05f416f056c518743290b439c"
+      "path": "app/Http/Controllers/SoundLabController.php",
+      "bytes": 14967,
+      "sha256": "c572468fc4775d4974b6ca4de355a18d467801e696014c9fedc603a340abd404"
     },
     {
       "path": "app/Http/Controllers/SunoProxyController.php",
@@ -58,13 +58,13 @@
     },
     {
       "path": "app/Services/SafeMediaHttp.php",
-      "bytes": 9225,
-      "sha256": "82a679e4f19f0984af0ebfe8dd5dcc87fe877d90e901a32dacfd2e71bd2dc346"
+      "bytes": 9783,
+      "sha256": "c91f2ff93c9b873f4214200276d6faf112bd12c2ec6dbdc0f74d931528e851b6"
     },
     {
       "path": "app/Services/UniversalMediaService.php",
-      "bytes": 19029,
-      "sha256": "8cda0543f75fe0a12c8bf3d6f4bb2db10790cc8a65ffb93e1da0fd3d32a0dc8d"
+      "bytes": 45423,
+      "sha256": "44a3f4f6cb21cb3c64a13426d332bf899fcf07ba1ddac86600083e38de2597b8"
     },
     {
       "path": "artisan",
@@ -89,7 +89,7 @@
     {
       "path": "composer.lock",
       "bytes": 325749,
-      "sha256": "c0f9aff225cfbc70895b4b06ecd209080a4551b495591bfaeb36080b254b054e"
+      "sha256": "013e13b7db2b5fba71a0334f86ea55826a70a8a5dfdcf20a49b6a02c2cd18d25"
     },
     {
       "path": "config/app.php",
@@ -168,13 +168,23 @@
     },
     {
       "path": "public/.htaccess",
-      "bytes": 740,
-      "sha256": "b7e379c77639fd56144947dbae84c84eb466d9c686ea81f2f013ae85421da923"
+      "bytes": 843,
+      "sha256": "30659b138f9f1d2aa521c652d0c4dc1d4a7cd70b8ea4fe54654ab66c55b615a4"
     },
     {
       "path": "public/404.html",
       "bytes": 854,
       "sha256": "f75d1957d4205cc4c7b8449b15de280921e62724a55c0f60d63295f8ec9a3a5e"
+    },
+    {
+      "path": "public/LICENSE",
+      "bytes": 1064,
+      "sha256": "70eaf444260cf9a64dd137492f714e3c941ddc11f62500841d404cea9faa1836"
+    },
+    {
+      "path": "public/THIRD_PARTY_NOTICES.md",
+      "bytes": 1351,
+      "sha256": "798c7878456e82dd23e5b842bca21c6aec74438e3fa033ecdf64e1871e1105aa"
     },
     {
       "path": "public/assets/icon.svg",
@@ -193,8 +203,8 @@
     },
     {
       "path": "public/css/components.css",
-      "bytes": 28737,
-      "sha256": "f7b52fb61d9fd324eb2a89c38a43343e66175131abfd6ff1c0ae76392c2fe66a"
+      "bytes": 29097,
+      "sha256": "25665787ebdc7e3ccda55fb7bbc820d070a8bd7d75ad02652065f41505e5197d"
     },
     {
       "path": "public/css/player.css",
@@ -228,8 +238,8 @@
     },
     {
       "path": "public/index.html",
-      "bytes": 182903,
-      "sha256": "c2d557a0ed4832687807ec081aef379ed64be6f7248165cb9bdf714c05ed39c2"
+      "bytes": 183587,
+      "sha256": "212b6e9edb747ef8d269c7c50d91d19118a1ef43a02e8163c85813d366760f06"
     },
     {
       "path": "public/index.php",
@@ -243,128 +253,138 @@
     },
     {
       "path": "public/js/app.js",
-      "bytes": 218491,
-      "sha256": "485d3af332ba978177dad8124ca653393b0904520b603c5700ba786cfaaa022b"
+      "bytes": 220812,
+      "sha256": "cd6c7f7a2f3ceed225d1c5aa85e2f175692c52fd196c3bc4849583077c334fbe"
     },
     {
       "path": "public/js/audio-converter.js",
       "bytes": 10147,
-      "sha256": "80828622e6da0c84b3a4d755c04b6b4642f3d2af524a4b2372e40e4f6b6a9a73"
+      "sha256": "cff000597a3f9f11729d7a7b9155671e6c965b79b06a91c5315886184bc36060"
     },
     {
       "path": "public/js/audio-fx.js",
-      "bytes": 7865,
-      "sha256": "88752f628bfad6ae2f1ae608c49c9b7879ad226f8df8b223093d80c988311672"
+      "bytes": 7866,
+      "sha256": "da43eb7350f68d2ab1849f98df6451675169b20a3184cc8cc6b07fd5be4c36bd"
     },
     {
       "path": "public/js/bookmarklet.js",
       "bytes": 12480,
-      "sha256": "8799cb879dac3e60cc1382fd30122e61c37bd5261b68e26d57cce748249143bd"
+      "sha256": "b8033b0e634f4593cb9bdc416a8c1a80b2cd21910b427919c2279ca1ccf53c04"
     },
     {
       "path": "public/js/crypto-engine.js",
       "bytes": 3268,
-      "sha256": "79fe62a5f9cfb24c3326e2e2b45b92121cdfc557ba72f0f1ee3884a932f2b772"
+      "sha256": "f6f8f80af2b8ed2c645e5e55e843f668d73b03d5358f61ad5fd5434ce4845ba0"
     },
     {
       "path": "public/js/id3-writer.js",
       "bytes": 8453,
-      "sha256": "5f0002933bc0f9d2c8270ecc5e917db1e493f7eedd32078505a2ab40c193ed4d"
+      "sha256": "52793f107086b35322291d37def6dfaf2c033b75e6a5caf3607e6d41b5457ac7"
     },
     {
       "path": "public/js/image-cropper.js",
       "bytes": 19003,
-      "sha256": "af8b7f50c44fd8f027d667085b5b95d8eacb4d7e90706bcf0e0daeeacb2631c5"
+      "sha256": "e412f8f9f2faf1190efaa702cb65e6de93f89ef87cb378bc7af5460b4502bdc3"
     },
     {
       "path": "public/js/lyric-alignment.js",
-      "bytes": 9818,
-      "sha256": "f2066619b03db5fbfdd50dfd9726d36f20b84bd4e2c9b3a9ec6989dca5980dd2"
+      "bytes": 9819,
+      "sha256": "bffdac8a3462741348145d5c7d11801851c270c416e74f94448160f372a2d234"
     },
     {
       "path": "public/js/lyrics-utils.js",
       "bytes": 11982,
-      "sha256": "e7b64876d45d13b272a03f4594107ac5f0c1f1b0ce5cb691801a48cc02369847"
+      "sha256": "1a33a7551ef6781887c6220d1539f0ac9ccd956b7dc288879b3a7fd951688715"
     },
     {
       "path": "public/js/mp3-encoder.js",
       "bytes": 4028,
-      "sha256": "cda1c94bac5338b01c05c9c507e961e35cb31c6c0dda42a1c80536a9750a9411"
+      "sha256": "a55c191d1c1bf2b924b811a96b7a09620075e1a17a15bf5e887dcfd1621bb480"
     },
     {
       "path": "public/js/network-policy.js",
-      "bytes": 1255,
-      "sha256": "a15f1e1182346a33aa4157a9210165ed720a88860af830185c1dddc201082f8c"
+      "bytes": 1952,
+      "sha256": "3f9476cc7ba3cc1c509a3ade61b09e3aee473e3c411b0247fd74e4577bc24310"
     },
     {
-      "path": "public/js/omni-api.js",
-      "bytes": 17012,
-      "sha256": "a785ca895ac2f9d24ad5093e9cb312b9facf349a5c766ab909a4106cd0587129"
+      "path": "public/js/offline-model.js",
+      "bytes": 4351,
+      "sha256": "5c0968bd8d5109bcce453a80bb5f5f06d26251052129f3c6bd9f009297a0ec34"
     },
     {
       "path": "public/js/player.js",
-      "bytes": 8077,
-      "sha256": "50d20f6e7100e83bb6bfae510b40bfd5eca3fa731139d1a4b831ace8c93ac096"
+      "bytes": 8078,
+      "sha256": "68885b5f07665ca1a5a50c1c76e41390917eb4992b8ca73d0268b91dcf8d68b4"
+    },
+    {
+      "path": "public/js/soundlab-api.js",
+      "bytes": 22961,
+      "sha256": "31920514e1f98947541fffcf9bb989afe10142d138363ff5008020dc0d761003"
     },
     {
       "path": "public/js/stem-engine.js",
-      "bytes": 20473,
-      "sha256": "0a88f34a3f89802431317bfb2e67c4193cb906a9bcc0750b8429a4ad559b1db5"
+      "bytes": 18546,
+      "sha256": "9c7c35f0001c70acaaac481bff74570461cd2e3abd0e111faac3697bd5e9c5b3"
     },
     {
       "path": "public/js/stem-mixer.js",
-      "bytes": 11454,
-      "sha256": "1732268e7ec3f3a41ed438f97cb9a4c8563a12084f8fea25be23d30e7e3b7267"
+      "bytes": 11455,
+      "sha256": "f093a35b12ab34a4c050e557e4e0ca977c0e629c262221bb00e0de2bca5bd810"
     },
     {
       "path": "public/js/storage.js",
-      "bytes": 4961,
-      "sha256": "e7f812105835fbf4010d67a7de242cbd671b64fb9a93bab75543b3dab48648a3"
+      "bytes": 5153,
+      "sha256": "aead365bf2baeb17ae5c478552684d2f3aada2cbcab2b75dab8cee3de0f38c22"
     },
     {
       "path": "public/js/suno-api.js",
-      "bytes": 19807,
-      "sha256": "75f65a3723916f94ccba8bdc5b999c5d61860b714aee7d4d9b7c643f36d5f11e"
+      "bytes": 19808,
+      "sha256": "dff2a9e013d59a683d4e53d66a2f24870dc6322bcdd2b488732f1c6852ea6095"
     },
     {
       "path": "public/js/transcribe-engine.js",
-      "bytes": 8775,
-      "sha256": "ff346486535a788f72b9da863e6b811fa5a8ac12bab4c368137aec1c8fe831c6"
+      "bytes": 9737,
+      "sha256": "7be772e6544bf29d28e77acc342f775097b41ddeed82e3c7d98ff7b3a95e77c0"
     },
     {
       "path": "public/js/transcribe-studio.js",
-      "bytes": 12252,
-      "sha256": "8f3f5ca4becab975ba120ca5eb00079d2ae1ac361c8273182c635650de10d552"
+      "bytes": 16504,
+      "sha256": "10753444e8ec515ff541d3aacfc0e5f0a5502faabdf75a60a5537e7b9df34659"
     },
     {
       "path": "public/js/transcript-store.js",
-      "bytes": 1592,
-      "sha256": "410c31f39579bf82f3de200052e751311494650708fd2e56068d59cc56e63341"
+      "bytes": 3159,
+      "sha256": "50ef899795ae261d777350fc27dccacf57e573f15df2f01a3fedfd47b7460c17"
     },
     {
       "path": "public/js/tutorial.js",
-      "bytes": 6797,
-      "sha256": "562bf336e306ba1f63482e828a1c536f3c646efbffe937c681e2450d8d61ee8c"
+      "bytes": 6854,
+      "sha256": "22b99f7448b2190e1e71ae91d77a427e517420cdc383a88eb4dfca36feb91950"
     },
     {
       "path": "public/js/vault-db.js",
-      "bytes": 14334,
-      "sha256": "e80e3c66c62cf09abeb20ea2c5039aabe7441d61534ee89b823f2b798bf72783"
+      "bytes": 14686,
+      "sha256": "92f88ac459af6184b3d26e0abb768e2d915a3a026b0ce6c62bce1fa0ffd6b521"
     },
     {
       "path": "public/js/video-demuxer.js",
-      "bytes": 5000,
-      "sha256": "782b434da32f10153acc5d3e797a36b509dc5950b93a67852aebaa9c626ddb4a"
+      "bytes": 4999,
+      "sha256": "7f8b24563a37f98ebdbff8317445ad9ffcfdaf073dc4aadf496ef7632b6b6ca8"
     },
     {
       "path": "public/js/video-generator.js",
-      "bytes": 126000,
-      "sha256": "93c7d0dd829d4b1039d94df8bc0a619b407706e568f27973567022454640b75f"
+      "bytes": 126003,
+      "sha256": "2eb815f2d18c3f0d9a0085ad396dafcb7925d6924f2c2c7c453df56839cdfd45"
     },
     {
       "path": "public/js/zip-packager.js",
-      "bytes": 10324,
-      "sha256": "e403abd37fdc20799ca5b99344ad527997f7a7010935be6006fcb8e27e44997c"
+      "bytes": 10328,
+      "sha256": "9416cdc1ab478974f8d9ac7e85db369631e9231df331ec24c690c35e5d27e598"
+    },
+    {
+      "path": "public/lib/demucs-web/LICENSE.txt",
+      "bytes": 1056,
+      "sha256": "75486ea0af9309140ca6e2c401d7e67bea8f4892344e5707f6394dc5e83dfc44"
     },
     {
       "path": "public/lib/demucs-web/constants.js",
@@ -397,6 +417,16 @@
       "sha256": "026bd88846040f357a937cd85821a48492a362eff0812cda734f23fca55fea3b"
     },
     {
+      "path": "public/lib/licenses/JSZip.txt",
+      "bytes": 33753,
+      "sha256": "566c953c6090b1218ca6217dd7359d45dde46581968586dc607d59a78af6a9c4"
+    },
+    {
+      "path": "public/lib/licenses/lamejs.txt",
+      "bytes": 424,
+      "sha256": "cd144ca132e3842b01f5ed2d6f3a32141e24a1cc15e115aa5f19a2294ce0a379"
+    },
+    {
       "path": "public/lib/mediabunny/LICENSE.txt",
       "bytes": 16726,
       "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
@@ -412,6 +442,31 @@
       "sha256": "7898aa3e638df09ac3f59bfcbdef2757bbbd1a78f24d3339247a07e674a7877d"
     },
     {
+      "path": "public/lib/onnxruntime/1.20.1/LICENSE.txt",
+      "bytes": 1073,
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    },
+    {
+      "path": "public/lib/onnxruntime/1.20.1/ThirdPartyNotices.txt",
+      "bytes": 338538,
+      "sha256": "cf7342f7ba482ef715ae58f5f497a8d3564fa255164175aea324cd293c5701a0"
+    },
+    {
+      "path": "public/lib/onnxruntime/1.20.1/ort-wasm-simd-threaded.jsep.mjs",
+      "bytes": 46839,
+      "sha256": "2fb14505d39926e4c544de8c57fe59a2f2bc74caba6f71890be9afecc5046758"
+    },
+    {
+      "path": "public/lib/onnxruntime/1.20.1/ort-wasm-simd-threaded.jsep.wasm",
+      "bytes": 21663894,
+      "sha256": "185b0861a6cd6cbdfb057289338090436483cc59e10a7bc83bd167b15531a51b"
+    },
+    {
+      "path": "public/lib/onnxruntime/1.20.1/ort.webgpu.min.js",
+      "bytes": 333594,
+      "sha256": "8443389bf14b34582ea40c590b5007bb652d6ac07dd76829a5bd82d2372e6895"
+    },
+    {
       "path": "public/manifest.json",
       "bytes": 970,
       "sha256": "f124aa0d56f366818e7b69e47ca22c469143ef788c925f5f9cbf2b64f535ee9c"
@@ -423,18 +478,18 @@
     },
     {
       "path": "public/sw.js",
-      "bytes": 4346,
-      "sha256": "f1534037b38bd212ba9771e5a25aaf0ef6352a848222501b95b9665fc09ff6a1"
+      "bytes": 4709,
+      "sha256": "055b21d28be99eaa443888247533d206e4a5a2ba4d73973418d81321bb9c3a1c"
     },
     {
       "path": "resources/views/studio.blade.php",
-      "bytes": 182903,
-      "sha256": "c2d557a0ed4832687807ec081aef379ed64be6f7248165cb9bdf714c05ed39c2"
+      "bytes": 180388,
+      "sha256": "3fc7fba2755dd9250c47755cfc2f029ffc28290ea868c5a4431194f3bcf9c4b8"
     },
     {
       "path": "resources/views/welcome.blade.php",
-      "bytes": 182903,
-      "sha256": "c2d557a0ed4832687807ec081aef379ed64be6f7248165cb9bdf714c05ed39c2"
+      "bytes": 180388,
+      "sha256": "3fc7fba2755dd9250c47755cfc2f029ffc28290ea868c5a4431194f3bcf9c4b8"
     },
     {
       "path": "routes/console.php",
@@ -443,8 +498,8 @@
     },
     {
       "path": "routes/web.php",
-      "bytes": 2550,
-      "sha256": "622940078febd4781536da174ac46404ba3254c83dff62ad2184e5cba4f17f29"
+      "bytes": 3390,
+      "sha256": "e7a4ddde555eb7e93eb01ccda8b47a675769bec125cf3e81801db3ccacf2f1b9"
     },
     {
       "path": "vendor/autoload.php",
@@ -653,8 +708,8 @@
     },
     {
       "path": "vendor/composer/autoload_classmap.php",
-      "bytes": 630477,
-      "sha256": "3b0fe95942f7eda7fffee2b697ee747d57a93b7734c2c214426e07137a793dc6"
+      "bytes": 630659,
+      "sha256": "5ab51a37137afb4513ee2683b9535c50c76e5d07ca01f153ecc39c464b6c26cb"
     },
     {
       "path": "vendor/composer/autoload_files.php",
@@ -678,18 +733,18 @@
     },
     {
       "path": "vendor/composer/autoload_static.php",
-      "bytes": 692238,
-      "sha256": "498c4ce8f8d8b29249162717e0cc6a66821d2cc6608ce1f52c1488c777778f28"
+      "bytes": 692448,
+      "sha256": "1a086bd4f404baefc6de0ab27d0f95e63f622fdf462a38aa374d2a44df127d75"
     },
     {
       "path": "vendor/composer/installed.json",
       "bytes": 237259,
-      "sha256": "c7841c509c15066e80486a80642c8879e37578670ce2f7cc0b35e44d47f93e28"
+      "sha256": "bf801302c62caa37de5d4e71b8e32367a16e5fc513b34d05368f17d6a497966d"
     },
     {
       "path": "vendor/composer/installed.php",
-      "bytes": 38318,
-      "sha256": "fd4090dd5fce8f336696478e2b8532133e3724a70dd6e71198b5c23b15acc0bd"
+      "bytes": 38264,
+      "sha256": "c610255116b1b8e5dbaebbf6f183ff3d8d7fdaae2c923518f56a9ad1e95f78d6"
     },
     {
       "path": "vendor/composer/platform_check.php",
@@ -27143,8 +27198,8 @@
     },
     {
       "path": "vendor/symfony/http-foundation/BinaryFileResponse.php",
-      "bytes": 14549,
-      "sha256": "feca468549c19bbe75aae96d58973398669f63eb351055c454d49aa3b8fcd98d"
+      "bytes": 14550,
+      "sha256": "aaa35ab72218186369f50431fd97f4fe209170ff0b58ddabb1f2c63c5655885e"
     },
     {
       "path": "vendor/symfony/http-foundation/CHANGELOG.md",
@@ -27318,8 +27373,8 @@
     },
     {
       "path": "vendor/symfony/http-foundation/HeaderUtils.php",
-      "bytes": 9586,
-      "sha256": "7bce7b1f51acafae82f051ba95af3bebedfa7d185b3ea050f66f3f656b104983"
+      "bytes": 9587,
+      "sha256": "3482d80504d6fe310d32ad7f4a156d569c30cbc0f6f213f61cd868bfe6065ad2"
     },
     {
       "path": "vendor/symfony/http-foundation/InputBag.php",
@@ -27328,8 +27383,8 @@
     },
     {
       "path": "vendor/symfony/http-foundation/IpUtils.php",
-      "bytes": 10128,
-      "sha256": "ad97192d425d45204456f8f9702a5d799179de52a3e2703a41e4b5d6ed52be42"
+      "bytes": 12079,
+      "sha256": "ea7be7175c433baa02b3113c374fb8f2a1c556fd27f925096f7ac12223189b4c"
     },
     {
       "path": "vendor/symfony/http-foundation/JsonResponse.php",
@@ -27373,8 +27428,8 @@
     },
     {
       "path": "vendor/symfony/http-foundation/Request.php",
-      "bytes": 79895,
-      "sha256": "fe9f2f467fe8edfb7e1c49dbff83968bf105242581517e79b062b2b72813bf56"
+      "bytes": 80629,
+      "sha256": "21be7e601f265303a3563341c501e7611862a8468d668ce9b39dfaad711f50f5"
     },
     {
       "path": "vendor/symfony/http-foundation/RequestMatcher/AttributesRequestMatcher.php",
@@ -27408,8 +27463,8 @@
     },
     {
       "path": "vendor/symfony/http-foundation/RequestMatcher/MethodRequestMatcher.php",
-      "bytes": 1294,
-      "sha256": "235921e247ff75d28d564049722b15bbac00814582d544001cf8c598c0d070df"
+      "bytes": 1517,
+      "sha256": "f97824b293f458866e43158f77f211dc7109de9a5e9f4244ce35132f42fe3bbc"
     },
     {
       "path": "vendor/symfony/http-foundation/RequestMatcher/PathRequestMatcher.php",
@@ -27578,8 +27633,8 @@
     },
     {
       "path": "vendor/symfony/http-foundation/Session/Storage/Handler/SessionHandlerFactory.php",
-      "bytes": 4351,
-      "sha256": "c43dab9e85f2a65afef2414dac92871398de9612240edfda8d01fa342017036a"
+      "bytes": 4387,
+      "sha256": "919a58af4ca2fc261baa28c31001f75d3136b84eaf580bfd4dc7282159bce703"
     },
     {
       "path": "vendor/symfony/http-foundation/Session/Storage/Handler/StrictSessionHandler.php",
@@ -27723,8 +27778,8 @@
     },
     {
       "path": "vendor/symfony/http-foundation/UrlHelper.php",
-      "bytes": 3171,
-      "sha256": "22dbde8346d3ba24e4a3e894f488c033c7c3dcf5d63d7daecfa3989ab8ab884c"
+      "bytes": 3855,
+      "sha256": "ec5934ac02887b25f8e2cc2aec21ccb750acc40d8b807c6c2c5bd40cac386021"
     },
     {
       "path": "vendor/symfony/http-foundation/composer.json",
@@ -27773,8 +27828,8 @@
     },
     {
       "path": "vendor/symfony/http-kernel/Attribute/MapRequestPayload.php",
-      "bytes": 2498,
-      "sha256": "4d16a203ec2a4a54e68cb5189a38682970428c4e6c95eeac2277a22062b546b6"
+      "bytes": 2578,
+      "sha256": "482f7472989ce41666319c5846662af0fc839156a4d90772a5b8a39dd4925450"
     },
     {
       "path": "vendor/symfony/http-kernel/Attribute/MapUploadedFile.php",
@@ -27913,8 +27968,8 @@
     },
     {
       "path": "vendor/symfony/http-kernel/Controller/ArgumentResolver/RequestPayloadValueResolver.php",
-      "bytes": 17126,
-      "sha256": "c2664035efe5aa83fe8858c766b9c7c7ebcd7e01ca724522b7fb52b2193761b9"
+      "bytes": 17381,
+      "sha256": "7c1853f200e7b01919aaa74909ac6bc5c7254f1bcebda16a8e584774f6587c34"
     },
     {
       "path": "vendor/symfony/http-kernel/Controller/ArgumentResolver/RequestValueResolver.php",
@@ -28228,8 +28283,8 @@
     },
     {
       "path": "vendor/symfony/http-kernel/EventListener/CacheAttributeListener.php",
-      "bytes": 11072,
-      "sha256": "e88f46ea6116ae605106dfbb498536edf02c94d29c32f5da5f5b9ef5b2b2d899"
+      "bytes": 11230,
+      "sha256": "3c42c3b766c41bd9e5a92e33d2903c909781f7634c2de6621c2578b26d081d8f"
     },
     {
       "path": "vendor/symfony/http-kernel/EventListener/ControllerAttributesListener.php",
@@ -28293,8 +28348,8 @@
     },
     {
       "path": "vendor/symfony/http-kernel/EventListener/RouterListener.php",
-      "bytes": 7643,
-      "sha256": "265c470c1f8d5ae4348e43b979d93a1e751c4cfe2e0263988ed75f0abc59b7a7"
+      "bytes": 8872,
+      "sha256": "1c4dfde1b318260d7a7728a9f3cf4998842d24e91aad851dbba745a0503e7147"
     },
     {
       "path": "vendor/symfony/http-kernel/EventListener/SerializeControllerResultAttributeListener.php",
@@ -28559,7 +28614,7 @@
     {
       "path": "vendor/symfony/http-kernel/Kernel.php",
       "bytes": 9963,
-      "sha256": "9b87a4b079cd9cb960e4e0c13dd1c5f5e7e71b619d54e8b66ff284a5b6a7aa18"
+      "sha256": "9f568efba281f63097315556c8c274c8277ad5e39fddf43bacbb904058f0456b"
     },
     {
       "path": "vendor/symfony/http-kernel/KernelEvents.php",
@@ -28593,8 +28648,8 @@
     },
     {
       "path": "vendor/symfony/http-kernel/Profiler/FileProfilerStorage.php",
-      "bytes": 11928,
-      "sha256": "b4f3b436f1150a9e759a3ed18e7ac8f3b30c4b480757af4cb459264e8fd10d53"
+      "bytes": 11959,
+      "sha256": "8f6a1656eb980cb5b252a001b9cfcc11bbb55bf9d91d14876601a29df79c90d6"
     },
     {
       "path": "vendor/symfony/http-kernel/Profiler/Profile.php",
@@ -30408,8 +30463,8 @@
     },
     {
       "path": "vendor/symfony/routing/Matcher/Dumper/CompiledUrlMatcherDumper.php",
-      "bytes": 19517,
-      "sha256": "5f1e40706b4007565fb96510fb3941151a3a477c6914aa5bd0442bd56e10b7c0"
+      "bytes": 20441,
+      "sha256": "71676be7be067271f1d09738547fa2bb8560cd13594f263c704d48a140b02b74"
     },
     {
       "path": "vendor/symfony/routing/Matcher/Dumper/CompiledUrlMatcherTrait.php",

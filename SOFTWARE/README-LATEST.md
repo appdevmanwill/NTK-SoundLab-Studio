@@ -1,10 +1,10 @@
 # Install SoundLab
 
-The current preview is **2026.11.11.2**. Get the files from the [GitHub release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2).
+The current preview is **2026.11.16.1**. Get the files from the [GitHub release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.1).
 
 ## Windows
 
-Download `NTKSoundLab-Setup-2026.11.11.2.exe` for an installer, or `NTKSoundLab-Portable-2026.11.11.2.exe` to run a single executable.
+Download `NTKSoundLab-Setup-2026.11.16.1.exe` for an installer, or `NTKSoundLab-Portable-2026.11.16.1.exe` to run a single executable.
 
 Microsoft Edge must be installed. Python, Node.js, Go and FFmpeg are build or optional-helper tools and are unnecessary for local editing in the packaged app.
 
@@ -14,7 +14,7 @@ The installer uses a per-user directory under `%LOCALAPPDATA%\Programs\NTK Sound
 
 ## Android
 
-Download `NTKSoundLab-2026.11.11.2.apk` and open it with Files on an Android 10 or later device. Android may ask you to allow installation from the app you used to open the file. Keep Android System WebView updated.
+Download `NTKSoundLab-2026.11.16.1.apk` and open it with Files on an Android 10 or later device. Android may ask you to allow installation from the app you used to open the file. Keep Android System WebView updated.
 
 This release uses `com.ntkhub.soundlabstudio` and installs separately from the earlier Android app. Export recordings and session metadata from that app before switching. Future SoundLab updates use the new ID and its SoundLab signer.
 
@@ -37,7 +37,7 @@ Download `SHA256SUMS.txt` from the release page into the same folder as the rele
 On Windows, calculate a file's hash and compare it with the matching line.
 
 ```powershell
-Get-FileHash .\NTKSoundLab-2026.11.11.2.apk -Algorithm SHA256
+Get-FileHash .\NTKSoundLab-2026.11.16.1.apk -Algorithm SHA256
 ```
 
 On Linux, when all listed files are in the download folder, run the following command.

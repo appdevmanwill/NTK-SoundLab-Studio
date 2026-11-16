@@ -31,6 +31,7 @@ Route::prefix('api')->middleware(['throttle:60,1'])->group(function () {
 
     // Universal Media Extractor
     Route::get('/omni/resolve', [SoundLabController::class, 'resolve']);
+    Route::get('/omni/direct-stream', [SoundLabController::class, 'directStream']);
     Route::get('/omni/passthrough', [SoundLabController::class, 'passthrough']);
     Route::post('/omni/download', [SoundLabController::class, 'download'])->middleware('throttle:10,1');
     Route::get('/omni/status/{id}', [SoundLabController::class, 'status']);
@@ -50,4 +51,15 @@ Route::prefix('api')->middleware(['throttle:60,1'])->group(function () {
     Route::get('/suno/song/{id}', [SunoProxyController::class, 'clipMetadata']);
     Route::get('/suno/clip/{id}', [SunoProxyController::class, 'clipMetadata']);
     Route::get('/suno/playlist/{id}', [SunoProxyController::class, 'playlistMetadata']);
+
+    // Public AI & Creator Audio Proxies (ACE Music, Flow Music, Treblo, Audius, Vocaroo)
+    Route::get('/acemusic/stream/{id}', [SoundLabController::class, 'aceMusicStream']);
+    Route::get('/acemusic/cover/{id}', [SoundLabController::class, 'aceMusicCover']);
+    Route::get('/{provider}/stream/{id}', [SoundLabController::class, 'ogProviderStream'])
+        ->where('provider', 'flowmusic|treblo');
+    Route::get('/{provider}/cover/{id}', [SoundLabController::class, 'ogProviderCover'])
+        ->where('provider', 'flowmusic|treblo');
+    Route::get('/audius/stream/{id}', [SoundLabController::class, 'audiusStream']);
+    Route::get('/audius/cover/{id}', [SoundLabController::class, 'audiusCover']);
+    Route::get('/vocaroo/stream/{id}', [SoundLabController::class, 'vocarooStream']);
 });

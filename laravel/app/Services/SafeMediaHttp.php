@@ -73,6 +73,23 @@ class SafeMediaHttp
         return $addresses[0];
     }
 
+    /** @param array<int, string> $allowedHosts */
+    public function hostMatchesAllowlist(string $host, array $allowedHosts): bool
+    {
+        $host = strtolower(rtrim($host, '.'));
+        foreach ($allowedHosts as $entry) {
+            $entry = strtolower($entry);
+            if ($entry === $host) {
+                return true;
+            }
+            if (str_starts_with($entry, '.') && str_ends_with($host, $entry) && strlen($host) > strlen($entry)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /** @return array{status: int, headers: array<string, string>, body: string, url: string} */
     public function request(string $url, string $method = 'GET', array $headers = [], ?string $body = null, int $maxBytes = 2097152, ?string $destination = null, array $allowedHosts = []): array
     {
@@ -82,7 +99,7 @@ class SafeMediaHttp
         }
         for ($hop = 0; $hop <= 3; $hop++) {
             $host = strtolower(parse_url($url, PHP_URL_HOST));
-            if ($allowedHosts && ! in_array($host, $allowedHosts, true)) {
+            if ($allowedHosts && ! $this->hostMatchesAllowlist($host, $allowedHosts)) {
                 throw new InvalidArgumentException('Redirect to an unsupported host was rejected.');
             }
             $ip = $this->publicAddress($url);

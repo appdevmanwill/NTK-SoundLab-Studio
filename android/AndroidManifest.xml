@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.ntkhub.soundlabstudio" android:versionCode="2026111102" android:versionName="2026.11.11.2">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.ntkhub.soundlabstudio" android:versionCode="2026111601" android:versionName="2026.11.16.1">
     <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="36" />
     <uses-permission android:name="android.permission.INTERNET" />
     <application android:label="NTK SoundLab" android:icon="@drawable/ic_launcher" android:theme="@style/AppTheme" android:allowBackup="false" android:usesCleartextTraffic="false" android:supportsRtl="true" android:largeHeap="true">

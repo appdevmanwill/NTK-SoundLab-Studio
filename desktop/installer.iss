@@ -2,7 +2,7 @@
 ; Per-user non-admin installation (Novice-Friendly)
 
 #define MyAppName "NTK SoundLab Studio"
-#define MyAppVersion "2026.11.11.2"
+#define MyAppVersion "2026.11.16.1"
 #define MyAppPublisher "NTK Hub"
 #define MyAppExeName "NTKSoundLabStudio.exe"
 

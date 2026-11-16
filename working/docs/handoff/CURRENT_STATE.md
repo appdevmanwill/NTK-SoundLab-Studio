@@ -1,5 +1,11 @@
 # NTK SoundLab Studio · delivery state
 
+## Multi-platform extraction & release update · 16 November 2026 (`v2026.11.16.1`)
+
+- **VERIFIED · extraction fixes across all backends.** Fixed Suno UUID hijacking (`is_suno_url` and `app.js` Mango fallback), added parameterized HTML `og:audio`/`og:image` extractors and SSRF/MIME-safe CORS proxies for ACE Music, Flow Music / Riffusion / Producer.ai, and Treblo / Sonauto, added native Audius (`api.audius.co` with `artwork.mirrors` fallback) and Vocaroo resolvers/proxies, added `.aac`, `HEAD` `403`/`501` fallback, Laravel `/api/omni/direct-stream`, Vimeo oEmbed, Python `/api/suno/*` routes, and explicit `422` guardrails for DRM/OAuth services (Audiomack, Spotify, Apple Music, Tidal, Deezer, Amazon Music, Pandora, Boomplay) and `.m3u8`/`.mpd` manifests without FFmpeg/yt-dlp.
+- **VERIFIED · website deployed.** Deployed `working/` to Firebase Hosting (`https://studio-5090403114-fc98b.web.app`) and verified `200` on `/`, `sw.js` (`ntk-soundlab-studio-v2026.11.16.1`), and `js/soundlab-api.js`, plus `404` on ignored `/helper/`.
+- **VERIFIED · rebuilt packages & smoke tests.** Built Windows Portable EXE (`NTKSoundLab-Portable-2026.11.16.1.exe`), Windows Inno Setup installer (`NTKSoundLab-Setup-2026.11.16.1.exe`), Linux AppImage (`NTKSoundLab-2026.11.16.1-x86_64.AppImage`) & `.deb` (`ntk-soundlab_2026.11.16.1-1_amd64.deb`), signed Android APK + validated AAB (`NTKSoundLab-2026.11.16.1.{apk,aab}`), Static PWA ZIP, and AlwaysData Laravel ZIP (isolated Composer `--no-dev`, scratch SQLite migration + HTTP smoke). Catalog digests verified in `SOFTWARE/SHA256SUMS.txt`.
+
 ## GitHub publication · 12 November 2026
 
 **VERIFIED · published.** Source commit `87c5a9446b223da255b34658f276233421b1240a` is on `appdevmanwill/NTK-SoundLab-Studio`, tagged `v2026.11.11.2`. The [GitHub preview release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2) contains eight packages and four supporting files. All 12 attachment sizes and GitHub SHA-256 digests match the local files. The README and setup guides were rewritten for app users and source contributors. New binaries are release attachments, with a flat checksum manifest.

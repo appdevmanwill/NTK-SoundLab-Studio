@@ -6,7 +6,7 @@ Android 10 or later is required. Keep System WebView updated.
 
 ## Install and use
 
-Install the APK from the [release page](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2). Android may ask for permission to install files opened by your browser or Files app.
+Install the APK from the [release page](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.1). Android may ask for permission to install files opened by your browser or Files app.
 
 Tap **Import audio or video** to choose a recording. **Transcribe** opens the transcript editor. **Karaoke** opens the video tools, and **Tools** contains storage, optional provider keys and session import/export.
 

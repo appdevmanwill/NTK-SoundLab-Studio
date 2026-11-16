@@ -1,4 +1,4 @@
-import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.11.2';
+import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.16.1';
 /**
  * NTK SoundLab Studio - Suno API & Stream Resolver
  * Handles UUID parsing, metadata resolution, rights retrieval, and CloudFront streaming

@@ -8,24 +8,24 @@ Built by NTK for NTK Hub.
 
 ## Download
 
-Version **2026.11.11.2** is a preview release. Start with the Windows installer or Android APK if you want to use the app. The AAB is for publishing through Google Play.
+Version **2026.11.16.1** is a preview release. Start with the Windows installer or Android APK if you want to use the app. The AAB is for publishing through Google Play.
 
 <!-- release-downloads:start -->
 
 | Platform | Download |
 | --- | --- |
-| Windows x64 | [Portable EXE](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-Portable-2026.11.11.2.exe) |
-| Windows x64 | [Setup installer](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-Setup-2026.11.11.2.exe) |
-| Linux x64 | [AppImage](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-2026.11.11.2-x86_64.AppImage) |
-| Linux x64 | [Debian package](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/ntk-soundlab_2026.11.11.2-1_amd64.deb) |
-| Android 10+ | [APK](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-2026.11.11.2.apk) |
-| Web | [Static PWA ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-Static-2026.11.11.2.zip) |
-| PHP hosting | [AlwaysData ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTK_SoundLab_Studio_AlwaysData-2026.11.11.2.zip) |
-| Google Play | [Signed AAB](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.11.2/NTKSoundLab-2026.11.11.2.aab) |
+| Windows x64 | [Portable EXE](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.1/NTKSoundLab-Portable-2026.11.16.1.exe) |
+| Windows x64 | [Setup installer](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.1/NTKSoundLab-Setup-2026.11.16.1.exe) |
+| Linux x64 | [AppImage](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.1/NTKSoundLab-2026.11.16.1-x86_64.AppImage) |
+| Linux x64 | [Debian package](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.1/ntk-soundlab_2026.11.16.1-1_amd64.deb) |
+| Android 10+ | [APK](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.1/NTKSoundLab-2026.11.16.1.apk) |
+| Web | [Static PWA ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.1/NTKSoundLab-Static-2026.11.16.1.zip) |
+| PHP hosting | [AlwaysData ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.1/NTK_SoundLab_Studio_AlwaysData-2026.11.16.1.zip) |
+| Google Play | [Signed AAB](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.1/NTKSoundLab-2026.11.16.1.aab) |
 
 <!-- release-downloads:end -->
 
-[Release notes and all files](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.11.2) · [Checksums](SOFTWARE/SHA256SUMS.txt) · [Setup guide](SOFTWARE/README-LATEST.md)
+[Release notes and all files](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.1) · [Checksums](SOFTWARE/SHA256SUMS.txt) · [Setup guide](SOFTWARE/README-LATEST.md)
 
 Windows needs Microsoft Edge. Linux needs an installed browser such as Chromium, Chrome, Edge or Brave. Android requires Android 10 or later and an updated System WebView. The Windows files are unsigned, so Windows may show an unknown-publisher warning.
 
@@ -56,7 +56,7 @@ Save important exports outside the app. Session JSON contains metadata and lyric
 
 ## Link imports
 
-The packaged desktop app supports Suno links and direct public media URLs. Other sites can need the optional Python helper or a configured server extractor. Availability depends on the site, its access restrictions and the extractor.
+The packaged desktop app, web/PHP backend, and Python helper support Suno AI, ACE Music, Flow Music / Riffusion / Producer.ai, Treblo / Sonauto, Audius, Vocaroo, and direct public media URLs (`MP3`, `WAV`, `OGG`, `FLAC`, `M4A`, `AAC`, `MP4`, `WebM`, plus Vimeo metadata). General extractors (YouTube, SoundCloud, TikTok, Instagram, X, Mixcloud, and HLS `.m3u8`/`.mpd`) require the optional local Python helper (`yt-dlp`) or a configured server extractor. DRM- or OAuth-gated streaming services (`Spotify`, `Apple Music`, `Tidal`, `Deezer`, `Amazon Music`, `Pandora`, `Boomplay`, `Audiomack`) cannot be extracted.
 
 A link working in a normal browser does not guarantee that SoundLab can download it. Local file import is the most predictable starting point.
 

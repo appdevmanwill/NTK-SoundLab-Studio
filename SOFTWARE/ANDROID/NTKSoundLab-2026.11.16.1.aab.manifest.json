@@ -1,0 +1,14 @@
+{
+  "version": "2026.11.16.1",
+  "applicationId": "com.ntkhub.soundlabstudio",
+  "versionCode": 2026111601,
+  "aabSha256": "4da831ae388f2f3566ac1f5ae7bb6e8fb639fc37d7a224cc74c0dbd29c6eff24",
+  "aabBytes": 5985036,
+  "certificateSha256": "6e45b7b80495f9375b6382af3b78d98b414cbf7afce63bd3254a34ec2a63c044",
+  "assetsMatched": 62,
+  "dexMatchesPublishedApk": true,
+  "bundleValidation": "passed",
+  "jarSignatureVerification": "passed",
+  "generatedApkSignatureVerification": "passed",
+  "playConsoleAcceptance": "not_tested"
+}

@@ -11,6 +11,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"html"
 	"io"
 	"io/fs"
 	"log"
@@ -39,6 +40,13 @@ const maxJSON = 2 << 20
 const sessionCookie = "ntk_desktop_session"
 
 var uuidRE = regexp.MustCompile(`(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
+var aceIDRE = regexp.MustCompile(`^[a-zA-Z0-9_-]{4,64}$`)
+var aceLocaleRE = regexp.MustCompile(`^[a-zA-Z-]{2,8}$`)
+var vocarooIDRE = regexp.MustCompile(`^[a-zA-Z0-9_-]{6,24}$`)
+var audiusIDRE = regexp.MustCompile(`^[a-zA-Z0-9_-]{3,32}$`)
+var metaTagRE = regexp.MustCompile(`(?is)<meta\s+[^>]+>`)
+var attrRE = regexp.MustCompile(`(?is)([a-zA-Z_:.-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')`)
+var audioTagRE = regexp.MustCompile(`(?is)<audio\b[^>]*\bsrc\s*=\s*(?:"([^"]*)"|'([^']*)')`)
 
 type config struct {
 	port           int
@@ -61,7 +69,7 @@ type desktopApp struct {
 }
 
 func init() {
-	for ext, kind := range map[string]string{".js": "application/javascript; charset=utf-8", ".mjs": "application/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".html": "text/html; charset=utf-8", ".wasm": "application/wasm", ".json": "application/json", ".svg": "image/svg+xml", ".onnx": "application/octet-stream"} {
+	for ext, kind := range map[string]string{".js": "application/javascript; charset=utf-8", ".mjs": "application/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".html": "text/html; charset=utf-8", ".wasm": "application/wasm", ".json": "application/json", ".svg": "image/svg+xml", ".onnx": "application/octet-stream", ".m4a": "audio/mp4", ".aac": "audio/aac", ".flac": "audio/flac", ".ogg": "audio/ogg", ".opus": "audio/opus"} {
 		_ = mime.AddExtensionType(ext, kind)
 	}
 }
@@ -349,13 +357,720 @@ func (a *desktopApp) resolveSuno(ctx context.Context, raw string) (string, error
 	return id, nil
 }
 
+type ogProvider struct {
+	key          string
+	name         string
+	pageHosts    []string
+	cdnHosts     []string
+	cdnSuffixes  []string
+	stripSuffix  []string
+	canonicalFmt string
+}
+
+var ogProviders = []ogProvider{
+	{
+		key:          "acemusic",
+		name:         "ACE Music",
+		pageHosts:    []string{"acemusic.ai", "www.acemusic.ai"},
+		cdnSuffixes:  []string{".acemusic.ai", ".r2.cloudflarestorage.com", ".r2.dev"},
+		stripSuffix:  []string{" | ACE Music", " - ACE Music"},
+		canonicalFmt: "https://acemusic.ai/song/%s",
+	},
+	{
+		key:          "flowmusic",
+		name:         "Flow Music",
+		pageHosts:    []string{"flowmusic.app", "www.flowmusic.app", "riffusion.com", "www.riffusion.com", "producer.ai", "www.producer.ai"},
+		cdnHosts:     []string{"storage.googleapis.com"},
+		cdnSuffixes:  []string{".flowmusic.app", ".riffusion.com", ".producer.ai"},
+		stripSuffix:  []string{" | Flow Music", " - Flow Music", " | Riffusion", " - Riffusion", " | Producer.ai", " - Producer.ai"},
+		canonicalFmt: "https://www.flowmusic.app/song/%s",
+	},
+	{
+		key:          "treblo",
+		name:         "Treblo",
+		pageHosts:    []string{"treblo.com", "www.treblo.com", "sonauto.ai", "www.sonauto.ai"},
+		cdnSuffixes:  []string{".treblo.com", ".sonauto.ai", ".r2.cloudflarestorage.com"},
+		stripSuffix:  []string{" | Treblo", " - Treblo", " | Sonauto", " - Sonauto"},
+		canonicalFmt: "https://treblo.com/song/%s",
+	},
+}
+
+func hostMatches(h, domain string) bool {
+	h = strings.ToLower(strings.TrimSuffix(h, "."))
+	domain = strings.ToLower(strings.TrimSuffix(domain, "."))
+	return h != "" && domain != "" && (h == domain || strings.HasSuffix(h, "."+domain))
+}
+
+func (p ogProvider) matchPageHost(h string) bool {
+	h = strings.ToLower(strings.TrimSuffix(h, "."))
+	for _, ph := range p.pageHosts {
+		if h == ph {
+			return true
+		}
+	}
+	return false
+}
+
+func (p ogProvider) matchAssetHost(h string) bool {
+	h = strings.ToLower(strings.TrimSuffix(h, "."))
+	if p.matchPageHost(h) {
+		return true
+	}
+	for _, ch := range p.cdnHosts {
+		if h == ch {
+			return true
+		}
+	}
+	for _, sfx := range p.cdnSuffixes {
+		if strings.HasSuffix(h, sfx) {
+			return true
+		}
+	}
+	return false
+}
+
+func ogProviderForHost(h string) (ogProvider, bool) {
+	for _, p := range ogProviders {
+		if p.matchPageHost(h) {
+			return p, true
+		}
+	}
+	return ogProvider{}, false
+}
+
+func ogProviderByKey(key string) (ogProvider, bool) {
+	for _, p := range ogProviders {
+		if p.key == key {
+			return p, true
+		}
+	}
+	return ogProvider{}, false
+}
+
+func aceMusicHost(h string) bool {
+	p, ok := ogProviderByKey("acemusic")
+	return ok && p.matchPageHost(h)
+}
+
+func aceMusicAssetHost(h string) bool {
+	p, ok := ogProviderByKey("acemusic")
+	return ok && p.matchAssetHost(h)
+}
+
+func drmPlatformForHost(h string) string {
+	h = strings.ToLower(strings.TrimSuffix(h, "."))
+	if strings.HasPrefix(h, "music.amazon.") {
+		return "Amazon Music"
+	}
+	for _, pair := range [][2]string{
+		{"audiomack.com", "Audiomack"},
+		{"spotify.com", "Spotify"},
+		{"music.apple.com", "Apple Music"},
+		{"itunes.apple.com", "Apple Music"},
+		{"tidal.com", "Tidal"},
+		{"deezer.com", "Deezer"},
+		{"pandora.com", "Pandora"},
+		{"boomplay.com", "Boomplay"},
+	} {
+		if hostMatches(h, pair[0]) {
+			return pair[1]
+		}
+	}
+	return ""
+}
+
+func drmPlatformMessage(platform string) string {
+	if platform == "Audiomack" {
+		return "Audiomack requires signed OAuth playback credentials and does not expose public audio streams to SoundLab. Use Audiomack directly or import a local MP3/WAV/FLAC/M4A file into SoundLab Studio."
+	}
+	return platform + " streams are DRM-protected and require an official " + platform + " session/license. SoundLab Studio cannot extract DRM-encrypted tracks from " + platform + "; please import a local MP3/WAV/FLAC/M4A file instead."
+}
+
+func (p ogProvider) extractSongID(raw string) string {
+	if aceIDRE.MatchString(raw) {
+		return raw
+	}
+	u, err := validateURL(raw)
+	if err != nil || u.Scheme != "https" || !p.matchPageHost(u.Hostname()) {
+		return ""
+	}
+	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+	if len(parts) == 2 && (parts[0] == "song" || parts[0] == "songs") && aceIDRE.MatchString(parts[1]) {
+		return parts[1]
+	}
+	if len(parts) == 3 && aceLocaleRE.MatchString(parts[0]) && (parts[1] == "song" || parts[1] == "songs") && aceIDRE.MatchString(parts[2]) {
+		return parts[2]
+	}
+	return ""
+}
+
+func aceMusicID(raw string) string {
+	p, _ := ogProviderByKey("acemusic")
+	return p.extractSongID(raw)
+}
+
+func aceMusicClient(base *http.Client, allowSubdomains bool) *http.Client {
+	p, _ := ogProviderByKey("acemusic")
+	return ogProviderClient(base, p, allowSubdomains)
+}
+
+func ogProviderClient(base *http.Client, p ogProvider, allowSubdomains bool) *http.Client {
+	client := *base
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		hostOK := p.matchPageHost(req.URL.Hostname())
+		if allowSubdomains {
+			hostOK = p.matchAssetHost(req.URL.Hostname())
+		}
+		if len(via) >= 5 || req.URL.Scheme != "https" || !hostOK {
+			return errors.New(p.name + " redirect blocked")
+		}
+		if _, err := validateURL(req.URL.String()); err != nil {
+			return err
+		}
+		if base.CheckRedirect != nil {
+			return base.CheckRedirect(req, via)
+		}
+		return nil
+	}
+	return &client
+}
+
+func safePublicHTTPSClient(base *http.Client, allowedHost func(string) bool) *http.Client {
+	client := *base
+	client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) >= 6 || req.URL.Scheme != "https" {
+			return errors.New("media redirect blocked")
+		}
+		if allowedHost != nil && !allowedHost(req.URL.Hostname()) {
+			return errors.New("media redirect host not permitted")
+		}
+		if _, err := validateURL(req.URL.String()); err != nil {
+			return err
+		}
+		if base.CheckRedirect != nil {
+			return base.CheckRedirect(req, via)
+		}
+		return nil
+	}
+	return &client
+}
+
+func extractMetaAttr(body, targetKey string) string {
+	for _, tag := range metaTagRE.FindAllString(body, -1) {
+		var key, content string
+		for _, m := range attrRE.FindAllStringSubmatch(tag, -1) {
+			attrName := strings.ToLower(m[1])
+			val := m[2]
+			if val == "" {
+				val = m[3]
+			}
+			switch attrName {
+			case "property", "name":
+				key = strings.ToLower(strings.TrimSpace(val))
+			case "content":
+				content = html.UnescapeString(strings.TrimSpace(val))
+			}
+		}
+		if key == strings.ToLower(targetKey) && content != "" {
+			return content
+		}
+	}
+	return ""
+}
+
+func extractAudioSrc(body string) string {
+	m := audioTagRE.FindStringSubmatch(body)
+	if len(m) < 3 {
+		return ""
+	}
+	if m[1] != "" {
+		return html.UnescapeString(strings.TrimSpace(m[1]))
+	}
+	return html.UnescapeString(strings.TrimSpace(m[2]))
+}
+
+func splitProviderTitleAndArtist(rawTitle, fallbackID, providerName string, stripSuffixes []string) (string, string) {
+	cleaned := strings.TrimSpace(rawTitle)
+	for _, suffix := range stripSuffixes {
+		cleaned = strings.TrimSpace(strings.TrimSuffix(cleaned, suffix))
+	}
+	for _, sep := range []string{" by ", " par "} {
+		if idx := strings.LastIndex(cleaned, sep); idx > 0 {
+			title := strings.TrimSpace(cleaned[:idx])
+			artist := strings.TrimSpace(cleaned[idx+len(sep):])
+			if title != "" && artist != "" {
+				return title, artist
+			}
+		}
+	}
+	if cleaned == "" {
+		shortID := fallbackID
+		if len(shortID) > 16 {
+			shortID = shortID[:8]
+		}
+		return providerName + "_" + shortID, providerName
+	}
+	return cleaned, providerName
+}
+
+func (a *desktopApp) resolveOGProvider(ctx context.Context, p ogProvider, raw string) (map[string]any, string, string, int, error) {
+	id := p.extractSongID(raw)
+	if id == "" {
+		return nil, "", "", 400, errors.New("a valid " + p.name + " song link is required")
+	}
+	pageURL := fmt.Sprintf(p.canonicalFmt, id)
+	req, err := http.NewRequestWithContext(ctx, "GET", pageURL, nil)
+	if err != nil {
+		return nil, "", "", 400, err
+	}
+	req.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
+	resp, err := ogProviderClient(a.client, p, false).Do(req)
+	if err != nil {
+		return nil, "", "", 502, errors.New("could not reach " + p.name)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		code := resp.StatusCode
+		if code < 400 || code >= 600 {
+			code = 502
+		}
+		return nil, "", "", code, errors.New(p.name + " song page is unavailable")
+	}
+	kind, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	if kind != "" && kind != "text/html" && kind != "application/xhtml+xml" {
+		return nil, "", "", 502, errors.New(p.name + " returned an unexpected response type")
+	}
+	bodyBytes, err := io.ReadAll(io.LimitReader(resp.Body, maxJSON+1))
+	if err != nil || len(bodyBytes) > maxJSON {
+		return nil, "", "", 502, errors.New(p.name + " returned an unreadable or oversized page")
+	}
+	htmlBody := string(bodyBytes)
+	audioRaw := extractMetaAttr(htmlBody, "og:audio")
+	if audioRaw == "" {
+		audioRaw = extractAudioSrc(htmlBody)
+	}
+	if audioRaw == "" {
+		return nil, "", "", 422, errors.New(p.name + " did not expose a public audio stream for this link")
+	}
+	baseURL := resp.Request.URL
+	if baseURL == nil {
+		baseURL, _ = url.Parse(pageURL)
+	}
+	resolvedAudio, err := baseURL.Parse(audioRaw)
+	if err != nil {
+		return nil, "", "", 502, errors.New(p.name + " returned an invalid audio URL")
+	}
+	audioURL, err := validateURL(resolvedAudio.String())
+	if err != nil || audioURL.Scheme != "https" || !p.matchAssetHost(audioURL.Hostname()) {
+		return nil, "", "", 502, errors.New(p.name + " returned an unsupported audio destination")
+	}
+	var coverURL string
+	if imgRaw := extractMetaAttr(htmlBody, "og:image"); imgRaw != "" {
+		if resolvedImg, err := baseURL.Parse(imgRaw); err == nil {
+			if validImg, err := validateURL(resolvedImg.String()); err == nil && validImg.Scheme == "https" && p.matchAssetHost(validImg.Hostname()) {
+				coverURL = validImg.String()
+			}
+		}
+	}
+	title, artist := splitProviderTitleAndArtist(extractMetaAttr(htmlBody, "og:title"), id, p.name, p.stripSuffix)
+	desc := extractMetaAttr(htmlBody, "description")
+	if desc == "" {
+		desc = extractMetaAttr(htmlBody, "og:description")
+	}
+	coverProxy := ""
+	if coverURL != "" {
+		coverProxy = "/api/" + p.key + "/cover/" + id
+	}
+	normID := strings.ToLower(id)
+	finalPage := pageURL
+	if baseURL != nil && baseURL.String() != "" {
+		finalPage = baseURL.String()
+	}
+	meta := map[string]any{
+		"type":       "single",
+		"uuid":       p.key + "-" + normID,
+		"id":         normID,
+		"title":      title,
+		"artist":     artist,
+		"duration":   0,
+		"imageLarge": coverProxy,
+		"imageThumb": coverProxy,
+		"streamUrl":  "/api/" + p.key + "/stream/" + id,
+		"url":        finalPage,
+		"platform":   p.name,
+		"hasVideo":   false,
+		"hasAudio":   true,
+		"hasStem":    true,
+		"tags":       p.name + " • " + artist,
+		"prompt":     desc,
+	}
+	return meta, audioURL.String(), coverURL, 200, nil
+}
+
+type audiusArtwork struct {
+	W1000   string   `json:"1000x1000"`
+	W480    string   `json:"480x480"`
+	W150    string   `json:"150x150"`
+	Mirrors []string `json:"mirrors"`
+}
+
+func (a audiusArtwork) best() string {
+	if a.W1000 != "" {
+		return a.W1000
+	}
+	if a.W480 != "" {
+		return a.W480
+	}
+	return a.W150
+}
+
+func (a audiusArtwork) candidates() []string {
+	primary := a.best()
+	parsed, err := validateURL(primary)
+	if err != nil || parsed.Scheme != "https" {
+		return nil
+	}
+	out := []string{parsed.String()}
+	seen := map[string]bool{parsed.String(): true}
+	suffix := parsed.RequestURI()
+	for _, m := range a.Mirrors {
+		mu, merr := validateURL(strings.TrimSpace(m))
+		if merr != nil || mu.Scheme != "https" {
+			continue
+		}
+		alt := "https://" + mu.Host + suffix
+		if !seen[alt] {
+			seen[alt] = true
+			out = append(out, alt)
+			if len(out) >= 4 {
+				break
+			}
+		}
+	}
+	return out
+}
+
+type audiusTrack struct {
+	ID          string        `json:"id"`
+	Title       string        `json:"title"`
+	Duration    float64       `json:"duration"`
+	Genre       string        `json:"genre"`
+	Description string        `json:"description"`
+	Permalink   string        `json:"permalink"`
+	Artwork     audiusArtwork `json:"artwork"`
+	User        struct {
+		Name   string `json:"name"`
+		Handle string `json:"handle"`
+	} `json:"user"`
+}
+
+func formatAudiusTrackMap(t audiusTrack, webpageURL string) map[string]any {
+	artist := strings.TrimSpace(t.User.Name)
+	if artist == "" {
+		artist = strings.TrimSpace(t.User.Handle)
+	}
+	if artist == "" {
+		artist = "Audius Creator"
+	}
+	coverProxy := ""
+	if t.Artwork.best() != "" {
+		coverProxy = "/api/audius/cover/" + t.ID
+	}
+	title := strings.TrimSpace(t.Title)
+	if title == "" {
+		title = "Audius_" + t.ID
+	}
+	genre := strings.TrimSpace(t.Genre)
+	if genre == "" {
+		genre = "Audius"
+	}
+	page := webpageURL
+	if page == "" && t.Permalink != "" {
+		page = "https://audius.co" + t.Permalink
+	}
+	return map[string]any{
+		"uuid":       "audius-" + strings.ToLower(t.ID),
+		"id":         t.ID,
+		"title":      title,
+		"artist":     artist,
+		"duration":   int(t.Duration),
+		"imageLarge": coverProxy,
+		"imageThumb": coverProxy,
+		"streamUrl":  "/api/audius/stream/" + t.ID,
+		"url":        page,
+		"platform":   "Audius",
+		"hasVideo":   false,
+		"hasAudio":   true,
+		"hasStem":    true,
+		"tags":       "Audius • " + genre + " • " + artist,
+		"prompt":     t.Description,
+	}
+}
+
+func (a *desktopApp) resolveAudius(ctx context.Context, rawURL string) (map[string]any, int, error) {
+	apiURL := "https://api.audius.co/v1/resolve?url=" + url.QueryEscape(rawURL)
+	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
+	if err != nil {
+		return nil, 400, err
+	}
+	req.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
+	req.Header.Set("Accept", "application/json")
+	resp, err := providerClient(a.client, "api.audius.co").Do(req)
+	if err != nil {
+		return nil, 502, errors.New("could not reach Audius API")
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, 422, fmt.Errorf("Audius API returned HTTP %d", resp.StatusCode)
+	}
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxJSON))
+	if err != nil {
+		return nil, 502, errors.New("Audius returned an unreadable response")
+	}
+	var env struct {
+		Data json.RawMessage `json:"data"`
+	}
+	if err := json.Unmarshal(body, &env); err != nil || len(env.Data) == 0 {
+		return nil, 502, errors.New("Audius returned invalid metadata")
+	}
+	var single audiusTrack
+	if err := json.Unmarshal(env.Data, &single); err == nil && audiusIDRE.MatchString(single.ID) && single.Title != "" {
+		out := formatAudiusTrackMap(single, rawURL)
+		out["type"] = "single"
+		return out, 200, nil
+	}
+	var playlist struct {
+		ID           string        `json:"id"`
+		PlaylistName string        `json:"playlist_name"`
+		User         struct{ Name string `json:"name"` } `json:"user"`
+		Tracks       []audiusTrack `json:"tracks"`
+	}
+	if err := json.Unmarshal(env.Data, &playlist); err == nil && len(playlist.Tracks) > 0 {
+		var clips []map[string]any
+		for _, t := range playlist.Tracks {
+			if audiusIDRE.MatchString(t.ID) {
+				clips = append(clips, formatAudiusTrackMap(t, ""))
+			}
+		}
+		if len(clips) > 0 {
+			name := strings.TrimSpace(playlist.PlaylistName)
+			if name == "" {
+				name = "Audius Playlist"
+			}
+			return map[string]any{
+				"type":     "playlist",
+				"id":       playlist.ID,
+				"title":    name,
+				"uploader": playlist.User.Name,
+				"count":    len(clips),
+				"clips":    clips,
+			}, 200, nil
+		}
+	}
+	var arr []audiusTrack
+	if err := json.Unmarshal(env.Data, &arr); err == nil && len(arr) > 0 {
+		var clips []map[string]any
+		for _, t := range arr {
+			if audiusIDRE.MatchString(t.ID) {
+				clips = append(clips, formatAudiusTrackMap(t, ""))
+			}
+		}
+		if len(clips) > 0 {
+			return map[string]any{
+				"type":     "playlist",
+				"id":       clips[0]["id"],
+				"title":    "Audius Playlist",
+				"uploader": clips[0]["artist"],
+				"count":    len(clips),
+				"clips":    clips,
+			}, 200, nil
+		}
+	}
+	return nil, 422, errors.New("Audius did not return a playable track for this link")
+}
+
+func vocarooID(raw string) string {
+	if vocarooIDRE.MatchString(raw) {
+		return raw
+	}
+	u, err := validateURL(raw)
+	if err != nil || (!hostMatches(u.Hostname(), "vocaroo.com") && !hostMatches(u.Hostname(), "voca.ro")) {
+		return ""
+	}
+	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+	if len(parts) == 1 && vocarooIDRE.MatchString(parts[0]) {
+		return parts[0]
+	}
+	if len(parts) == 2 && (parts[0] == "embed" || parts[0] == "i") && vocarooIDRE.MatchString(parts[1]) {
+		return parts[1]
+	}
+	return ""
+}
+
+func vocarooMP3URL(id string) string {
+	sub := "media"
+	if len(id) == 10 || (len(id) == 12 && strings.HasPrefix(id, "1")) {
+		sub = "media1"
+	}
+	return "https://" + sub + ".vocaroo.com/mp3/" + id
+}
+
+func vocarooHostAllowed(h string) bool {
+	h = strings.ToLower(strings.TrimSuffix(h, "."))
+	return h == "media.vocaroo.com" || h == "media1.vocaroo.com"
+}
+
+func (a *desktopApp) resolveVocaroo(ctx context.Context, raw string) (map[string]any, int, error) {
+	id := vocarooID(raw)
+	if id == "" {
+		return nil, 400, errors.New("a valid Vocaroo recording link is required")
+	}
+	mp3URL := vocarooMP3URL(id)
+	client := safePublicHTTPSClient(a.client, vocarooHostAllowed)
+	req, _ := http.NewRequestWithContext(ctx, "HEAD", mp3URL, nil)
+	req.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
+	resp, err := client.Do(req)
+	if err == nil && (resp.StatusCode == http.StatusMethodNotAllowed || resp.StatusCode == http.StatusForbidden || resp.StatusCode == http.StatusNotImplemented) {
+		resp.Body.Close()
+		req2, _ := http.NewRequestWithContext(ctx, "GET", mp3URL, nil)
+		req2.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
+		req2.Header.Set("Range", "bytes=0-0")
+		resp, err = client.Do(req2)
+	}
+	if err != nil {
+		return nil, 502, errors.New("could not reach Vocaroo media CDN")
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound || resp.StatusCode == http.StatusGone {
+		return nil, 422, errors.New("Vocaroo recording was not found or has expired")
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, 422, fmt.Errorf("Vocaroo media CDN returned HTTP %d", resp.StatusCode)
+	}
+	return map[string]any{
+		"type":       "single",
+		"uuid":       "vocaroo-" + strings.ToLower(id),
+		"id":         id,
+		"title":      "Vocaroo_" + id,
+		"artist":     "Vocaroo Voice Recording",
+		"duration":   0,
+		"imageLarge": "",
+		"imageThumb": "",
+		"streamUrl":  "/api/vocaroo/stream/" + id,
+		"url":        "https://vocaroo.com/" + id,
+		"platform":   "Vocaroo",
+		"hasVideo":   false,
+		"hasAudio":   true,
+		"hasStem":    true,
+		"tags":       "Vocaroo • Voice Note",
+	}, 200, nil
+}
+
+func isDirectMediaExt(ext string) bool {
+	switch strings.ToLower(ext) {
+	case ".mp3", ".wav", ".m4a", ".aac", ".mp4", ".flac", ".ogg", ".opus", ".webm":
+		return true
+	}
+	return false
+}
+
+var audioStreamMimes = map[string]bool{
+	"audio/mpeg":               true,
+	"audio/mp3":                true,
+	"audio/mp4":                true,
+	"audio/m4a":                true,
+	"audio/x-m4a":              true,
+	"audio/aac":                true,
+	"audio/x-aac":              true,
+	"audio/aacp":               true,
+	"audio/wav":                true,
+	"audio/x-wav":              true,
+	"audio/wave":               true,
+	"audio/ogg":                true,
+	"audio/opus":               true,
+	"audio/flac":               true,
+	"audio/x-flac":             true,
+	"audio/webm":               true,
+	"video/mp4":                true,
+	"video/webm":               true,
+	"application/ogg":          true,
+	"application/octet-stream": true,
+	"binary/octet-stream":      true,
+}
+
+var imageCoverMimes = map[string]bool{
+	"image/jpeg": true,
+	"image/jpg":  true,
+	"image/png":  true,
+	"image/webp": true,
+	"image/gif":  true,
+}
+
+func (a *desktopApp) proxyValidatedMedia(w http.ResponseWriter, r *http.Request, client *http.Client, targetURL string, allowedMimes map[string]bool, forceMime string, maxBytes int64) {
+	req, err := http.NewRequestWithContext(r.Context(), r.Method, targetURL, nil)
+	if err != nil {
+		apiError(w, 400, "Invalid media URL")
+		return
+	}
+	req.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
+	if rangeHeader := r.Header.Get("Range"); rangeHeader != "" {
+		if !regexp.MustCompile(`^bytes=[0-9]*-[0-9]*$`).MatchString(rangeHeader) {
+			apiError(w, 400, "Only a single byte range is supported")
+			return
+		}
+		req.Header.Set("Range", rangeHeader)
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		apiError(w, 502, "Could not reach the media provider")
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 && resp.StatusCode != 206 {
+		apiError(w, resp.StatusCode, "Audio provider could not supply this track")
+		return
+	}
+	if resp.ContentLength > maxBytes {
+		apiError(w, 502, "Media exceeds the desktop streaming limit")
+		return
+	}
+	kind, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	if !allowedMimes[kind] {
+		apiError(w, 502, "The audio provider returned an unexpected content type")
+		return
+	}
+	outType := forceMime
+	if outType == "" {
+		if kind == "" || kind == "application/octet-stream" || kind == "binary/octet-stream" {
+			if guessed := mime.TypeByExtension(strings.ToLower(path.Ext(req.URL.Path))); guessed != "" {
+				outType = guessed
+			} else {
+				outType = "application/octet-stream"
+			}
+		} else {
+			outType = kind
+		}
+	}
+	w.Header().Set("Content-Type", outType)
+	w.Header().Set("Cache-Control", "no-store")
+	for _, h := range []string{"Content-Length", "Content-Range", "Accept-Ranges"} {
+		if v := resp.Header.Get(h); v != "" {
+			w.Header().Set(h, v)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+	if r.Method != "HEAD" {
+		_, _ = io.Copy(w, io.LimitReader(resp.Body, maxBytes))
+	}
+}
+
 func (a *desktopApp) routes() http.Handler {
 	mux := http.NewServeMux()
 	status := func(w http.ResponseWriter, r *http.Request) {
 		if !method(w, r, "GET") {
 			return
 		}
-		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11.11.2", "persistent_origin": true})
+		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11.16.1", "persistent_origin": true})
 	}
 	mux.HandleFunc("/api/desktop/status", status)
 	mux.HandleFunc("/api/health", status)
@@ -448,45 +1163,176 @@ func (a *desktopApp) routes() http.Handler {
 			return
 		}
 		target := "https://d2lwuy8qc234o3.cloudfront.net/1/clip/" + strings.ToLower(id) + ".m4a"
-		req, _ := http.NewRequestWithContext(r.Context(), r.Method, target, nil)
-		if rangeHeader := r.Header.Get("Range"); rangeHeader != "" {
-			if !regexp.MustCompile(`^bytes=[0-9]*-[0-9]*$`).MatchString(rangeHeader) {
-				apiError(w, 400, "Only a single byte range is supported")
+		sunoMimes := map[string]bool{
+			"audio/mp4":                true,
+			"audio/m4a":                true,
+			"audio/x-m4a":              true,
+			"video/mp4":                true,
+			"application/octet-stream": true,
+			"binary/octet-stream":      true,
+		}
+		a.proxyValidatedMedia(w, r, providerClient(a.client, "d2lwuy8qc234o3.cloudfront.net"), target, sunoMimes, "audio/mp4", 512<<20)
+	})
+	for _, prov := range ogProviders {
+		prov := prov
+		mux.HandleFunc("/api/"+prov.key+"/stream/", func(w http.ResponseWriter, r *http.Request) {
+			if !method(w, r, "GET", "HEAD") {
 				return
 			}
-			req.Header.Set("Range", rangeHeader)
+			id := strings.TrimPrefix(r.URL.Path, "/api/"+prov.key+"/stream/")
+			for _, ext := range []string{".mp3", ".m4a", ".wav", ".ogg", ".opus", ".aac", ".flac", ".webm"} {
+				id = strings.TrimSuffix(id, ext)
+			}
+			if !aceIDRE.MatchString(id) {
+				apiError(w, 400, "A valid "+prov.name+" song ID is required")
+				return
+			}
+			_, audioURL, _, status, err := a.resolveOGProvider(r.Context(), prov, id)
+			if err != nil {
+				apiError(w, status, err.Error())
+				return
+			}
+			a.proxyValidatedMedia(w, r, ogProviderClient(a.client, prov, true), audioURL, audioStreamMimes, "", 512<<20)
+		})
+		mux.HandleFunc("/api/"+prov.key+"/cover/", func(w http.ResponseWriter, r *http.Request) {
+			if !method(w, r, "GET", "HEAD") {
+				return
+			}
+			id := strings.TrimPrefix(r.URL.Path, "/api/"+prov.key+"/cover/")
+			for _, ext := range []string{".jpg", ".jpeg", ".png", ".webp"} {
+				id = strings.TrimSuffix(id, ext)
+			}
+			if !aceIDRE.MatchString(id) {
+				apiError(w, 400, "A valid "+prov.name+" song ID is required")
+				return
+			}
+			_, _, coverURL, status, err := a.resolveOGProvider(r.Context(), prov, id)
+			if err != nil {
+				apiError(w, status, err.Error())
+				return
+			}
+			if coverURL == "" {
+				apiError(w, 404, "No cover artwork is available for this "+prov.name+" track")
+				return
+			}
+			a.proxyValidatedMedia(w, r, ogProviderClient(a.client, prov, true), coverURL, imageCoverMimes, "", 16<<20)
+		})
+	}
+	mux.HandleFunc("/api/audius/stream/", func(w http.ResponseWriter, r *http.Request) {
+		if !method(w, r, "GET", "HEAD") {
+			return
 		}
-		resp, err := providerClient(a.client, req.URL.Hostname()).Do(req)
-		if err != nil {
-			apiError(w, 502, "Could not reach the audio provider")
+		id := strings.TrimPrefix(r.URL.Path, "/api/audius/stream/")
+		for _, ext := range []string{".mp3", ".m4a"} {
+			id = strings.TrimSuffix(id, ext)
+		}
+		if !audiusIDRE.MatchString(id) {
+			apiError(w, 400, "A valid Audius track ID is required")
+			return
+		}
+		target := "https://api.audius.co/v1/tracks/" + id + "/stream"
+		a.proxyValidatedMedia(w, r, safePublicHTTPSClient(a.client, nil), target, audioStreamMimes, "", 512<<20)
+	})
+	mux.HandleFunc("/api/audius/cover/", func(w http.ResponseWriter, r *http.Request) {
+		if !method(w, r, "GET", "HEAD") {
+			return
+		}
+		id := strings.TrimPrefix(r.URL.Path, "/api/audius/cover/")
+		for _, ext := range []string{".jpg", ".jpeg", ".png", ".webp"} {
+			id = strings.TrimSuffix(id, ext)
+		}
+		if !audiusIDRE.MatchString(id) {
+			apiError(w, 400, "A valid Audius track ID is required")
+			return
+		}
+		req, _ := http.NewRequestWithContext(r.Context(), "GET", "https://api.audius.co/v1/tracks/"+id, nil)
+		req.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
+		req.Header.Set("Accept", "application/json")
+		resp, err := providerClient(a.client, "api.audius.co").Do(req)
+		if err != nil || resp.StatusCode != 200 {
+			if resp != nil {
+				resp.Body.Close()
+			}
+			apiError(w, 502, "Could not fetch Audius track artwork")
 			return
 		}
 		defer resp.Body.Close()
-		if resp.StatusCode != 200 && resp.StatusCode != 206 {
-			apiError(w, resp.StatusCode, "Audio provider could not supply this track")
+		var env struct {
+			Data audiusTrack `json:"data"`
+		}
+		if err := json.NewDecoder(io.LimitReader(resp.Body, maxJSON)).Decode(&env); err != nil {
+			apiError(w, 502, "Invalid Audius artwork metadata")
 			return
 		}
-		if resp.ContentLength > 512<<20 {
-			apiError(w, 502, "Audio exceeds the desktop streaming limit")
+		candidates := env.Data.Artwork.candidates()
+		if len(candidates) == 0 {
+			apiError(w, 404, "No cover artwork is available for this Audius track")
 			return
 		}
-		kind, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
-		switch kind {
-		case "audio/mp4", "audio/m4a", "audio/x-m4a", "video/mp4", "application/octet-stream", "binary/octet-stream":
-		default:
-			apiError(w, 502, "The audio provider returned an unexpected content type")
-			return
-		}
-		w.Header().Set("Content-Type", "audio/mp4")
-		for _, h := range []string{"Content-Length", "Content-Range", "Accept-Ranges"} {
-			if v := resp.Header.Get(h); v != "" {
-				w.Header().Set(h, v)
+		coverClient := safePublicHTTPSClient(a.client, nil)
+		chosen := candidates[0]
+		if len(candidates) > 1 {
+			for _, candidate := range candidates {
+				if hreq, herr := http.NewRequestWithContext(r.Context(), "HEAD", candidate, nil); herr == nil {
+					hreq.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
+					if hresp, hdoErr := coverClient.Do(hreq); hdoErr == nil {
+						_ = hresp.Body.Close()
+						if hresp.StatusCode >= 200 && hresp.StatusCode < 300 {
+							chosen = candidate
+							break
+						}
+					}
+				}
 			}
 		}
-		w.WriteHeader(resp.StatusCode)
-		if r.Method != "HEAD" {
-			_, _ = io.Copy(w, io.LimitReader(resp.Body, 512<<20))
+		a.proxyValidatedMedia(w, r, coverClient, chosen, imageCoverMimes, "", 16<<20)
+	})
+	mux.HandleFunc("/api/vocaroo/stream/", func(w http.ResponseWriter, r *http.Request) {
+		if !method(w, r, "GET", "HEAD") {
+			return
 		}
+		id := strings.TrimPrefix(r.URL.Path, "/api/vocaroo/stream/")
+		for _, ext := range []string{".mp3", ".ogg"} {
+			id = strings.TrimSuffix(id, ext)
+		}
+		if !vocarooIDRE.MatchString(id) {
+			apiError(w, 400, "A valid Vocaroo ID is required")
+			return
+		}
+		a.proxyValidatedMedia(w, r, safePublicHTTPSClient(a.client, vocarooHostAllowed), vocarooMP3URL(id), audioStreamMimes, "audio/mpeg", 128<<20)
+	})
+	mux.HandleFunc("/api/omni/direct-stream", func(w http.ResponseWriter, r *http.Request) {
+		if !method(w, r, "GET", "HEAD") {
+			return
+		}
+		raw := strings.TrimSpace(r.URL.Query().Get("url"))
+		u, err := validateURL(raw)
+		if err != nil {
+			apiError(w, 400, err.Error())
+			return
+		}
+		if !isDirectMediaExt(path.Ext(u.Path)) {
+			apiError(w, 422, "Only direct audio/video media files can be streamed through this endpoint")
+			return
+		}
+		client := *a.client
+		baseCheck := a.client.CheckRedirect
+		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			if len(via) >= 5 {
+				return errors.New("too many redirects")
+			}
+			if len(via) > 0 && via[len(via)-1].URL.Scheme == "https" && req.URL.Scheme != "https" {
+				return errors.New("insecure media redirect blocked")
+			}
+			if _, err := validateURL(req.URL.String()); err != nil {
+				return err
+			}
+			if baseCheck != nil {
+				return baseCheck(req, via)
+			}
+			return nil
+		}
+		a.proxyValidatedMedia(w, r, &client, u.String(), audioStreamMimes, "", 512<<20)
 	})
 	mux.HandleFunc("/api/omni/resolve", a.resolveMedia)
 	mux.HandleFunc("/api/omni/download", func(w http.ResponseWriter, r *http.Request) {
@@ -575,6 +1421,10 @@ func (a *desktopApp) resolveMedia(w http.ResponseWriter, r *http.Request) {
 		apiError(w, 400, err.Error())
 		return
 	}
+	if drmPlat := drmPlatformForHost(u.Hostname()); drmPlat != "" {
+		apiError(w, 422, drmPlatformMessage(drmPlat))
+		return
+	}
 	if sunoHost(u.Hostname()) {
 		id, err := a.resolveSuno(r.Context(), raw)
 		if err != nil {
@@ -584,14 +1434,52 @@ func (a *desktopApp) resolveMedia(w http.ResponseWriter, r *http.Request) {
 		a.proxyJSON(w, r, "GET", "https://studio-api.prod.suno.com/api/clip/"+id, nil)
 		return
 	}
+	if prov, ok := ogProviderForHost(u.Hostname()); ok {
+		meta, _, _, status, err := a.resolveOGProvider(r.Context(), prov, raw)
+		if err != nil {
+			apiError(w, status, err.Error())
+			return
+		}
+		jsonResponse(w, 200, meta)
+		return
+	}
+	if hostMatches(u.Hostname(), "audius.co") {
+		meta, status, err := a.resolveAudius(r.Context(), raw)
+		if err != nil {
+			apiError(w, status, err.Error())
+			return
+		}
+		jsonResponse(w, 200, meta)
+		return
+	}
+	if hostMatches(u.Hostname(), "vocaroo.com") || hostMatches(u.Hostname(), "voca.ro") {
+		meta, status, err := a.resolveVocaroo(r.Context(), raw)
+		if err != nil {
+			apiError(w, status, err.Error())
+			return
+		}
+		jsonResponse(w, 200, meta)
+		return
+	}
 	ext := strings.ToLower(path.Ext(u.Path))
-	switch ext {
-	case ".mp3", ".wav", ".m4a", ".mp4", ".flac", ".ogg", ".webm":
-	default:
-		apiError(w, 422, "This desktop build supports Suno links and direct media files. Import a local file for other sources.")
+	if ext == ".m3u8" || ext == ".mpd" {
+		apiError(w, 422, "HLS/DASH playlist manifests (.m3u8/.mpd) require FFmpeg/yt-dlp remuxing. Start the local Python helper (OmniHelper) or import a local MP3/WAV/MP4 file instead.")
+		return
+	}
+	if !isDirectMediaExt(ext) {
+		apiError(w, 422, "This desktop build supports Suno AI, ACE Music, Flow Music (Riffusion), Treblo (Sonauto), Audius, Vocaroo, and direct media URLs (.mp3, .wav, .m4a, .aac, .flac, .ogg, .opus, .mp4, .webm). For YouTube/TikTok/SoundCloud/Bandcamp/Mixcloud, run the Python helper or import a local file.")
 		return
 	}
 	resp, err := a.request(r.Context(), "HEAD", raw, nil)
+	if err == nil && (resp.StatusCode == http.StatusMethodNotAllowed || resp.StatusCode == http.StatusForbidden || resp.StatusCode == http.StatusNotImplemented) {
+		resp.Body.Close()
+		probeReq, reqErr := http.NewRequestWithContext(r.Context(), "GET", raw, nil)
+		if reqErr == nil {
+			probeReq.Header.Set("User-Agent", "NTK-SoundLab-Studio/2026.11")
+			probeReq.Header.Set("Range", "bytes=0-0")
+			resp, err = a.client.Do(probeReq)
+		}
+	}
 	if err != nil {
 		apiError(w, 502, "Could not verify the public media URL")
 		return
@@ -601,13 +1489,21 @@ func (a *desktopApp) resolveMedia(w http.ResponseWriter, r *http.Request) {
 		apiError(w, 422, "The media URL is unavailable")
 		return
 	}
+	streamTarget := raw
+	if resp.Request != nil && resp.Request.URL != nil {
+		streamTarget = resp.Request.URL.String()
+	}
+	if _, err := validateURL(streamTarget); err != nil {
+		apiError(w, 502, "The media URL redirected to a blocked destination")
+		return
+	}
 	id, err := newToken()
 	if err != nil {
 		apiError(w, 500, "Could not allocate a media identifier")
 		return
 	}
 	id = "direct-" + id[:16]
-	jsonResponse(w, 200, map[string]any{"type": "single", "uuid": id, "id": id, "title": strings.TrimSuffix(path.Base(u.Path), ext), "artist": "Direct Web Stream", "duration": 0, "imageLarge": "", "imageThumb": "", "streamUrl": resp.Request.URL.String(), "url": raw, "platform": "Direct Media File", "hasVideo": ext == ".mp4" || ext == ".webm", "hasAudio": true, "hasStem": false, "tags": strings.ToUpper(strings.TrimPrefix(ext, ".")) + " Stream"})
+	jsonResponse(w, 200, map[string]any{"type": "single", "uuid": id, "id": id, "title": strings.TrimSuffix(path.Base(u.Path), ext), "artist": "Direct Web Stream", "duration": 0, "imageLarge": "", "imageThumb": "", "streamUrl": "/api/omni/direct-stream?url=" + url.QueryEscape(streamTarget), "url": raw, "platform": "Direct Media File", "hasVideo": ext == ".mp4" || ext == ".webm", "hasAudio": true, "hasStem": false, "tags": strings.ToUpper(strings.TrimPrefix(ext, ".")) + " Stream"})
 }
 
 func run(cfg config) error {
