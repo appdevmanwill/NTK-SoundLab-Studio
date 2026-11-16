@@ -1,32 +1,32 @@
-import { TranscribeStudio } from './transcribe-studio.js?v=2026.11.16.2';
-import { importOfflineModel, MODEL } from './offline-model.js?v=2026.11.16.2';
-import { AiPolicy } from './ai-policy.js?v=2026.11.16.2';
-import { LyricAlignment } from './lyric-alignment.js?v=2026.11.16.2';
-import { fetch } from './network-policy.js?v=2026.11.16.2';
+import { TranscribeStudio } from './transcribe-studio.js?v=2026.11.16.3';
+import { importOfflineModel, MODEL } from './offline-model.js?v=2026.11.16.3';
+import { AiPolicy } from './ai-policy.js?v=2026.11.16.3';
+import { LyricAlignment } from './lyric-alignment.js?v=2026.11.16.3';
+import { fetch } from './network-policy.js?v=2026.11.16.3';
 /**
  * NTK SoundLab Studio - Universal Media Downloader & Neural Stem Separator
  * Main Application Orchestrator
  */
 
-import { SoundLabAPI } from './soundlab-api.js?v=2026.11.16.2';
-import { VideoDemuxer } from './video-demuxer.js?v=2026.11.16.2';
-import { SunoAPI } from './suno-api.js?v=2026.11.16.2';
-import { CryptoEngine } from './crypto-engine.js?v=2026.11.16.2';
-import { AudioConverter } from './audio-converter.js?v=2026.11.16.2';
-import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.16.2';
-import { ID3Writer } from './id3-writer.js?v=2026.11.16.2';
-import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.2';
-import { VaultDB } from './vault-db.js?v=2026.11.16.2';
-import { StemEngine } from './stem-engine.js?v=2026.11.16.2';
-import { StemMixer } from './stem-mixer.js?v=2026.11.16.2';
-import { AudioFXEngine } from './audio-fx.js?v=2026.11.16.2';
-import { ZipPackager } from './zip-packager.js?v=2026.11.16.2';
-import { VideoGenerator } from './video-generator.js?v=2026.11.16.2';
-import { BookmarkletEngine } from './bookmarklet.js?v=2026.11.16.2';
-import { StorageManager } from './storage.js?v=2026.11.16.2';
-import { PlayerEngine } from './player.js?v=2026.11.16.2';
-import { TutorialManager } from './tutorial.js?v=2026.11.16.2';
-import { ImageCropper } from './image-cropper.js?v=2026.11.16.2';
+import { SoundLabAPI } from './soundlab-api.js?v=2026.11.16.3';
+import { VideoDemuxer } from './video-demuxer.js?v=2026.11.16.3';
+import { SunoAPI } from './suno-api.js?v=2026.11.16.3';
+import { CryptoEngine } from './crypto-engine.js?v=2026.11.16.3';
+import { AudioConverter } from './audio-converter.js?v=2026.11.16.3';
+import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.16.3';
+import { ID3Writer } from './id3-writer.js?v=2026.11.16.3';
+import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.3';
+import { VaultDB } from './vault-db.js?v=2026.11.16.3';
+import { StemEngine } from './stem-engine.js?v=2026.11.16.3';
+import { StemMixer } from './stem-mixer.js?v=2026.11.16.3';
+import { AudioFXEngine } from './audio-fx.js?v=2026.11.16.3';
+import { ZipPackager } from './zip-packager.js?v=2026.11.16.3';
+import { VideoGenerator } from './video-generator.js?v=2026.11.16.3';
+import { BookmarkletEngine } from './bookmarklet.js?v=2026.11.16.3';
+import { StorageManager } from './storage.js?v=2026.11.16.3';
+import { PlayerEngine } from './player.js?v=2026.11.16.3';
+import { TutorialManager } from './tutorial.js?v=2026.11.16.3';
+import { ImageCropper } from './image-cropper.js?v=2026.11.16.3';
 
 class App {
   constructor() {
@@ -173,7 +173,7 @@ class App {
 
   setupPwa() {
     if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
-      navigator.serviceWorker.register('./sw.js?v=2026.11.16.2', { updateViaCache: 'none' }).catch((err) => {
+      navigator.serviceWorker.register('./sw.js?v=2026.11.16.3', { updateViaCache: 'none' }).catch((err) => {
         console.warn('Service worker registration skipped:', err);
       });
     }
@@ -233,6 +233,43 @@ class App {
       return;
     }
     const modal = document.getElementById('installAppModal');
+    if (modal) modal.classList.add('open');
+  }
+
+  openGrabberModal(targetUrl = '', notice = '', platform = '') {
+    const modal = document.getElementById('bookmarkletModal');
+    const targetCard = document.getElementById('grabberTargetCard');
+    const launchBtn = document.getElementById('grabberLaunchUrlBtn');
+    const titleEl = document.getElementById('grabberTargetTitle');
+    const noteEl = document.getElementById('grabberTargetNote');
+
+    let safeUrl = '';
+    if (targetUrl) {
+      try {
+        const parsed = new URL(targetUrl);
+        if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+          safeUrl = parsed.toString();
+        }
+      } catch {}
+    }
+
+    if (targetCard && launchBtn) {
+      if (safeUrl) {
+        launchBtn.href = safeUrl;
+        if (titleEl) {
+          titleEl.textContent = platform
+            ? `Capture This ${platform} Track in Chrome / Edge`
+            : 'Open Track in Browser to Capture Audio';
+        }
+        if (noteEl) {
+          noteEl.textContent = notice || '1. Click Open Track & Grab Audio and press Play. 2. Click the NTK SoundLab Media Grabber extension icon and choose Send to SoundLab.';
+        }
+        targetCard.style.display = 'block';
+      } else {
+        launchBtn.href = '#';
+        targetCard.style.display = 'none';
+      }
+    }
     if (modal) modal.classList.add('open');
   }
 
@@ -873,7 +910,18 @@ class App {
             this.showToast(`Could not resolve "${item}": ${err.message}`, 'rose');
           }
         } else {
-          this.showToast(`Error resolving "${item}": ${err.message}`, 'rose');
+          let classified = null;
+          try { classified = SoundLabAPI.classifyUrl(item); } catch {}
+          if (classified?.platform === 'Audiomack' && !window.AndroidStudio) {
+            this.showToast('Audiomack uses browser OAuth playback — click "Open Track & Grab Audio" to capture it via Media Grabber.', 'amber');
+            this.openGrabberModal(
+              classified.raw || item,
+              'Audiomack signs playback in your live browser session. Click Open Track & Grab Audio above, press Play in Chrome or Edge, then click the NTK SoundLab Media Grabber extension icon and choose ⚡ Send to SoundLab.',
+              'Audiomack'
+            );
+          } else {
+            this.showToast(`Error resolving "${item}": ${err.message}`, 'rose');
+          }
         }
       }
     }

@@ -1,10 +1,10 @@
 # Install SoundLab
 
-The current preview is **2026.11.16.2**. Get the files from the [GitHub release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.2).
+The current preview is **2026.11.16.3**. Get the files from the [GitHub release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.3).
 
 ## Windows
 
-Download `NTKSoundLab-Setup-2026.11.16.2.exe` for an installer, or `NTKSoundLab-Portable-2026.11.16.2.exe` to run a single executable.
+Download `NTKSoundLab-Setup-2026.11.16.3.exe` for an installer, or `NTKSoundLab-Portable-2026.11.16.3.exe` to run a single executable.
 
 Microsoft Edge must be installed. Python, Node.js, Go and FFmpeg are build or optional-helper tools and are unnecessary for local editing in the packaged app.
 
@@ -14,7 +14,7 @@ The installer uses a per-user directory under `%LOCALAPPDATA%\Programs\NTK Sound
 
 ## Android
 
-Download `NTKSoundLab-2026.11.16.2.apk` and open it with Files on an Android 10 or later device. Android may ask you to allow installation from the app you used to open the file. Keep Android System WebView updated.
+Download `NTKSoundLab-2026.11.16.3.apk` and open it with Files on an Android 10 or later device. Android may ask you to allow installation from the app you used to open the file. Keep Android System WebView updated.
 
 This release uses `com.ntkhub.soundlabstudio` and installs separately from the earlier Android app. Export recordings and session metadata from that app before switching. Future SoundLab updates use the new ID and its SoundLab signer.
 
@@ -26,7 +26,7 @@ Use the AppImage for a single downloadable file, or the `.deb` for Debian and Ub
 
 ## Chrome / Edge Browser Grabber
 
-Download `NTKSoundLab-Browser-Grabber-2026.11.16.2.zip`, extract it, open `chrome://extensions` (Chrome) or `edge://extensions` (Microsoft Edge), enable **Developer mode**, and choose **Load unpacked** pointing at the extracted folder. Play any track (for example on Audiomack or SoundCloud), open the extension popup, and click **Send to SoundLab** or **Save**. [Extension guide](../extension/README.md)
+Download `NTKSoundLab-Browser-Grabber-2026.11.16.3.zip`, extract it, open `chrome://extensions` (Chrome) or `edge://extensions` (Microsoft Edge), enable **Developer mode**, and choose **Load unpacked** pointing at the extracted folder. Play any track (for example on Audiomack or SoundCloud), open the extension popup, and click **Send to SoundLab** or **Save**. [Extension guide](../extension/README.md)
 
 ## Web and PHP hosting
 
@@ -41,7 +41,7 @@ Download `SHA256SUMS.txt` from the release page into the same folder as the rele
 On Windows, calculate a file's hash and compare it with the matching line.
 
 ```powershell
-Get-FileHash .\NTKSoundLab-2026.11.16.2.apk -Algorithm SHA256
+Get-FileHash .\NTKSoundLab-2026.11.16.3.apk -Algorithm SHA256
 ```
 
 On Linux, when all listed files are in the download folder, run the following command.

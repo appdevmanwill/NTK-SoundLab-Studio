@@ -1,10 +1,11 @@
 # Continuation
 
-## Current release `v2026.11.16.2` · 16 November 2026
+## Current release `v2026.11.16.3` · 16 November 2026
 
-- Current version is `2026.11.16.2` (`versionCode` `2026111602`), live website deployed to Firebase Hosting (`https://studio-5090403114-fc98b.web.app`), and packaged across Windows, Linux, Android, Static Web, AlwaysData PHP, and Chrome/Edge MV3 Media Grabber extension (`SOFTWARE/SHA256SUMS.txt`).
-- To test the Audiomack / stream grabber in Chrome or Edge: unzip `SOFTWARE/EXTENSION/NTKSoundLab-Browser-Grabber-2026.11.16.2.zip` (or load `extension/` directly via Developer mode -> **Load unpacked** in `chrome://extensions` or `edge://extensions`), play a track in the browser tab, and click **Send to SoundLab** in the extension popup. Also check NTK's pending Zendesk Audiomack API application tab (`feaiccws@gmail.com`) in Chrome/BrowserOS if OAuth credentials arrive later.
-- Open environment checks remain physical Android phone endurance/playback testing, graphical Linux desktop menu install/uninstall, and uploading `DEPLOY_MANUAL/NTK_SoundLab_Studio_AlwaysData-2026.11.16.2.zip` to the target AlwaysData/Hostinger PHP host (`DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md`).
+- Current version is `2026.11.16.3` (`versionCode` `2026111603`), live website deployed to Firebase Hosting (`https://studio-5090403114-fc98b.web.app`), and packaged across Windows, Linux, Android, Static Web, AlwaysData PHP, and Chrome/Edge MV3 Media Grabber extension (`SOFTWARE/SHA256SUMS.txt`).
+- Older binary/archive builds were pruned from `SOFTWARE/`, `DEPLOY_MANUAL/`, `dist/`, `desktop/`, and `android/build/` so only `2026.11.16.3` remains on disk (`appimagetool-x86_64.AppImage` and `runtime-x86_64` live in `%LOCALAPPDATA%\NTKSoundLabStudio\build-tools\`).
+- Pasting an `audiomack.com` link in Studio automatically opens the **Browser Grabber** handoff card with **Open Track & Grab Audio ↗** (for use with `extension/` / `NTKSoundLab-Browser-Grabber-2026.11.16.3.zip`). Direct server-side Audiomack resolution still awaits official Audiomack Developer OAuth credentials under `feaiccws@gmail.com` if NTK later chooses Option 2.
+- Open environment checks remain live unpacked Chrome playback test on `audiomack.com`, physical Android phone endurance/playback testing, graphical Linux desktop menu install/uninstall, and uploading `DEPLOY_MANUAL/NTK_SoundLab_Studio_AlwaysData-2026.11.16.3.zip` to hosted PHP (`DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md`).
 - Keep preserving `%LOCALAPPDATA%\NTKSoundLabStudio\android-signing\soundlab-release.p12` outside Git.
 
 ## GitHub preview published · 12 November 2026

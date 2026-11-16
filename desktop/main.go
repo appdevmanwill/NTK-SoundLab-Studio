@@ -481,7 +481,7 @@ func drmPlatformForHost(h string) string {
 
 func drmPlatformMessage(platform string) string {
 	if platform == "Audiomack" {
-		return "Audiomack requires signed OAuth playback credentials and does not expose public audio streams to SoundLab. Use Audiomack directly or import a local MP3/WAV/FLAC/M4A file into SoundLab Studio."
+		return "Audiomack uses OAuth-signed browser streams instead of public unauthenticated audio URLs. Open the track in Chrome/Edge and send it with NTK SoundLab Media Grabber, or import a local MP3/WAV/FLAC/M4A file."
 	}
 	return platform + " streams are DRM-protected and require an official " + platform + " session/license. SoundLab Studio cannot extract DRM-encrypted tracks from " + platform + "; please import a local MP3/WAV/FLAC/M4A file instead."
 }
@@ -1094,7 +1094,7 @@ func (a *desktopApp) routes() http.Handler {
 		if !method(w, r, "GET") {
 			return
 		}
-		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11.16.2", "persistent_origin": true})
+		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11.16.3", "persistent_origin": true})
 	}
 	mux.HandleFunc("/api/desktop/status", status)
 	mux.HandleFunc("/api/health", status)

@@ -1,4 +1,4 @@
-import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.2';
+import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.3';
 
 /**
  * Conservative alignment of supplied lyrics to measured speech-recognition words.

@@ -3,7 +3,7 @@
  * Provides offline app-shell caching while keeping streaming and API endpoints network-direct.
  */
 
-const CACHE_NAME = 'ntk-soundlab-studio-v2026.11.16.2';
+const CACHE_NAME = 'ntk-soundlab-studio-v2026.11.16.3';
 const ONNX_RUNTIME_CACHE = 'ntk-soundlab-onnx-1.20.1';
 
 const APP_SHELL_ASSETS = [

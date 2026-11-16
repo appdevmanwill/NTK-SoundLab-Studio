@@ -3,7 +3,7 @@
  * Manages decrypted audio playback, stem previews, and waveform visualization
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.16.2';
+import { AudioConverter } from './audio-converter.js?v=2026.11.16.3';
 
 export class PlayerEngine {
   constructor() {

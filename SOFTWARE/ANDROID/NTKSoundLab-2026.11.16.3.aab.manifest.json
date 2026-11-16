@@ -1,9 +1,9 @@
 {
-  "version": "2026.11.16.2",
+  "version": "2026.11.16.3",
   "applicationId": "com.ntkhub.soundlabstudio",
   "mode": "release",
-  "apk": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T062932551874Z\\NTKSoundLab-2026.11.16.2-release.apk",
-  "sha256": "b35603f70b05346334612b8b050bafac3c0308e955a56fe3e18cf359b23cb79a",
+  "apk": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T071837294807Z\\NTKSoundLab-2026.11.16.3-release.apk",
+  "sha256": "9b00451d73e4e1a4ca233fd6a23fa2210a75bb98c5552f3704039682e0b4b45f",
   "bytes": 5932170,
   "minSdk": 29,
   "targetSdk": 36,
@@ -14,7 +14,7 @@
     },
     {
       "path": "index.html",
-      "sha256": "58d1e924e5cb989a0556916202dc3b4e006bfe73ad915826c88dd862214fd716"
+      "sha256": "91d7cc0f6df24d7e64689925b451c84cf71ca34331916774b9c79941321daeac"
     },
     {
       "path": "LICENSE",
@@ -30,7 +30,7 @@
     },
     {
       "path": "sw.js",
-      "sha256": "a07607bcaa76a6e8b04ab2e4f9abb1f65959da64d4262ebc823fea98e85fc067"
+      "sha256": "13dc74cbc84be6693d41430f64011f03bb72723ccc9cd2a74c26be04a2f8c9cc"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -78,7 +78,7 @@
     },
     {
       "path": "js/app.js",
-      "sha256": "8f65d7a23f6bec0f7ebe88c1e953a5c43c91d5b83c7182eddb442ecb04174b3d"
+      "sha256": "1d7658966d5d210250d3bd0db932e96f7ca02298366d048e5f4b0bb292588575"
     },
     {
       "path": "js/audio-converter.js",
@@ -86,7 +86,7 @@
     },
     {
       "path": "js/audio-fx.js",
-      "sha256": "3f4880d53781370fedf5d694d795f68d8aed77947faaad7d7e77452289d652af"
+      "sha256": "939c05c5af4adffd5e09a9551ba69cf3016e0dff253190e2e772b5712ff20f8e"
     },
     {
       "path": "js/bookmarklet.js",
@@ -106,7 +106,7 @@
     },
     {
       "path": "js/lyric-alignment.js",
-      "sha256": "e7128dd0276c580f2fd5a307d0cbb7183c6b0a0c332547642462c11a6237325d"
+      "sha256": "18ac7ccc6ee3ff80ac7f8614b6133279d8fcedafbfc5b5b0f76dbd2afc39c220"
     },
     {
       "path": "js/lyrics-utils.js",
@@ -122,23 +122,23 @@
     },
     {
       "path": "js/offline-model.js",
-      "sha256": "b070ca349eb550af914b52138b90410eadea393c823127f5976c7df163a08385"
+      "sha256": "944ac6b79f0c7b11f3a0530b22a2313d4571d6496fee82b05e94bb4709a059ef"
     },
     {
       "path": "js/player.js",
-      "sha256": "f5db4af85bfd79ba8e7cea9ce2afa3340fa70fdd56cb0c23d134f3dd8fe346dd"
+      "sha256": "dbe9f9143797ff8c8cf3ab4ffa51df55fbed2cc881ebb0ecee460bddfb64c830"
     },
     {
       "path": "js/soundlab-api.js",
-      "sha256": "6035bb52ce1f8121ec7749ad1da75a915d2fe27619384841296d9a2acbb48516"
+      "sha256": "c7a812367e7e0db8756a54e126239a7b394634f9563f55b2e275bbdeba48e072"
     },
     {
       "path": "js/stem-engine.js",
-      "sha256": "04cb5b545d81d479902ef857625f7613a6eaf04b407110f59894f3f27c482881"
+      "sha256": "5da4b427f2e69de18cf1188312633b4fa0ce32f15cdd235c921fca7af5fd014b"
     },
     {
       "path": "js/stem-mixer.js",
-      "sha256": "79041dea20f2ad02b6e2f805451fd428ee059c6199bbb7c3c439736eaecbfa38"
+      "sha256": "661c53187cc378143c3d50c9302bf1630b94343d4c18ae1c630a36611fb80b9e"
     },
     {
       "path": "js/storage.js",
@@ -146,15 +146,15 @@
     },
     {
       "path": "js/suno-api.js",
-      "sha256": "fc7943973ce87810e361f3d4b4870156f39ba5c90717acde8e669e48ccaa4a59"
+      "sha256": "9a4e9c5bdb293bc63ee0e513ab10381c569fb731473168b8308f0e44d575a929"
     },
     {
       "path": "js/transcribe-engine.js",
-      "sha256": "66c3e7509c91ae632a886d806d7a56c37cede9492fed33be3dbb6a1994eca65b"
+      "sha256": "55794f7dee790ff305ef2f2492bf73dea6581d786254dbe890e3738225bef60e"
     },
     {
       "path": "js/transcribe-studio.js",
-      "sha256": "8a16aaa2801654c5a412afc1c429b55fafff687ba739c5fedc47a33c7c461e88"
+      "sha256": "24ed0b03d2020f036d6435c84f1342aa2afb6618c90eea8b6272c8953b115a6e"
     },
     {
       "path": "js/transcript-store.js",
@@ -166,19 +166,19 @@
     },
     {
       "path": "js/vault-db.js",
-      "sha256": "bf3015ac46fa568607620f9b0a5ac0c8b430f745f14358f79b3aa02f345fea0a"
+      "sha256": "5958bf96fc4ae18e4064803aa457d6dd6425e0efceb2f6f3ed04dbbee68542c1"
     },
     {
       "path": "js/video-demuxer.js",
-      "sha256": "52edee592ca920b86a110c9434be22f6e8cb639f184358ecab7e57fd79e12984"
+      "sha256": "6a863a7499aeec505741744988f4aad811df61606dc686500084e5bba9490a18"
     },
     {
       "path": "js/video-generator.js",
-      "sha256": "5d24c82724508e3634151c621723beb22911a32e9304a574f3f83b8e8979cfcf"
+      "sha256": "63b0446d7da29ede681caca79fc89a92fe8bd6a85c6e71157add3f105f778682"
     },
     {
       "path": "js/zip-packager.js",
-      "sha256": "0b884b54bd198a6525e66b2a42967c8a87fe305e3d5c6636de0632bab53827b4"
+      "sha256": "d29ddd08158d3d04386dc8e2108aee6f2e0b34f5102f6e02e786bf2ff6e7e413"
     },
     {
       "path": "lib/jszip.min.js",
@@ -252,10 +252,10 @@
   "signingVerification": "Verifies\nVerified using v1 scheme (JAR signing): false\nVerified using v2 scheme (APK Signature Scheme v2): false\nVerified using v3 scheme (APK Signature Scheme v3): true\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\nVerified using v4 scheme (APK Signature Scheme v4): false\nVerified for SourceStamp: false\nNumber of signers: 1\nSigner #1 certificate DN: CN=NTK Hub SoundLab Studio, O=NTK Hub, C=NG\nSigner #1 certificate SHA-256 digest: ed7bae786aa659a6794985e346c070a9ef713dcd52982cb87f006a162bfd715d\nSigner #1 certificate SHA-1 digest: 7dd7d24d8f7206361786de695ba4cfec7fc9863c\nSigner #1 certificate MD5 digest: d79e06aea25476546726802e0764eb2e\nSigner #1 key algorithm: RSA\nSigner #1 key size (bits): 3072\nSigner #1 public key SHA-256 digest: 2192e8a57d8a67309deb3483135a4c8ea08e3a08c64f01f22d1d69b3a383304b\nSigner #1 public key SHA-1 digest: 9d7014535c6059ce4d25ce2f868cff9fd3205964\nSigner #1 public key MD5 digest: f9e18c5e66732dd736d3c5045a4e8f95\n",
   "buildHost": "Windows; installed Android SDK36.1.0/platform36.1; JDK21",
   "bundle": {
-    "aab": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T062932551874Z\\NTKSoundLab-2026.11.16.2-release.aab",
-    "sha256": "450e586d95319c9a01d0b8cbe395a8d11196e39c816250dd359acc4d973b8c67",
-    "bytes": 5988779,
-    "certificate": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T062932551874Z\\NTKSoundLab-upload-certificate.pem",
+    "aab": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T071837294807Z\\NTKSoundLab-2026.11.16.3-release.aab",
+    "sha256": "81ec7dbc5cdc33522f29ebfc138e9e3f5cd9b297fbe6b57abc23d0ec0a8b6325",
+    "bytes": 5989459,
+    "certificate": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T071837294807Z\\NTKSoundLab-upload-certificate.pem",
     "bundletool": "1.18.3",
     "bundletoolSha256": "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29"
   }

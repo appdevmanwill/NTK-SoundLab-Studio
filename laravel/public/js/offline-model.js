@@ -1,5 +1,5 @@
-import { fetch } from './network-policy.js?v=2026.11.16.2';
-import { VaultDB } from './vault-db.js?v=2026.11.16.2';
+import { fetch } from './network-policy.js?v=2026.11.16.3';
+import { VaultDB } from './vault-db.js?v=2026.11.16.3';
 
 export const MODEL = Object.freeze({
   id: 'htdemucs_embedded_92e33df6',

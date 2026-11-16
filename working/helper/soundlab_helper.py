@@ -168,9 +168,9 @@ def detect_drm_platform(url: str) -> str:
 def drm_platform_error(platform: str) -> str:
     if platform == 'Audiomack':
         return (
-            "Audiomack requires signed OAuth playback credentials and its legacy public API "
-            "is no longer available in yt-dlp. Play the track directly in Audiomack or import a "
-            "local MP3/WAV/FLAC/M4A file into SoundLab Studio."
+            "Audiomack uses OAuth-signed browser streams instead of public unauthenticated audio URLs. "
+            "Open the track in Chrome/Edge and send it with NTK SoundLab Media Grabber, or import a "
+            "local MP3/WAV/FLAC/M4A file."
         )
     return (
         f"{platform} streams are DRM-protected and require an official {platform} session/license. "

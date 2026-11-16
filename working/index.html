@@ -21,17 +21,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Montserrat:wght@700;800;900&family=Orbitron:wght@700;900&family=Poppins:wght@700;800&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
 
   <!-- Modular CSS System -->
-  <link rel="stylesheet" href="css/style.css?v=2026.11.16.2" />
-  <link rel="stylesheet" href="css/components.css?v=2026.11.16.2" />
-  <link rel="stylesheet" href="css/tutorial.css?v=2026.11.16.2" />
-  <link rel="stylesheet" href="css/player.css?v=2026.11.16.2" />
-  <link rel="stylesheet" href="css/visualizer.css?v=2026.11.16.2" />
+  <link rel="stylesheet" href="css/style.css?v=2026.11.16.3" />
+  <link rel="stylesheet" href="css/components.css?v=2026.11.16.3" />
+  <link rel="stylesheet" href="css/tutorial.css?v=2026.11.16.3" />
+  <link rel="stylesheet" href="css/player.css?v=2026.11.16.3" />
+  <link rel="stylesheet" href="css/visualizer.css?v=2026.11.16.3" />
 
-  <link rel="stylesheet" href="css/transcribe.css?v=2026.11.16.2" />
+  <link rel="stylesheet" href="css/transcribe.css?v=2026.11.16.3" />
 
   <!-- Bundled MP3 Encoder (lamejs) + ZIP Packager (JSZip) with CDN fallbacks -->
-  <script src="lib/lame.all.js?v=2026.11.16.2"></script>
-  <script src="lib/jszip.min.js?v=2026.11.16.2"></script>
+  <script src="lib/lame.all.js?v=2026.11.16.3"></script>
+  <script src="lib/jszip.min.js?v=2026.11.16.3"></script>
   <script>
     if (typeof window.lamejs === 'undefined') {
       const s = document.createElement('script');
@@ -46,7 +46,7 @@
   </script>
 
   <!-- Main ES Module Application -->
-  <script type="module" src="js/app.js?v=2026.11.16.2"></script>
+  <script type="module" src="js/app.js?v=2026.11.16.3"></script>
 </head>
 <body>
 
@@ -200,7 +200,7 @@
 
             <button
               id="btnOpenBrowserGrabber"
-              onclick="document.getElementById('bookmarkletModal').classList.add('open')"
+              onclick="window.app ? app.openGrabberModal() : document.getElementById('bookmarkletModal').classList.add('open')"
               class="btn btn-secondary"
               title="Capture playing audio &amp; video streams from Chrome or Edge into SoundLab Studio"
             >
@@ -2100,6 +2100,16 @@
       </div>
 
       <div style="display:flex;flex-direction:column;gap:1rem;font-size:0.84rem;color:var(--text-secondary)">
+        <div id="grabberTargetCard" style="display:none;padding:0.85rem;border-radius:10px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.38)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.45rem">
+            <strong id="grabberTargetTitle" style="color:#6ee7b7;font-size:0.9rem">Open Track in Browser to Capture Audio</strong>
+            <a id="grabberLaunchUrlBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm" style="background:linear-gradient(135deg,#10b981,#06b6d4);border-color:#10b981;color:#022c22;font-weight:800">
+              ▶ Open Track &amp; Grab Audio ↗
+            </a>
+          </div>
+          <p id="grabberTargetNote" style="margin:0;color:#d1fae5;font-size:0.8rem;line-height:1.45"></p>
+        </div>
+
         <div style="padding:0.85rem;border-radius:10px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.28)">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem">
             <strong style="color:#67e8f9;font-size:0.9rem">1. Chrome / Edge Media Grabber Extension (Recommended)</strong>
@@ -2109,7 +2119,7 @@
             Sites like <strong>Audiomack</strong> use signed OAuth sessions and in-memory players that server extractors cannot fetch directly. When you play a song or video in Chrome or Edge, our Manifest V3 extension captures the playing media stream directly from the browser network tab and sends it straight into <strong>NTK SoundLab Studio</strong>.
           </p>
           <ol style="padding-left:1.2rem;display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.75rem">
-            <li>Download <a href="https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.2/NTKSoundLab-Browser-Grabber-2026.11.16.2.zip" target="_blank" rel="noopener" style="color:#67e8f9;text-decoration:underline">NTKSoundLab-Browser-Grabber.zip</a> and unzip it (or use the repository's <code>extension/</code> folder).</li>
+            <li>Download <a href="https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTKSoundLab-Browser-Grabber-2026.11.16.3.zip" target="_blank" rel="noopener" style="color:#67e8f9;text-decoration:underline">NTKSoundLab-Browser-Grabber.zip</a> and unzip it (or use the repository's <code>extension/</code> folder).</li>
             <li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>) and enable <strong>Developer mode</strong>.</li>
             <li>Click <strong>Load unpacked</strong> and select the unzipped folder. Play any track, click the extension icon, and choose <strong>⚡ Send to SoundLab</strong>!</li>
           </ol>
@@ -3207,7 +3217,7 @@
 
         <div class="footer-links">
           <a href="#" onclick="event.preventDefault(); app.openHelperModal()">AI &amp; Local Helpers</a>
-          <a href="#" onclick="event.preventDefault(); document.getElementById('bookmarkletModal').classList.add('open')">Browser Grabber &amp; Bookmarklet</a>
+          <a href="#" onclick="event.preventDefault(); (window.app ? app.openGrabberModal() : document.getElementById('bookmarkletModal').classList.add('open'))">Browser Grabber &amp; Bookmarklet</a>
           <a href="#" onclick="event.preventDefault(); app.openTutorialModal(0)">Novice Guide</a>
           <a href="#" onclick="event.preventDefault(); app.openVaultModal()">Storage Vault</a>
         </div>

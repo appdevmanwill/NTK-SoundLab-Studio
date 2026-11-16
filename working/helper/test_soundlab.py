@@ -206,6 +206,7 @@ class LocalHelperTests(unittest.TestCase):
             )
             self.assertEqual(st_am, 422)
             self.assertIn('OAuth', body_am.decode('utf-8'))
+            self.assertIn('Media Grabber', body_am.decode('utf-8'))
 
         st_dl, _, body_dl = self.request(
             'POST',

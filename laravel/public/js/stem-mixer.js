@@ -3,7 +3,7 @@
  * Sample-accurate Web Audio multi-track playback with Mute, Solo, Volume Faders, and Live Meters.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.16.2';
+import { AudioConverter } from './audio-converter.js?v=2026.11.16.3';
 
 export class StemMixer {
   static TWO_STEM_TRACKS = ['vocals', 'instrumental'];

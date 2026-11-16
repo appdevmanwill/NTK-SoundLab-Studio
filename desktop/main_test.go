@@ -385,7 +385,7 @@ func TestDirectMediaProxyAndAudiomackTruth(t *testing.T) {
 
 	amURL := url.QueryEscape("https://audiomack.com/artist/song/track")
 	w := serve(a, "GET", "/api/omni/resolve?url="+amURL, "", true)
-	if w.Code != 422 || !strings.Contains(w.Body.String(), "OAuth") || calls != 0 {
+	if w.Code != 422 || !strings.Contains(w.Body.String(), "OAuth") || !strings.Contains(w.Body.String(), "Media Grabber") || calls != 0 {
 		t.Fatalf("unexpected audiomack response (%d, calls=%d): %s", w.Code, calls, w.Body.String())
 	}
 

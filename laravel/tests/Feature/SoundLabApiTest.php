@@ -174,6 +174,7 @@ HTML;
         $audiomack = $this->getJson('/api/omni/resolve?url='.urlencode('https://audiomack.com/artist/song/track'));
         $audiomack->assertStatus(422);
         $this->assertStringContainsString('OAuth', $audiomack->json('error'));
+        $this->assertStringContainsString('Media Grabber', $audiomack->json('error'));
     }
 
     public function test_flowmusic_treblo_audius_vocaroo_direct_and_drm_guardrails(): void

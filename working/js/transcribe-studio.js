@@ -1,6 +1,6 @@
-import { TranscribeMedia, TRANSCRIBE_LIMITS, FINGERPRINT_PREFIX, fingerprint, legacyFingerprint, chunkWindow, transcriptCues, transcribeSection, exportTranscript } from './transcribe-engine.js?v=2026.11.16.2';
-import { TranscriptConflictError, TranscriptStore } from './transcript-store.js?v=2026.11.16.2';
-import { VaultDB } from './vault-db.js?v=2026.11.16.2';
+import { TranscribeMedia, TRANSCRIBE_LIMITS, FINGERPRINT_PREFIX, fingerprint, legacyFingerprint, chunkWindow, transcriptCues, transcribeSection, exportTranscript } from './transcribe-engine.js?v=2026.11.16.3';
+import { TranscriptConflictError, TranscriptStore } from './transcript-store.js?v=2026.11.16.3';
+import { VaultDB } from './vault-db.js?v=2026.11.16.3';
 
 export class TranscribeStudio {
   constructor(app) {
