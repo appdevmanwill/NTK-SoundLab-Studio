@@ -136,6 +136,9 @@
       color: #cbd5e1;
       line-height: 1.5;
     }
+    .quality-note { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+    .btn:disabled { opacity: .45; cursor: default; }
+    .btn:focus-visible { outline: 2px solid #facc15; outline-offset: 2px; }
     .status {
       font-size: 11px;
       color: #6ee7b7;
@@ -153,17 +156,19 @@
   </header>
 
   <div class="target-row">
-    <span style="color:#94a3b8;font-weight:600">Send to:</span>
+    <label for="studioTarget" style="color:#94a3b8;font-weight:600">Send to</label>
     <select id="studioTarget">
-      <option value="https://studio-5090403114-fc98b.web.app/">Live Web Studio (Firebase)</option>
-      <option value="http://127.0.0.1:47831/">SoundLab Desktop App (127.0.0.1:47831)</option>
-      <option value="http://127.0.0.1:8000/">Local Laravel / Server (127.0.0.1:8000)</option>
+      <option value="https://studio-5090403114-fc98b.web.app/">SoundLab website</option>
+      <option value="http://127.0.0.1:47831/">SoundLab desktop app</option>
+      <option value="http://127.0.0.1:8000/">Local SoundLab server</option>
     </select>
   </div>
 
-  <div id="statusLine" class="status"></div>
+  <p class="quality-note">Original keeps source quality. MP3 uses 320 kbps. WAV uses 24-bit PCM. Select the source player’s highest quality before capturing.</p>
+  <div class="item"><button id="btnRecord" class="btn">Record playback with sound</button><p class="quality-note">For storyboards and pages without a complete video file. Choose the playing tab and share its audio.</p></div>
+  <div id="statusLine" class="status" role="status" aria-live="polite"></div>
   <div id="streamsList" class="streams"></div>
 
-  <script src="popup.js"></script>
+  <script type="module" src="popup.js"></script>
 </body>
 </html>

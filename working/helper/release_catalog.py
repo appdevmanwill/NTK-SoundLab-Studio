@@ -26,26 +26,35 @@ RELEASE_BASE_URL = 'https://github.com/appdevmanwill/NTK-SoundLab-Studio/release
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('version')
+    parser.add_argument('--desktop-version', help='Desktop-only update version; other platforms keep the base version.')
     parser.add_argument('--check', action='store_true', help='Fail if the catalog does not match the files.')
     parser.add_argument('--download-base-url', default=RELEASE_BASE_URL, help='Release asset URL prefix. Supports {version}.')
     args = parser.parse_args()
     if not re.fullmatch(r'\d{4}\.\d{1,2}\.\d{1,2}\.\d+', args.version):
         parser.error('Use a SoundLab release version such as 2026.11.11.1.')
+    if args.desktop_version and not re.fullmatch(r'\d{4}\.\d{1,2}\.\d{1,2}\.\d+', args.desktop_version):
+        parser.error('Use a SoundLab release version for --desktop-version.')
 
     table = ['| Platform | Download |', '| --- | --- |']
     checksums = []
     downloads = list(DOWNLOADS)
     for optional in (EXTENSION_ZIP, PLAY_BUNDLE):
+        if optional == EXTENSION_ZIP and args.desktop_version:
+            continue
         if (ROOT / optional[2].format(version=args.version)).is_file():
             downloads.append(optional)
+    if args.desktop_version:
+        for browser in ('Chrome', 'Firefox', 'Opera', 'Edge'):
+            downloads.append((browser, 'Media Grabber ZIP', f'SOFTWARE/EXTENSION/{browser.upper()}/NTKSoundLab-Browser-Grabber-{browser}-{args.desktop_version}.zip'))
     for platform, kind, template in downloads:
-        relative = template.format(version=args.version)
+        file_version = args.desktop_version if args.desktop_version and platform in ('Windows x64', 'Linux x64') else args.version
+        relative = template.format(version=file_version)
         file = ROOT / relative
         if not file.is_file() or not file.stat().st_size:
             parser.error(f'Missing release file {relative}')
         with file.open('rb') as handle:
             digest = hashlib.file_digest(handle, 'sha256').hexdigest()
-        url = args.download_base_url.format(version=args.version).rstrip('/') + '/' + file.name
+        url = args.download_base_url.format(version=args.desktop_version or args.version).rstrip('/') + '/' + file.name
         table.append(f'| {platform} | [{kind}]({url}) |')
         checksums.append(f'{digest}  {file.name}')
 

@@ -10,7 +10,7 @@ runtime=$(realpath "$4")
 mkdir -p "$5"
 output=$(realpath "$5")
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-version=2026.11.16.3
+version=2026.11.16.4
 appimage_name="NTKSoundLab-$version-x86_64.AppImage"
 deb_name="ntk-soundlab_${version}-1_amd64.deb"
 # Use Linux storage for permissions; Windows-mounted workspaces report mode 777.
@@ -70,7 +70,7 @@ Conflicts: omnistream-studio
 Replaces: omnistream-studio
 Provides: omnistream-studio
 Depends: ca-certificates, xdg-utils
-Recommends: chromium | chromium-browser | google-chrome-stable | microsoft-edge-stable
+Recommends: google-chrome-stable | chromium | chromium-browser | microsoft-edge-stable
 Description: NTK Hub audio and karaoke studio
  Local audio importing, lyrics editing, mastering and karaoke video export.
  Uses an installed Chromium browser in a dedicated app window and profile.

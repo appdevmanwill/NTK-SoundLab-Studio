@@ -1,24 +1,26 @@
-const MAX_STREAMS_PER_TAB = 25;
+import { safeFilename, mediaUrl, streamKey } from './media-utils.mjs';
+const browserApi = globalThis.browser || globalThis.chrome;
+
+const MAX_STREAMS_PER_TAB = 60;
 const MAX_TRANSFER_BYTES = 150 * 1024 * 1024;
 const CHUNK_BYTES = 1536 * 1024; // 1.5 MiB base64 chunks
-const MIN_MEDIA_BYTES = 8192;
 
-const MEDIA_EXT_RE = /\.(mp3|m4a|aac|wav|flac|ogg|opus|mp4|webm|mov)(?:$|[?#])/i;
+const MEDIA_EXT_RE = /\.(mp3|m4a|aac|wav|flac|ogg|opus|mp4|webm|mov|mkv|m4v|ts|m4s)(?:$|[?#])/i;
 const MANIFEST_EXT_RE = /\.(m3u8|mpd)(?:$|[?#])/i;
 const IGNORED_EXT_RE = /\.(js|mjs|css|map|png|jpe?g|webp|gif|svg|ico|woff2?|ttf|eot|vtt|srt|html?|txt|xml|json)(?:$|[?#])/i;
 const DRM_URL_RE = /(\/license\b|widevine|playready|fairplay|\.key(?:$|[?#])|drm.*challenge)/i;
 const STUDIO_HOSTS = new Set(['studio-5090403114-fc98b.web.app', '127.0.0.1', 'localhost']);
 
 const pendingTransfers = new Map();
+let storeUpdates = Promise.resolve();
 
-function sanitizeFileName(name, fallbackExt = 'mp3') {
-  const base = String(name || 'Captured_Media')
-    .replace(/[<>:"/\\|?*\x00-\x1f]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 90) || 'Captured_Media';
-  return base.includes('.') ? base : `${base}.${fallbackExt}`;
+function updateStore(task) {
+  const result = storeUpdates.then(task);
+  storeUpdates = result.catch(() => {});
+  return result;
 }
+
+const sanitizeFileName = safeFilename;
 
 function inferExtFromMime(mime, fallbackUrl) {
   const clean = String(mime || '').split(';')[0].trim().toLowerCase();
@@ -72,9 +74,6 @@ function classifyMediaCandidate(url, rawMime, contentLength, resourceType) {
     return null;
   }
   if (IGNORED_EXT_RE.test(parsed.pathname)) return null;
-  if (contentLength > 0 && contentLength < MIN_MEDIA_BYTES && !MANIFEST_EXT_RE.test(parsed.pathname)) {
-    return null;
-  }
 
   const isManifestMime = mime === 'application/vnd.apple.mpegurl' || mime === 'application/x-mpegurl' || mime === 'application/dash+xml';
   const isManifestExt = MANIFEST_EXT_RE.test(parsed.pathname);
@@ -83,52 +82,50 @@ function classifyMediaCandidate(url, rawMime, contentLength, resourceType) {
     return { kind: 'manifest', isManifest: true, ext, mimeType: mime || (ext === 'mpd' ? 'application/dash+xml' : 'application/vnd.apple.mpegurl') };
   }
 
-  const isMediaMime = mime.startsWith('audio/') || mime === 'application/ogg' || mime === 'video/mp4' || mime === 'video/webm' || mime === 'video/quicktime';
+  const isMediaMime = mime.startsWith('audio/') || mime.startsWith('video/') || mime === 'application/ogg';
   const isMediaExt = MEDIA_EXT_RE.test(parsed.pathname);
   const isGenericStreamMedia = (resourceType === 'media') && (!mime || mime === 'application/octet-stream' || mime === 'binary/octet-stream');
 
   if (!isMediaMime && !isMediaExt && !isGenericStreamMedia) return null;
 
   const ext = inferExtFromMime(mime, url);
-  const kind = (mime.startsWith('video/') || ext === 'mp4' || ext === 'webm' || ext === 'mov') && !mime.startsWith('audio/') ? 'video' : 'audio';
+  const kind = (mime.startsWith('video/') || ['mp4', 'webm', 'mov', 'mkv', 'm4v'].includes(ext)) && !mime.startsWith('audio/') ? 'video' : 'audio';
   return {
     kind,
     isManifest: false,
+    isSegment: /\.(m4s|ts)(?:$|[?#])/i.test(parsed.pathname) || mime === 'video/mp2t',
     ext,
     mimeType: mime || (kind === 'video' ? `video/${ext}` : `audio/${ext === 'm4a' ? 'mp4' : ext === 'mp3' ? 'mpeg' : ext}`)
   };
 }
 
-function canonicalStreamKey(rawUrl) {
-  try {
-    const u = new URL(rawUrl);
-    return `${u.origin}${u.pathname}`;
-  } catch {
-    return rawUrl;
-  }
-}
+const canonicalStreamKey = streamKey;
 
 async function getTabStore() {
-  const data = await chrome.storage.session.get('tabStreams');
+  const data = await browserApi.storage.session.get('tabStreams');
   return data.tabStreams || {};
 }
 
 async function saveTabStore(store) {
-  await chrome.storage.session.set({ tabStreams: store });
+  await browserApi.storage.session.set({ tabStreams: store });
 }
 
 async function setTabBadge(tabId, list) {
   if (tabId < 0) return;
   try {
     const count = list.length;
-    await chrome.action.setBadgeText({ tabId, text: count > 0 ? String(count) : '' });
+    await browserApi.action.setBadgeText({ tabId, text: count > 0 ? String(count) : '' });
     if (count > 0) {
-      await chrome.action.setBadgeBackgroundColor({ tabId, color: '#06b6d4' });
+      await browserApi.action.setBadgeBackgroundColor({ tabId, color: '#06b6d4' });
     }
   } catch {}
 }
 
-async function recordStream(tabId, entry) {
+function recordStream(tabId, entry) {
+  return updateStore(() => recordStreamUpdate(tabId, entry));
+}
+
+async function recordStreamUpdate(tabId, entry) {
   if (!Number.isInteger(tabId) || tabId < 0) return;
   const store = await getTabStore();
   const list = Array.isArray(store[tabId]) ? [...store[tabId]] : [];
@@ -138,7 +135,7 @@ async function recordStream(tabId, entry) {
   let pageUrl = entry.pageUrl || '';
   if (!pageTitle || !pageUrl) {
     try {
-      const tab = await chrome.tabs.get(tabId);
+      const tab = await browserApi.tabs.get(tabId);
       if (tab) {
         pageTitle = pageTitle || tab.title || '';
         pageUrl = pageUrl || tab.url || '';
@@ -151,6 +148,10 @@ async function recordStream(tabId, entry) {
     key,
     kind: entry.kind,
     isManifest: Boolean(entry.isManifest),
+    isSegment: Boolean(entry.isSegment),
+    width: Number(entry.width || 0),
+    height: Number(entry.height || 0),
+    bitrate: Number(entry.bitrate || 0),
     ext: entry.ext,
     mimeType: entry.mimeType,
     contentLength: Number(entry.contentLength || 0),
@@ -166,18 +167,23 @@ async function recordStream(tabId, entry) {
     list[existingIdx] = {
       ...prev,
       ...next,
+      width: next.width || prev.width || 0,
+      height: next.height || prev.height || 0,
+      bitrate: next.bitrate || prev.bitrate || 0,
+      mimeType: next.mimeType.endsWith('/unknown') ? prev.mimeType : next.mimeType,
+      ext: next.mimeType.endsWith('/unknown') ? prev.ext : next.ext,
       contentLength: Math.max(Number(prev.contentLength || 0), Number(next.contentLength || 0))
     };
   } else {
     list.unshift(next);
   }
 
-  store[tabId] = list.slice(0, MAX_STREAMS_PER_TAB);
+  store[tabId] = list.sort((a, b) => Number(a.isSegment) - Number(b.isSegment)).slice(0, MAX_STREAMS_PER_TAB);
   await saveTabStore(store);
   await setTabBadge(tabId, store[tabId]);
 }
 
-chrome.webRequest.onHeadersReceived.addListener(
+browserApi.webRequest.onHeadersReceived.addListener(
   (details) => {
     if (details.tabId < 0) return;
     if (details.statusCode && details.statusCode >= 400) return;
@@ -187,8 +193,8 @@ chrome.webRequest.onHeadersReceived.addListener(
     for (const h of hdrs) {
       const n = (h.name || '').toLowerCase();
       if (n === 'content-type') mime = h.value || '';
-      if (n === 'content-length') contentLength = parseInt(h.value || '0', 10) || 0;
-      if (n === 'content-range' && !contentLength) {
+      if (n === 'content-length') contentLength = Math.max(contentLength, parseInt(h.value || '0', 10) || 0);
+      if (n === 'content-range') {
         const m = String(h.value || '').match(/\/(\d+)\s*$/);
         if (m) contentLength = parseInt(m[1], 10) || 0;
       }
@@ -197,7 +203,7 @@ chrome.webRequest.onHeadersReceived.addListener(
     if (!candidate) return;
     void recordStream(details.tabId, {
       url: details.url,
-      pageUrl: details.initiator || details.documentUrl || '',
+      pageUrl: details.documentUrl || '',
       contentLength,
       source: 'network',
       ...candidate
@@ -207,15 +213,15 @@ chrome.webRequest.onHeadersReceived.addListener(
   ['responseHeaders']
 );
 
-chrome.tabs.onRemoved.addListener(async (tabId) => {
+browserApi.tabs.onRemoved.addListener((tabId) => updateStore(async () => {
   const store = await getTabStore();
   if (store[tabId]) {
     delete store[tabId];
     await saveTabStore(store);
   }
-});
+}));
 
-chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+browserApi.tabs.onUpdated.addListener((tabId, changeInfo) => updateStore(async () => {
   if (changeInfo.url && !changeInfo.url.startsWith('chrome://')) {
     const store = await getTabStore();
     if (store[tabId]) {
@@ -224,7 +230,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
       await setTabBadge(tabId, []);
     }
   }
-});
+}));
 
 function bytesToBase64(uint8) {
   let binary = '';
@@ -251,17 +257,17 @@ function pruneExpiredTransfers() {
 async function openOrFocusStudioTab(targetBase, hashSuffix = '') {
   const normBase = String(targetBase || 'https://studio-5090403114-fc98b.web.app/').replace(/\/?$/, '/');
   const originPrefix = new URL(normBase).origin;
-  const tabs = await chrome.tabs.query({});
-  const existing = tabs.find((t) => t.url && t.url.startsWith(originPrefix));
+  const tabs = await browserApi.tabs.query({});
+  const existing = tabs.find((t) => { try { return new URL(t.url).origin === originPrefix; } catch { return false; } });
   if (existing && !hashSuffix) {
-    await chrome.tabs.update(existing.id, { active: true });
+    await browserApi.tabs.update(existing.id, { active: true });
     return { tab: existing, reused: true };
   }
-  const created = await chrome.tabs.create({ url: normBase + (hashSuffix ? `#${hashSuffix}` : ''), active: true });
+  const created = await browserApi.tabs.create({ url: normBase + (hashSuffix ? `#${hashSuffix}` : ''), active: true });
   return { tab: created, reused: false };
 }
 
-chrome.runtime.onConnect.addListener((port) => {
+browserApi.runtime.onConnect.addListener((port) => {
   if (port.name !== 'ntk-soundlab-bridge') return;
   port.onMessage.addListener((msg) => {
     if (msg?.type !== 'REQUEST_TRANSFER' || !msg.transferId) return;
@@ -295,11 +301,12 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+browserApi.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   if (!msg || typeof msg !== 'object') return false;
 
   if (msg.type === 'GET_TAB_STREAMS') {
     (async () => {
+      await storeUpdates;
       const store = await getTabStore();
       sendResponse({ ok: true, streams: store[msg.tabId] || [] });
     })();
@@ -307,13 +314,13 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 
   if (msg.type === 'CLEAR_TAB_STREAMS') {
-    (async () => {
+    updateStore(async () => {
       const store = await getTabStore();
       delete store[msg.tabId];
       await saveTabStore(store);
       await setTabBadge(msg.tabId, []);
       sendResponse({ ok: true });
-    })();
+    });
     return true;
   }
 
@@ -327,6 +334,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
             pageTitle: msg.pageTitle || item.title || '',
             pageUrl: msg.pageUrl || '',
             source: item.source || 'dom',
+            width: item.width, height: item.height, bitrate: item.bitrate,
             ...candidate
           });
         }
@@ -337,11 +345,33 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     return true;
   }
 
+  if (msg.type === 'OPEN_EXPORT') {
+    (async () => {
+      try {
+        await storeUpdates;
+        const store = await getTabStore();
+        const item = (store[msg.tabId] || []).find(entry => entry.url === msg.url);
+        if (!item) throw new Error('This capture has expired. Reopen the grabber while the media plays.');
+        mediaUrl(item.url);
+        if (item.isSegment) throw new Error('This is one segment. Choose the full playlist or complete media file.');
+        const id = 'export-' + crypto.randomUUID();
+        await browserApi.storage.session.set({ [id]: {
+          item, title: String(msg.title || item.pageTitle || 'Captured media'),
+          format: ['original', 'video', 'mp3', 'wav'].includes(msg.format) ? msg.format : 'original',
+          createdAt: Date.now(),
+        } });
+        await browserApi.tabs.create({ url: browserApi.runtime.getURL('export.html') + '#' + id });
+        sendResponse({ ok: true });
+      } catch (error) { sendResponse({ ok: false, error: error.message }); }
+    })();
+    return true;
+  }
+
   if (msg.type === 'DOWNLOAD_STREAM') {
     (async () => {
       try {
         const fileName = sanitizeFileName(msg.title || 'SoundLab_Capture', msg.ext || 'mp3');
-        const downloadId = await chrome.downloads.download({
+        const downloadId = await browserApi.downloads.download({
           url: msg.url,
           filename: fileName,
           saveAs: true
@@ -405,18 +435,18 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
 
         const normBase = String(targetUrl || 'https://studio-5090403114-fc98b.web.app/').replace(/\/?$/, '/');
         const originPrefix = new URL(normBase).origin;
-        const tabs = await chrome.tabs.query({});
-        const existing = tabs.find((t) => t.url && t.url.startsWith(originPrefix));
+        const tabs = await browserApi.tabs.query({});
+        const existing = tabs.find((t) => { try { return new URL(t.url).origin === originPrefix; } catch { return false; } });
         if (existing) {
-          await chrome.tabs.update(existing.id, { active: true });
+          await browserApi.tabs.update(existing.id, { active: true });
           try {
-            await chrome.tabs.sendMessage(existing.id, { type: 'TRANSFER_AVAILABLE', transferId });
+            await browserApi.tabs.sendMessage(existing.id, { type: 'TRANSFER_AVAILABLE', transferId });
             sendResponse({ ok: true, method: 'bridge-existing' });
             return;
           } catch {}
         }
 
-        await chrome.tabs.create({ url: `${normBase}#ext-transfer=${encodeURIComponent(transferId)}`, active: true });
+        await browserApi.tabs.create({ url: `${normBase}#ext-transfer=${encodeURIComponent(transferId)}`, active: true });
         sendResponse({ ok: true, method: 'bridge-new-tab' });
       } catch (err) {
         const grabHash = `grab=${encodeHashGrab({ url: item.url, title, artist, cover: coverUrl, ext: item.ext, pageUrl: sourceUrl })}`;

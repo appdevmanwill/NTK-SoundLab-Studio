@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "NTK SoundLab Media Grabber",
-  "version": "1.0.0",
-  "description": "Capture playing audio and video streams in Chrome or Edge and download them or send them straight into NTK SoundLab Studio.",
+  "version": "1.1.0",
+  "description": "Save captured audio as original, 320 kbps MP3 or 24-bit WAV, save video and HLS streams, or send media to NTK SoundLab.",
   "icons": {
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
@@ -27,7 +27,8 @@
     "https://*/*"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {

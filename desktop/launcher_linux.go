@@ -18,7 +18,7 @@ func linuxBrowserArgs(appURL, dataDir string) []string {
 func launchBrowser(appURL, dataDir string) error {
 	// An explicit executable override is useful for distro-specific installations.
 	// This is a path, never a shell command, and browser sandboxing stays enabled.
-	candidates := []string{"chromium", "chromium-browser", "google-chrome-stable", "google-chrome", "microsoft-edge-stable", "microsoft-edge", "brave-browser"}
+	candidates := []string{"google-chrome-stable", "google-chrome", "chromium", "chromium-browser", "microsoft-edge-stable", "microsoft-edge", "brave-browser"}
 	override := os.Getenv("NTK_SOUNDLAB_BROWSER")
 	if override == "" {
 		override = os.Getenv("NTK_OMNISTREAM_BROWSER")

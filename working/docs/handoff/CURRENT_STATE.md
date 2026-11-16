@@ -1,5 +1,15 @@
 # NTK SoundLab Studio · delivery state
 
+## Desktop and Media Grabber release 2026.11.16.4
+
+- Desktop Windows uses Chrome; Linux prefers Chrome. Windows and Linux builds/tests passed. Existing desktop profile and saved library were retained; a synthetic Edge-to-Chrome library check passed.
+- Extension 1.1.0 adds original downloads, 320 kbps MP3, 24-bit WAV, MP4/HLS exports, and local playback recording with an explicit browser picker and missing-audio check. Chrome, Edge, Opera and Firefox packages share the implementation.
+- VERIFIED: Chromium and Firefox media conversion fixtures; real Chromium and Firefox extension download flows; recorded synthetic picture plus audio (H.264/AAC); installed Chrome extension updated to 1.1.0. Four utility tests and Windows Go tests passed again before publication.
+- PARTIAL: Atlabs signed-in page visibly identified itself as a storyboard; its complete recording was not tested because Computer Use stopped on an uncertain browser URL. Edge/Opera runtime acceptance, Firefox permanent signing, physical Android and graphical Linux acceptance remain open.
+- Android/web/PHP retain 2026.11.16.3. Rebuild catalog with `python working/helper/release_catalog.py 2026.11.16.3 --desktop-version 2026.11.16.4 --check`.
+- Evidence remains in ignored `working/EVIDENCE/grabber-upgrade-2026-11-16` and `working/EVIDENCE/chrome-launch-2026-11-16`. Private profiles/signing keys are excluded. The existing installed extension folder retains its old directory name to preserve its Chrome identity; its contents are 1.1.0.
+- GitHub publication is authorized. Release notes record the verification limits; no hosted deployment is part of this release.
+
 ## Smart Audiomack Browser Grabber Handoff & Workspace Cleanup · 16 November 2026 (`v2026.11.16.3`)
 
 - **VERIFIED · 1-click Audiomack -> Browser Grabber handoff.** Updated `working/js/app.js` (`openGrabberModal()` + `handleSongInput()` Audiomack catch) and `#bookmarkletModal` in `working/index.html`, `welcome.blade.php`, and `studio.blade.php` with `#grabberTargetCard` (`▶ Open Track & Grab Audio ↗` pointing safely to the pasted HTTPS track link while hiding `#grabberTargetCard` on manual modal opens and avoiding non-applicable extension prompts on Android native WebView).

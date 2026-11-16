@@ -1,5 +1,6 @@
+const browserApi = globalThis.browser || globalThis.chrome;
 (() => {
-  document.documentElement.dataset.ntkGrabberExt = '1.0.0';
+  document.documentElement.dataset.ntkGrabberExt = '1.1.0';
 
   let appReady = Boolean(window.__ntkSoundLabBridgeReady);
   const queuedMessages = [];
@@ -46,7 +47,7 @@
 
   function startTransfer(transferId) {
     if (!transferId) return;
-    const port = chrome.runtime.connect({ name: 'ntk-soundlab-bridge' });
+    const port = browserApi.runtime.connect({ name: 'ntk-soundlab-bridge' });
     let chunks = [];
     let meta = null;
 
@@ -76,7 +77,7 @@
     port.postMessage({ type: 'REQUEST_TRANSFER', transferId });
   }
 
-  chrome.runtime.onMessage.addListener((msg) => {
+  browserApi.runtime.onMessage.addListener((msg) => {
     if (msg?.type === 'TRANSFER_AVAILABLE' && msg.transferId) {
       startTransfer(msg.transferId);
     }

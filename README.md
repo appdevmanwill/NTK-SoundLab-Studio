@@ -8,27 +8,36 @@ Built by NTK for NTK Hub.
 
 ## Download
 
-Version **2026.11.16.3** is a preview release. Start with the Windows installer or Android APK if you want to use the app. The AAB is for publishing through Google Play.
+The current desktop preview is **2026.11.16.4**, which opens in Chrome on Windows and prefers Chrome on Linux. The Chrome, Firefox, Opera and Edge grabbers also use release **2026.11.16.4**. Android, web and PHP use **2026.11.16.3**. Start with the Windows installer or Android APK if you want to use the app. The AAB is for publishing through Google Play.
 
 <!-- release-downloads:start -->
 
 | Platform | Download |
 | --- | --- |
-| Windows x64 | [Portable EXE](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTKSoundLab-Portable-2026.11.16.3.exe) |
-| Windows x64 | [Setup installer](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTKSoundLab-Setup-2026.11.16.3.exe) |
-| Linux x64 | [AppImage](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTKSoundLab-2026.11.16.3-x86_64.AppImage) |
-| Linux x64 | [Debian package](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/ntk-soundlab_2026.11.16.3-1_amd64.deb) |
-| Android 10+ | [APK](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTKSoundLab-2026.11.16.3.apk) |
-| Web | [Static PWA ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTKSoundLab-Static-2026.11.16.3.zip) |
-| PHP hosting | [AlwaysData ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTK_SoundLab_Studio_AlwaysData-2026.11.16.3.zip) |
-| Chrome / Edge | [Browser Grabber ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTKSoundLab-Browser-Grabber-2026.11.16.3.zip) |
-| Google Play | [Signed AAB](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.3/NTKSoundLab-2026.11.16.3.aab) |
+| Windows x64 | [Portable EXE](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-Portable-2026.11.16.4.exe) |
+| Windows x64 | [Setup installer](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-Setup-2026.11.16.4.exe) |
+| Linux x64 | [AppImage](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-2026.11.16.4-x86_64.AppImage) |
+| Linux x64 | [Debian package](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/ntk-soundlab_2026.11.16.4-1_amd64.deb) |
+| Android 10+ | [APK](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-2026.11.16.3.apk) |
+| Web | [Static PWA ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-Static-2026.11.16.3.zip) |
+| PHP hosting | [AlwaysData ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTK_SoundLab_Studio_AlwaysData-2026.11.16.3.zip) |
+| Google Play | [Signed AAB](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-2026.11.16.3.aab) |
+| Chrome | [Media Grabber ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-Browser-Grabber-Chrome-2026.11.16.4.zip) |
+| Firefox | [Media Grabber ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-Browser-Grabber-Firefox-2026.11.16.4.zip) |
+| Opera | [Media Grabber ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-Browser-Grabber-Opera-2026.11.16.4.zip) |
+| Edge | [Media Grabber ZIP](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.4/NTKSoundLab-Browser-Grabber-Edge-2026.11.16.4.zip) |
 
 <!-- release-downloads:end -->
 
-[Release notes and all files](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.3) · [Checksums](SOFTWARE/SHA256SUMS.txt) · [Setup guide](SOFTWARE/README-LATEST.md)
+[Release notes and all files](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.4) Â· [Checksums](SOFTWARE/SHA256SUMS.txt) Â· [Setup guide](SOFTWARE/README-LATEST.md)
 
-Windows needs Microsoft Edge. Linux needs an installed browser such as Chromium, Chrome, Edge or Brave. Android requires Android 10 or later and an updated System WebView. The Windows files are unsigned, so Windows may show an unknown-publisher warning.
+Windows needs Google Chrome. Linux needs an installed browser such as Chromium, Chrome, Edge or Brave. Android requires Android 10 or later and an updated System WebView. The Windows files are unsigned, so Windows may show an unknown-publisher warning.
+
+## Browser media downloads
+
+The [Media Grabber](extension/README.md) saves original files, MP3 at 320 kbps, 24-bit WAV, and supported video/HLS streams. **Save video** keeps the picture and sound; **Edit audio in SoundLab** extracts audio for editing. **Record playback with sound** handles animated pages and storyboards, including previews such as Atlabs. Recording re-encodes the selected tab at its visible resolution.
+
+Downloads depend on the source, browser and codec. Converting compressed audio to WAV does not restore missing detail. DRM and DASH downloads are unsupported. Firefox requires temporary installation until Mozilla signing is completed.
 
 ## First session
 
@@ -81,4 +90,4 @@ The shared browser app is in `working/`. The platform wrappers and backend are i
 
 ## License
 
-SoundLab's own code is MIT licensed. Bundled libraries and the optional model have their own terms. [Project license](LICENSE) · [Third-party notices](working/THIRD_PARTY_NOTICES.md)
+SoundLab's own code is MIT licensed. Bundled libraries and the optional model have their own terms. [Project license](LICENSE) Â· [Third-party notices](working/THIRD_PARTY_NOTICES.md)

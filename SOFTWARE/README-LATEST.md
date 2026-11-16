@@ -1,12 +1,12 @@
 # Install SoundLab
 
-The current preview is **2026.11.16.3**. Get the files from the [GitHub release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.3).
+The current desktop preview is **2026.11.16.4**. Android, web and PHP use **2026.11.16.3**. The four Media Grabber packages use release **2026.11.16.4**, extension version **1.1.0**. Get the files from the [GitHub release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.4).
 
 ## Windows
 
-Download `NTKSoundLab-Setup-2026.11.16.3.exe` for an installer, or `NTKSoundLab-Portable-2026.11.16.3.exe` to run a single executable.
+Download `NTKSoundLab-Setup-2026.11.16.4.exe` for an installer, or `NTKSoundLab-Portable-2026.11.16.4.exe` to run a single executable.
 
-Microsoft Edge must be installed. Python, Node.js, Go and FFmpeg are build or optional-helper tools and are unnecessary for local editing in the packaged app.
+Google Chrome must be installed. SoundLab opens in a dedicated Chrome app window. Python, Node.js, Go and FFmpeg are build or optional-helper tools and are unnecessary for local editing in the packaged app.
 
 Both Windows files are unsigned. An unknown-publisher warning is expected.
 
@@ -24,9 +24,9 @@ Use the AAB if you are preparing a Play Console release. The public upload certi
 
 Use the AppImage for a single downloadable file, or the `.deb` for Debian and Ubuntu. Both need an installed browser. [Linux instructions](LINUX/README-LINUX.md)
 
-## Chrome / Edge Browser Grabber
+## Browser Grabber
 
-Download `NTKSoundLab-Browser-Grabber-2026.11.16.3.zip`, extract it, open `chrome://extensions` (Chrome) or `edge://extensions` (Microsoft Edge), enable **Developer mode**, and choose **Load unpacked** pointing at the extracted folder. Play any track (for example on Audiomack or SoundCloud), open the extension popup, and click **Send to SoundLab** or **Save**. [Extension guide](../extension/README.md)
+Use the package for Chrome, Firefox, Opera or Microsoft Edge under `SOFTWARE/EXTENSION`. Original-quality file downloads, 320 kbps MP3, 24-bit WAV and supported video/HLS exports are available. Firefox currently installs as a temporary unsigned add-on. [Installation and format guide](../extension/README.md)
 
 ## Web and PHP hosting
 

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Record playback · NTK SoundLab</title>
+  <link rel="stylesheet" href="export.css">
+</head>
+<body>
+<main>
+  <header><img src="icons/icon-48.png" width="40" height="40" alt="">NTK SoundLab<small>Media Grabber · NTK Hub</small></header>
+  <h1>Record playback with sound</h1>
+  <p>Some pages assemble images, captions and audio into a moving preview. Record the visible playback when there is no complete video file to download.</p>
+  <ol class="instructions">
+    <li>Pause the source at the beginning. Use its fullscreen player for a clean recording.</li>
+    <li>Choose <strong>Select playing tab</strong>. In Chrome, Edge or Opera, select the source under <strong>Tab</strong> and enable <strong>Share tab audio</strong>.</li>
+    <li>Choose <strong>Start recording</strong>, return to that tab and press Play after the five-second countdown.</li>
+    <li>Return here and choose <strong>Stop &amp; save</strong> when playback ends.</li>
+  </ol>
+  <p class="muted">Recording uses the visible tab resolution and re-encodes playback. It does not increase the original quality. Only the surface you choose is recorded; audio stays local. Firefox may offer screen or window capture without sound. For sound, use a Chromium browser.</p>
+  <label for="name">File name</label>
+  <input id="name" value="SoundLab playback" maxlength="160">
+  <label class="check"><input id="silent" type="checkbox"> Allow a silent recording if the browser provides no audio</label>
+  <div class="actions">
+    <button id="choose">Select playing tab</button>
+    <button id="record" disabled>Start recording</button>
+    <button id="stop" class="secondary" disabled>Stop &amp; save</button>
+    <button id="save" hidden>Save recording again</button>
+  </div>
+  <video id="preview" autoplay muted playsinline hidden aria-label="Selected capture preview"></video>
+  <p id="details" class="muted"></p>
+  <p id="status" role="status" aria-live="polite">Ready to select a tab.</p>
+  <p class="muted">Recordings stop at one hour or 2 GB. Keep this page open until your file is saved. For a rendered final video, use the source site's own export option when available.</p>
+</main>
+<script type="module" src="record.mjs"></script>
+</body>
+</html>

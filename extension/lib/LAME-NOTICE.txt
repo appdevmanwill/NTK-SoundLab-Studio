@@ -1,0 +1,6 @@
+lame.all.js is the existing unmodified lamejs library used by SoundLab.
+Lamejs source and build instructions: https://github.com/zhuker/lamejs
+LAME source and project: https://lame.sourceforge.io/
+LAME is licensed under the GNU Library General Public License version 2 or later.
+The license text is included in LAME-LICENSE.txt.
+This library remains a separate, replaceable JavaScript file.

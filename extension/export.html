@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Save media · NTK SoundLab</title>
+  <link rel="stylesheet" href="export.css">
+</head>
+<body>
+  <main>
+    <header><img src="icons/icon-48.png" width="40" height="40" alt=""><span>NTK SoundLab <small>by NTK Hub</small></span></header>
+    <h1>Save your media</h1>
+    <p id="title">Loading captured stream…</p>
+    <p id="source" class="muted"></p>
+    <label for="format">Download format</label>
+    <select id="format">
+      <option value="original">Original file · preserve source quality</option>
+      <option value="video">Video MP4 · preserve source quality</option>
+      <option value="mp3">Audio MP3 · 320 kbps</option>
+      <option value="wav">Audio WAV · 24-bit PCM</option>
+    </select>
+    <p id="formatHelp" class="muted">Original files keep the source encoding. WAV preserves decoded audio at its source sample rate. Exporting cannot add detail missing from a compressed source.</p>
+    <div class="actions"><button id="start" disabled>Save file</button><button id="cancel" class="secondary" disabled>Cancel</button></div>
+    <progress id="progress" max="100" value="0" aria-label="Download progress"></progress>
+    <p id="status" role="status" aria-live="polite">Preparing…</p>
+    <p id="details" class="muted"></p>
+    <p class="muted">Keep this tab open until saving finishes. Protected streams and expired playback links may be unavailable. For the highest available resolution, select it in the source player and play the video before capturing.</p>
+  </main>
+  <script src="lib/lame.all.js"></script>
+  <script type="module" src="export.mjs"></script>
+</body>
+</html>

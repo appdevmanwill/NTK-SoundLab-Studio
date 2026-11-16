@@ -8,7 +8,7 @@
 - **Project Name:** NTK SoundLab Studio (Short Name: `NTK SoundLab`)
 - **Purpose:** Universal multi-platform media downloader, client-side video demuxer, Meta HTDemucs v4 2-stem/4-stem neural stem separator, 5-track synchronized audio mixing console, waveform trimmer, mastering FX, and 1080p karaoke visualizer video generator.
 - **Primary Users:** Music producers, vocalists, remixers, karaoke creators and digital media editors using local processing with optional provider-based recognition.
-- **Current Phase:** GitHub preview v2026.11.16.3, 16 November 2026.
+- **Current Phase:** GitHub preview v2026.11.16.4 for desktop/extensions; Android/web/PHP remain v2026.11.16.3. See working/docs/handoff/CURRENT_STATE.md for verification limits.
 - **Latest Verified Milestone:** Integrated 1-click Audiomack-to-Browser Grabber modal handoff (`openGrabberModal()`, `#grabberTargetCard`, `▶ Open Track & Grab Audio ↗`) alongside the Chrome/Edge MV3 Media Grabber (`extension/`), aligned Go/Laravel/Python/JS Audiomack guidance (`422` OAuth + Media Grabber), rebuilt & cleaned older local versions across all directories (`SOFTWARE/`, `DEPLOY_MANUAL/`, `desktop/`, `android/build/`), and verified Python (7/7), Windows Go (15/15), Linux Go (17/17 + AppImage headless), PHPUnit (27/27, 145 assertions), AlwaysData ZIP SQLite smoke, Android APK/AAB, Playwright handoff checks, and all 9 digests (`SOFTWARE/SHA256SUMS.txt`). Physical-phone endurance, graphical Linux installation, and hosted PHP server acceptance remain open.
 - **Authoritative Source References:** `README.md`, `SOFTWARE/README-LATEST.md`, `DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md`.
 

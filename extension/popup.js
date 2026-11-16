@@ -1,3 +1,5 @@
+import { qualityLabel } from './media-utils.mjs';
+const browserApi = globalThis.browser || globalThis.chrome;
 const statusEl = document.getElementById('statusLine');
 const listEl = document.getElementById('streamsList');
 const titleEl = document.getElementById('pageTitle');
@@ -20,20 +22,20 @@ function setStatus(msg, isError = false) {
 
 async function scanActiveTabDom(tabId) {
   try {
-    const [{ result }] = await chrome.scripting.executeScript({
-      target: { tabId },
+    const frames = await browserApi.scripting.executeScript({
+      target: { tabId, allFrames: true },
       func: () => {
         const metaContent = (sel) => document.querySelector(sel)?.getAttribute('content') || '';
         const title = (metaContent('meta[property="og:title"]') || document.title || '').replace(/\s*[|-]\s*(Audiomack|SoundCloud|Suno|YouTube|Vimeo).*$/i, '').trim();
         const artist = (metaContent('meta[name="author"]') || metaContent('meta[property="music:musician"]') || '').trim();
         const coverUrl = metaContent('meta[property="og:image"]') || metaContent('meta[name="twitter:image"]') || '';
         const streams = [];
-        const add = (url, mimeType, source) => {
-          if (url && /^https?:\/\//i.test(url)) streams.push({ url, mimeType: mimeType || '', source });
+        const add = (url, mimeType, source, extra = {}) => {
+          if (url && /^https?:\/\//i.test(url)) streams.push({ url, mimeType: mimeType || '', source, ...extra });
         };
 
         document.querySelectorAll('audio, video').forEach((el) => {
-          add(el.currentSrc || el.src, '', 'dom');
+          add(el.currentSrc || el.src, el.querySelector('source')?.type || (el.tagName === 'VIDEO' ? 'video/unknown' : 'audio/unknown'), 'dom', { width: el.videoWidth || 0, height: el.videoHeight || 0 });
           el.querySelectorAll('source').forEach((s) => add(s.src, s.type || '', 'dom'));
         });
         add(metaContent('meta[property="og:audio"]'), 'audio/mpeg', 'og');
@@ -47,7 +49,8 @@ async function scanActiveTabDom(tabId) {
         return { title, artist, coverUrl, pageUrl: location.href, streams };
       }
     });
-    return result || { streams: [] };
+    const main = frames.find(frame => frame.frameId === 0)?.result || {};
+    return { ...main, streams: frames.flatMap(frame => frame.result?.streams || []) };
   } catch {
     return { streams: [] };
   }
@@ -56,14 +59,14 @@ async function scanActiveTabDom(tabId) {
 function renderStreams(streams) {
   listEl.textContent = '';
   const ordered = [...streams].sort((a, b) => {
-    const rank = (k) => (k === 'audio' ? 0 : k === 'video' ? 1 : 2);
-    return rank(a.kind) - rank(b.kind) || b.detectedAt - a.detectedAt;
+    const rank = (k) => (k === 'video' ? 0 : k === 'manifest' ? 1 : 2);
+    return Number(a.isSegment) - Number(b.isSegment) || rank(a.kind) - rank(b.kind) || (b.width || 0) * (b.height || 0) - (a.width || 0) * (a.height || 0) || b.detectedAt - a.detectedAt;
   });
 
   if (ordered.length === 0) {
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.innerHTML = 'No audio or video stream captured on this tab yet.<br><br><strong>Press Play</strong> on the page player (Audiomack, ACE Music, etc.) and reopen this popup — Chrome will list every unencrypted media stream here automatically.';
+    empty.innerHTML = 'No complete media stream captured yet.<br><br><strong>Press Play</strong> and reopen the grabber. For a storyboard or animated page, use Record playback.';
     listEl.appendChild(empty);
     return;
   }
@@ -81,25 +84,27 @@ function renderStreams(streams) {
 
     const size = document.createElement('span');
     size.style.cssText = 'font-size:11px;color:#cbd5e1;font-weight:600';
-    size.textContent = formatBytes(item.contentLength);
+    size.textContent = [qualityLabel(item), formatBytes(item.contentLength)].join(' · ');
 
     top.append(badge, size);
 
     const urlLine = document.createElement('div');
     urlLine.className = 'url-line';
     urlLine.title = item.url;
-    urlLine.textContent = item.url;
+    try { const url = new URL(item.url); urlLine.textContent = url.hostname + url.pathname; } catch { urlLine.textContent = 'Captured stream'; }
 
     const actions = document.createElement('div');
     actions.className = 'actions';
 
     const sendBtn = document.createElement('button');
     sendBtn.className = 'btn btn-primary';
-    sendBtn.textContent = item.isManifest ? '⚡ Send Manifest URL' : '⚡ Send to SoundLab';
+    sendBtn.textContent = item.kind === 'video' ? 'Edit audio in SoundLab' : 'Send to SoundLab';
+    sendBtn.disabled = Boolean(item.isManifest || item.isSegment);
+    if (sendBtn.disabled) sendBtn.title = 'Save the complete stream first, then import the file into SoundLab.';
     sendBtn.onclick = async () => {
       sendBtn.disabled = true;
       setStatus(item.isManifest ? 'Sending playlist URL to SoundLab...' : 'Fetching media stream & importing to SoundLab...');
-      const res = await chrome.runtime.sendMessage({
+      const res = await browserApi.runtime.sendMessage({
         type: 'SEND_TO_SOUNDLAB',
         item,
         targetUrl: targetSelect.value,
@@ -113,19 +118,28 @@ function renderStreams(streams) {
       }
     };
 
-    const dlBtn = document.createElement('button');
-    dlBtn.className = 'btn';
-    dlBtn.textContent = '⬇ Save';
-    dlBtn.onclick = async () => {
-      setStatus('Starting Chrome download...');
-      const res = await chrome.runtime.sendMessage({
-        type: 'DOWNLOAD_STREAM',
-        url: item.url,
-        ext: item.ext,
-        title: activeMeta.title || item.pageTitle
-      });
-      setStatus(res?.ok ? 'Download started!' : (res?.error || 'Download failed.'), !res?.ok);
-    };
+    const formats = [
+      ['original', item.isManifest ? 'Save stream' : 'Original'],
+      ['mp3', 'MP3 320k'],
+      ['wav', 'WAV 24-bit'],
+    ];
+    if (item.kind === 'video' || item.isManifest) formats.unshift(['video', 'Save video']);
+    const downloadButtons = formats.map(([format, label]) => {
+      const button = document.createElement('button');
+      button.className = 'btn';
+      button.textContent = label;
+      button.disabled = Boolean(item.isSegment);
+      button.onclick = async () => {
+        try {
+          const result = await browserApi.runtime.sendMessage({
+            type: 'OPEN_EXPORT', tabId: activeTab.id, url: item.url,
+            title: activeMeta.title || item.pageTitle, format,
+          });
+          setStatus(result?.ok ? 'Opened the download page.' : result?.error || 'Could not open export.', !result?.ok);
+        } catch (error) { setStatus(error.message, true); }
+      };
+      return button;
+    });
 
     const copyBtn = document.createElement('button');
     copyBtn.className = 'btn';
@@ -135,20 +149,24 @@ function renderStreams(streams) {
       setStatus('Copied stream URL to clipboard.');
     };
 
-    actions.append(sendBtn, dlBtn, copyBtn);
+    actions.append(...downloadButtons, sendBtn, copyBtn);
     card.append(top, urlLine, actions);
     listEl.appendChild(card);
   }
 }
 
+document.getElementById('btnRecord').addEventListener('click', async () => {
+  await browserApi.tabs.create({ url: browserApi.runtime.getURL('record.html') });
+});
+
 async function init() {
-  const saved = await chrome.storage.local.get('studioTarget');
+  const saved = await browserApi.storage.local.get('studioTarget');
   if (saved.studioTarget) targetSelect.value = saved.studioTarget;
   targetSelect.addEventListener('change', () => {
-    chrome.storage.local.set({ studioTarget: targetSelect.value });
+    browserApi.storage.local.set({ studioTarget: targetSelect.value });
   });
 
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const [tab] = await browserApi.tabs.query({ active: true, currentWindow: true });
   activeTab = tab;
   if (!tab || !tab.id) {
     titleEl.textContent = 'No active tab';
@@ -166,7 +184,7 @@ async function init() {
   };
 
   if (domData.streams && domData.streams.length > 0) {
-    const merged = await chrome.runtime.sendMessage({
+    const merged = await browserApi.runtime.sendMessage({
       type: 'MERGE_DOM_STREAMS',
       tabId: tab.id,
       pageTitle: activeMeta.title,
@@ -175,15 +193,15 @@ async function init() {
     });
     renderStreams(merged?.streams || []);
   } else {
-    const resp = await chrome.runtime.sendMessage({ type: 'GET_TAB_STREAMS', tabId: tab.id });
+    const resp = await browserApi.runtime.sendMessage({ type: 'GET_TAB_STREAMS', tabId: tab.id });
     renderStreams(resp?.streams || []);
   }
 
   clearBtn.onclick = async () => {
-    await chrome.runtime.sendMessage({ type: 'CLEAR_TAB_STREAMS', tabId: tab.id });
+    await browserApi.runtime.sendMessage({ type: 'CLEAR_TAB_STREAMS', tabId: tab.id });
     renderStreams([]);
     setStatus('Cleared captured streams for this tab.');
   };
 }
 
-void init();
+void init().catch(error => setStatus(error.message || 'Could not read this tab.', true));
