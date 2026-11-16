@@ -37,8 +37,8 @@
   # Windows Installer (Inno Setup)
   "C:\Users\NTK\AppData\Local\Programs\Inno Setup 6\ISCC.exe" desktop/installer.iss
 
-  # Linux Packaging (WSL)
-  powershell -File desktop/linux/build.ps1 -AppImageTool <appimagetool-path> -AppImageRuntime <runtime-path>
+  # Linux Packaging (WSL) — tools live in %LOCALAPPDATA%\NTKSoundLabStudio\build-tools\
+  powershell -File desktop/linux/build.ps1 -AppImageTool "$env:LOCALAPPDATA\NTKSoundLabStudio\build-tools\appimagetool-x86_64.AppImage" -AppImageRuntime "$env:LOCALAPPDATA\NTKSoundLabStudio\build-tools\runtime-x86_64" -OutputDirectory "$PWD\SOFTWARE\LINUX"
 
   # Android APK Build
   cd android
