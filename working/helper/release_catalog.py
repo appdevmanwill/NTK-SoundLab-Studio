@@ -19,6 +19,7 @@ DOWNLOADS = (
     ('PHP hosting', 'AlwaysData ZIP', 'DEPLOY_MANUAL/NTK_SoundLab_Studio_AlwaysData-{version}.zip'),
 )
 PLAY_BUNDLE = ('Google Play', 'Signed AAB', 'SOFTWARE/ANDROID/NTKSoundLab-{version}.aab')
+EXTENSION_ZIP = ('Chrome / Edge', 'Browser Grabber ZIP', 'SOFTWARE/EXTENSION/NTKSoundLab-Browser-Grabber-{version}.zip')
 RELEASE_BASE_URL = 'https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v{version}'
 
 
@@ -34,8 +35,9 @@ def main():
     table = ['| Platform | Download |', '| --- | --- |']
     checksums = []
     downloads = list(DOWNLOADS)
-    if (ROOT / PLAY_BUNDLE[2].format(version=args.version)).is_file():
-        downloads.append(PLAY_BUNDLE)
+    for optional in (EXTENSION_ZIP, PLAY_BUNDLE):
+        if (ROOT / optional[2].format(version=args.version)).is_file():
+            downloads.append(optional)
     for platform, kind, template in downloads:
         relative = template.format(version=args.version)
         file = ROOT / relative

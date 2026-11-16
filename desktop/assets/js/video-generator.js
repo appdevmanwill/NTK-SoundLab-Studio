@@ -1,4 +1,4 @@
-import { LyricAlignment } from './lyric-alignment.js?v=2026.11.16.1';
+import { LyricAlignment } from './lyric-alignment.js?v=2026.11.16.2';
 /**
  * NTK SoundLab Studio - World-Class Video Generator & Karaoke Visualizer Studio
  * Renders 1080p Full HD audio-visualizer videos with synchronized Karaoke Lyrics Burn-In,
@@ -7,8 +7,8 @@ import { LyricAlignment } from './lyric-alignment.js?v=2026.11.16.1';
  * Audio-Reactive Particles, 4 Visualizer Engines, and 60 FPS Export.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.16.1';
-import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.16.2';
+import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.2';
 
 export class VideoGenerator {
   static THEMES = {

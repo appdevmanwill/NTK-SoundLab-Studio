@@ -372,9 +372,12 @@ class UniversalMediaService
             throw new HttpException($result['status'] >= 400 && $result['status'] < 600 ? $result['status'] : 502, 'The audio provider could not supply this track.');
         }
         $ctype = strtolower(trim(explode(';', $result['headers']['content-type'] ?? '')[0]));
-        $allowedMimes = $kind === 'cover'
-            ? ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
-            : ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/x-m4a', 'audio/aac', 'audio/x-aac', 'audio/aacp', 'audio/wav', 'audio/x-wav', 'audio/wave', 'audio/ogg', 'audio/opus', 'audio/flac', 'audio/x-flac', 'audio/webm', 'video/mp4', 'video/webm', 'application/ogg', 'application/octet-stream', 'binary/octet-stream'];
+        $explicitMedia = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/x-m4a', 'audio/aac', 'audio/x-aac', 'audio/aacp', 'audio/wav', 'audio/x-wav', 'audio/wave', 'audio/ogg', 'audio/opus', 'audio/flac', 'audio/x-flac', 'audio/webm', 'video/mp4', 'video/webm', 'video/quicktime', 'application/ogg'];
+        $allowedMimes = match ($kind) {
+            'cover' => ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'],
+            'strict_media' => $explicitMedia,
+            default => [...$explicitMedia, 'application/octet-stream', 'binary/octet-stream'],
+        };
         if (! in_array($ctype, $allowedMimes, true)) {
             throw new HttpException(502, 'The audio provider returned an unexpected content type.');
         }
@@ -592,12 +595,17 @@ class UniversalMediaService
     }
 
     /** @return array{status: int, headers: array<string, string>, content_type: string} */
-    public function fetchDirectMedia(string $rawUrl, ?string $range, string $destination): array
+    public function fetchDirectMedia(string $rawUrl, ?string $range, string $destination, bool $allowExtensionlessStrict = false): array
     {
         $url = $this->cleanUrl($rawUrl);
         $path = parse_url($url, PHP_URL_PATH) ?: '';
+        $ext = pathinfo($path, PATHINFO_EXTENSION);
         if (! preg_match('/\.(mp3|wav|m4a|aac|flac|ogg|opus|mp4|webm|mov|mkv)$/i', $path)) {
-            throw new HttpException(422, 'Only direct audio/video media files can be streamed through this endpoint.');
+            if (! $allowExtensionlessStrict || $ext !== '') {
+                throw new HttpException(422, 'Only direct audio/video media files can be streamed through this endpoint.');
+            }
+
+            return $this->streamUrlToDestination($url, 'strict_media', $range, $destination);
         }
 
         return $this->streamUrlToDestination($url, 'audio', $range, $destination);

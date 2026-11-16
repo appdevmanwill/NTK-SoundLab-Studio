@@ -1,4 +1,4 @@
-import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.16.1';
+import { fetch, canUseLocalHelper } from './network-policy.js?v=2026.11.16.2';
 /**
  * NTK SoundLab Studio - Universal Stream & Link Resolver
  * Multi-tier connectivity: Same-Origin Laravel Server -> Local OmniHelper -> In-Browser Fallbacks
@@ -301,7 +301,7 @@ export class SoundLabAPI {
       throw new Error(serverMessage);
     }
     if (classification.platform === 'Audiomack') {
-      throw new Error('Audiomack requires signed OAuth playback credentials and its legacy public extractor API is unavailable. Play the track directly in Audiomack or import a local MP3/WAV/FLAC/M4A file into SoundLab Studio.');
+      throw new Error('Audiomack uses OAuth-signed browser streams instead of public unauthenticated audio URLs. Play the song in Chrome/Edge with the NTK SoundLab Media Grabber extension to send the audio straight into Studio, or import a local file.');
     }
     if (classification.isDrm) {
       throw new Error(`${classification.platform} streams are DRM-protected and require an official ${classification.platform} license. Please import a local MP3/WAV/FLAC/M4A file into SoundLab Studio.`);

@@ -267,4 +267,38 @@ HTML;
         $this->getJson('/api/omni/resolve?url='.urlencode('https://cdn.example.org/live.m3u8'))->assertStatus(422);
         $this->getJson('/api/omni/resolve?url='.urlencode('https://open.spotify.com/track/4cOdK2wGLETKBW3PvgPWqT'))->assertStatus(422);
     }
+
+    public function test_grabbed_extensionless_direct_stream_enforces_strict_media_mime(): void
+    {
+        $fakeHttp = new class extends SafeMediaHttp {
+            public function publicAddress(string $url): string
+            {
+                return '93.184.216.34';
+            }
+
+            public function request(string $url, string $method = 'GET', array $headers = [], ?string $body = null, int $maxBytes = 2097152, ?string $destination = null, array $allowedHosts = []): array
+            {
+                if ($url === 'https://cdn.example.org/stream/track123') {
+                    file_put_contents($destination, 'GRABM4A');
+
+                    return ['status' => 200, 'headers' => ['content-type' => 'audio/mp4'], 'body' => '', 'url' => $url];
+                }
+                if ($url === 'https://cdn.example.org/stream/rawbin') {
+                    file_put_contents($destination, 'RAWBIN');
+
+                    return ['status' => 200, 'headers' => ['content-type' => 'application/octet-stream'], 'body' => '', 'url' => $url];
+                }
+                throw new \RuntimeException('Unexpected request: '.$url);
+            }
+        };
+        $this->app->instance(SafeMediaHttp::class, $fakeHttp);
+
+        $this->get('/api/omni/direct-stream?url='.urlencode('https://cdn.example.org/stream/track123'))->assertStatus(422);
+        $ok = $this->get('/api/omni/direct-stream?url='.urlencode('https://cdn.example.org/stream/track123').'&grab=1');
+        $ok->assertStatus(200);
+        $this->assertSame('GRABM4A', $ok->streamedContent());
+
+        $this->get('/api/omni/direct-stream?url='.urlencode('https://cdn.example.org/stream/rawbin').'&grab=1')->assertStatus(502);
+        $this->get('/api/omni/direct-stream?url='.urlencode('https://cdn.example.org/page.html').'&grab=1')->assertStatus(422);
+    }
 }

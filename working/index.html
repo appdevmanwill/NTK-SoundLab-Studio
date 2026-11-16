@@ -21,17 +21,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&family=Montserrat:wght@700;800;900&family=Orbitron:wght@700;900&family=Poppins:wght@700;800&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
 
   <!-- Modular CSS System -->
-  <link rel="stylesheet" href="css/style.css?v=2026.11.16.1" />
-  <link rel="stylesheet" href="css/components.css?v=2026.11.16.1" />
-  <link rel="stylesheet" href="css/tutorial.css?v=2026.11.16.1" />
-  <link rel="stylesheet" href="css/player.css?v=2026.11.16.1" />
-  <link rel="stylesheet" href="css/visualizer.css?v=2026.11.16.1" />
+  <link rel="stylesheet" href="css/style.css?v=2026.11.16.2" />
+  <link rel="stylesheet" href="css/components.css?v=2026.11.16.2" />
+  <link rel="stylesheet" href="css/tutorial.css?v=2026.11.16.2" />
+  <link rel="stylesheet" href="css/player.css?v=2026.11.16.2" />
+  <link rel="stylesheet" href="css/visualizer.css?v=2026.11.16.2" />
 
-  <link rel="stylesheet" href="css/transcribe.css?v=2026.11.16.1" />
+  <link rel="stylesheet" href="css/transcribe.css?v=2026.11.16.2" />
 
   <!-- Bundled MP3 Encoder (lamejs) + ZIP Packager (JSZip) with CDN fallbacks -->
-  <script src="lib/lame.all.js?v=2026.11.16.1"></script>
-  <script src="lib/jszip.min.js?v=2026.11.16.1"></script>
+  <script src="lib/lame.all.js?v=2026.11.16.2"></script>
+  <script src="lib/jszip.min.js?v=2026.11.16.2"></script>
   <script>
     if (typeof window.lamejs === 'undefined') {
       const s = document.createElement('script');
@@ -46,7 +46,7 @@
   </script>
 
   <!-- Main ES Module Application -->
-  <script type="module" src="js/app.js?v=2026.11.16.1"></script>
+  <script type="module" src="js/app.js?v=2026.11.16.2"></script>
 </head>
 <body>
 
@@ -196,6 +196,15 @@
               title="Inspect offline cached files and disk quota"
             >
               <span>💾 Storage Vault Inspector</span>
+            </button>
+
+            <button
+              id="btnOpenBrowserGrabber"
+              onclick="document.getElementById('bookmarkletModal').classList.add('open')"
+              class="btn btn-secondary"
+              title="Capture playing audio &amp; video streams from Chrome or Edge into SoundLab Studio"
+            >
+              <span>🧲 Browser Media Grabber</span>
             </button>
           </div>
 
@@ -2081,26 +2090,43 @@
   <!-- BOOKMARKLET INSTRUCTIONS MODAL                                        -->
   <!-- ===================================================================== -->
   <div id="bookmarkletModal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width:600px">
       <div class="modal-header">
         <div class="modal-title">
-          <span>🪄</span>
-          <span>1-Click Bookmarklet Setup</span>
+          <span>🧲</span>
+          <span>Browser Media Grabber (Extension &amp; Bookmarklet)</span>
         </div>
         <button data-close-modal class="btn btn-ghost btn-icon">✕</button>
       </div>
 
-      <div style="display:flex;flex-direction:column;gap:1rem;font-size:0.85rem;color:var(--text-secondary)">
-        <p>
-          When hosted on static sites like GitHub Pages or Firebase without the local Python proxy, the Bookmarklet runs directly inside your open <strong>suno.com</strong> tab so CORS never blocks decryption:
-        </p>
+      <div style="display:flex;flex-direction:column;gap:1rem;font-size:0.84rem;color:var(--text-secondary)">
+        <div style="padding:0.85rem;border-radius:10px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.28)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem">
+            <strong style="color:#67e8f9;font-size:0.9rem">1. Chrome / Edge Media Grabber Extension (Recommended)</strong>
+            <span id="extInstalledBadge" style="font-size:0.72rem;font-weight:700;padding:0.18rem 0.55rem;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(148,163,184,0.3);color:#cbd5e1">Not detected in this tab yet</span>
+          </div>
+          <p style="margin-bottom:0.65rem">
+            Sites like <strong>Audiomack</strong> use signed OAuth sessions and in-memory players that server extractors cannot fetch directly. When you play a song or video in Chrome or Edge, our Manifest V3 extension captures the playing media stream directly from the browser network tab and sends it straight into <strong>NTK SoundLab Studio</strong>.
+          </p>
+          <ol style="padding-left:1.2rem;display:flex;flex-direction:column;gap:0.35rem;margin-bottom:0.75rem">
+            <li>Download <a href="https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/download/v2026.11.16.2/NTKSoundLab-Browser-Grabber-2026.11.16.2.zip" target="_blank" rel="noopener" style="color:#67e8f9;text-decoration:underline">NTKSoundLab-Browser-Grabber.zip</a> and unzip it (or use the repository's <code>extension/</code> folder).</li>
+            <li>Open <code>chrome://extensions</code> (or <code>edge://extensions</code>) and enable <strong>Developer mode</strong>.</li>
+            <li>Click <strong>Load unpacked</strong> and select the unzipped folder. Play any track, click the extension icon, and choose <strong>⚡ Send to SoundLab</strong>!</li>
+          </ol>
+        </div>
 
-        <ol style="padding-left:1.25rem;display:flex;flex-direction:column;gap:0.6rem">
-          <li>Press <kbd style="background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px;color:#fde68a">Ctrl+Shift+B</kbd> (or <kbd style="background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px;color:#fde68a">Cmd+Shift+B</kbd> on Mac) to show your browser Bookmarks Bar.</li>
-          <li>Drag the orange <strong>Grab Song & Launch Studio</strong> button onto your bookmarks bar.</li>
-          <li>Open any <strong>suno.com/song/...</strong> page and click the bookmark!</li>
-          <li>Download the decrypted M4A/WAV immediately, or drop the file into this Studio for <strong>4-Track Neural HTDemucs Stems</strong>, <strong>Mastering FX</strong>, and <strong>Karaoke Video</strong>!</li>
-        </ol>
+        <div style="padding:0.85rem;border-radius:10px;background:rgba(245,158,11,0.07);border:1px solid rgba(245,158,11,0.25)">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem">
+            <strong style="color:#fde68a;font-size:0.9rem">2. 1-Click Universal Stream Bookmarklet (Zero Install)</strong>
+            <a id="sunoMagicBookmarklet" href="#" onclick="event.preventDefault(); alert('Drag this button onto your Bookmarks Bar (Ctrl+Shift+B), then click it on Suno AI or any open audio/video webpage!');" class="btn btn-primary btn-sm" style="background:linear-gradient(135deg,#f59e0b,#ef4444);border-color:#f59e0b;color:#0f172a;font-weight:800">
+              ⚡ Grab Stream &amp; Launch Studio
+            </a>
+          </div>
+          <ol style="padding-left:1.2rem;display:flex;flex-direction:column;gap:0.35rem">
+            <li>Press <kbd style="background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px;color:#fde68a">Ctrl+Shift+B</kbd> to show your bookmarks bar and drag the orange button above onto it.</li>
+            <li>Click the bookmark on any <strong>suno.com/song/...</strong> page (for instant DRM decryption) or any open HTML5 audio/video page to grab exposed streams directly into Studio.</li>
+          </ol>
+        </div>
       </div>
 
       <div style="display:flex;justify-content:flex-end">
@@ -3181,7 +3207,7 @@
 
         <div class="footer-links">
           <a href="#" onclick="event.preventDefault(); app.openHelperModal()">AI &amp; Local Helpers</a>
-          <a href="#" onclick="event.preventDefault(); document.getElementById('bookmarkletModal').classList.add('open')">Stream Bookmarklet</a>
+          <a href="#" onclick="event.preventDefault(); document.getElementById('bookmarkletModal').classList.add('open')">Browser Grabber &amp; Bookmarklet</a>
           <a href="#" onclick="event.preventDefault(); app.openTutorialModal(0)">Novice Guide</a>
           <a href="#" onclick="event.preventDefault(); app.openVaultModal()">Storage Vault</a>
         </div>

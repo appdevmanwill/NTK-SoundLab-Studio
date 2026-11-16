@@ -10,7 +10,7 @@ runtime=$(realpath "$4")
 mkdir -p "$5"
 output=$(realpath "$5")
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-version=2026.11.16.1
+version=2026.11.16.2
 appimage_name="NTKSoundLab-$version-x86_64.AppImage"
 deb_name="ntk-soundlab_${version}-1_amd64.deb"
 # Use Linux storage for permissions; Windows-mounted workspaces report mode 777.

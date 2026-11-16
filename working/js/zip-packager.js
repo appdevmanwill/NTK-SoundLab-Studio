@@ -3,10 +3,10 @@
  * Packages multi-stem kits, complete song bundles, and multi-song deck batches into single .ZIP downloads.
  */
 
-import { AudioConverter } from './audio-converter.js?v=2026.11.16.1';
-import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.16.1';
-import { ID3Writer } from './id3-writer.js?v=2026.11.16.1';
-import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.1';
+import { AudioConverter } from './audio-converter.js?v=2026.11.16.2';
+import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.16.2';
+import { ID3Writer } from './id3-writer.js?v=2026.11.16.2';
+import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.2';
 
 export class ZipPackager {
   static ensureJSZip() {

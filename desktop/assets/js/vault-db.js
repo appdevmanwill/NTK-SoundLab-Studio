@@ -1,4 +1,4 @@
-import { AiPolicy } from './ai-policy.js?v=2026.11.16.1';
+import { AiPolicy } from './ai-policy.js?v=2026.11.16.2';
 
 /**
  * NTK SoundLab Studio - IndexedDB Universal Offline Vault

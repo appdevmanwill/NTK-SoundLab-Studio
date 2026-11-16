@@ -1,6 +1,6 @@
 # NTK SoundLab Studio for Linux
 
-NTK Hub · 2026.11.16.1 · x86_64 / amd64
+NTK Hub · 2026.11.16.2 · x86_64 / amd64
 
 The shared studio and local Go service are bundled. Install a current Chromium,
 Chrome, Edge or Brave browser for the dedicated app window. The browser is not
@@ -13,14 +13,14 @@ Make the file executable in your file manager's Properties / Permissions dialog,
 then double-click it. Or run:
 
 ```sh
-chmod +x NTKSoundLab-2026.11.16.1-x86_64.AppImage
-./NTKSoundLab-2026.11.16.1-x86_64.AppImage
+chmod +x NTKSoundLab-2026.11.16.2-x86_64.AppImage
+./NTKSoundLab-2026.11.16.2-x86_64.AppImage
 ```
 
 If the system cannot mount AppImages using FUSE, run without FUSE:
 
 ```sh
-APPIMAGE_EXTRACT_AND_RUN=1 ./NTKSoundLab-2026.11.16.1-x86_64.AppImage
+APPIMAGE_EXTRACT_AND_RUN=1 ./NTKSoundLab-2026.11.16.2-x86_64.AppImage
 ```
 
 The extract-and-run mode uses temporary disk space. Neither mode requires root.
@@ -28,7 +28,7 @@ The extract-and-run mode uses temporary disk space. Neither mode requires root.
 ## Debian / Ubuntu package
 
 ```sh
-sudo apt install ./ntk-soundlab_2026.11.16.1-1_amd64.deb
+sudo apt install ./ntk-soundlab_2026.11.16.2-1_amd64.deb
 ```
 
 Open **NTK SoundLab Studio** from the applications menu. The package declares

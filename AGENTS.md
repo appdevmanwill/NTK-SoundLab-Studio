@@ -8,8 +8,8 @@
 - **Project Name:** NTK SoundLab Studio (Short Name: `NTK SoundLab`)
 - **Purpose:** Universal multi-platform media downloader, client-side video demuxer, Meta HTDemucs v4 2-stem/4-stem neural stem separator, 5-track synchronized audio mixing console, waveform trimmer, mastering FX, and 1080p karaoke visualizer video generator.
 - **Primary Users:** Music producers, vocalists, remixers, karaoke creators and digital media editors using local processing with optional provider-based recognition.
-- **Current Phase:** GitHub preview v2026.11.16.1, published 16 November 2026.
-- **Latest Verified Milestone:** Native extraction and CORS proxy hardening across Web, PHP, Desktop Go, and Python helper (Flow Music/Riffusion, Treblo/Sonauto, Audius with artwork mirror fallback, Vocaroo, ACE Music, Vimeo oEmbed, non-Suno UUID isolation, direct `.aac`/`403` `HEAD` fallback, and explicit `422` DRM/HLS guardrails); Firebase Hosting deployed (`https://studio-5090403114-fc98b.web.app`), Windows portable/installer/Linux/Android/AlwaysData packages rebuilt. Physical-phone endurance, graphical Linux installation, and hosted PHP server acceptance remain open.
+- **Current Phase:** GitHub preview v2026.11.16.2, 16 November 2026.
+- **Latest Verified Milestone:** Integrated Chrome/Edge MV3 Media Grabber extension (`extension/`, `chrome.webRequest` stream capture + `studio_bridge.js` Transferable ArrayBuffer bridge), upgraded Universal Bookmarklet + `#grab=` deep-link handler, and strict `?grab=1` MIME-verified proxy (`desktop/main.go`, `UniversalMediaService.php`) alongside Firebase/native extractors; verified Python (7/7), Windows Go (15/15), Linux Go (17/17), PHPUnit (27/27, 144 assertions), Playwright bridge/modal/deep-link UI checks, and all 9 release artifacts (`SOFTWARE/SHA256SUMS.txt`). Physical-phone endurance, graphical Linux installation, and hosted PHP server acceptance remain open.
 - **Authoritative Source References:** `README.md`, `SOFTWARE/README-LATEST.md`, `DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md`.
 
 ---

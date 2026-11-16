@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -499,5 +500,32 @@ func TestFlowTrebloAudiusVocarooAndDRMTruth(t *testing.T) {
 		if wd := serve(a, "GET", "/api/omni/resolve?url="+url.QueryEscape(drmURL), "", true); wd.Code != 422 || !strings.Contains(wd.Body.String(), "DRM") {
 			t.Fatalf("expected 422 DRM message for %s, got %d %s", drmURL, wd.Code, wd.Body.String())
 		}
+	}
+}
+
+func TestGrabbedExtensionlessDirectStreamStrictMime(t *testing.T) {
+	a := testApp()
+	a.client = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+		switch r.URL.String() {
+		case "https://cdn.example/stream/track123":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"audio/mp4"}}, Body: io.NopCloser(strings.NewReader("GRABM4A")), ContentLength: 7, Request: r}, nil
+		case "https://cdn.example/stream/rawbin":
+			return &http.Response{StatusCode: 200, Header: http.Header{"Content-Type": []string{"application/octet-stream"}}, Body: io.NopCloser(strings.NewReader("RAWBIN")), ContentLength: 6, Request: r}, nil
+		default:
+			return nil, fmt.Errorf("unexpected URL: %s", r.URL.String())
+		}
+	})}
+
+	if noGrab := serve(a, "GET", "/api/omni/direct-stream?url="+url.QueryEscape("https://cdn.example/stream/track123"), "", true); noGrab.Code != 422 {
+		t.Fatalf("expected 422 without grab=1, got %d", noGrab.Code)
+	}
+	if okGrab := serve(a, "GET", "/api/omni/direct-stream?url="+url.QueryEscape("https://cdn.example/stream/track123")+"&grab=1", "", true); okGrab.Code != 200 || okGrab.Body.String() != "GRABM4A" {
+		t.Fatalf("expected 200 for extension-less grabbed audio/mp4, got %d %s", okGrab.Code, okGrab.Body.String())
+	}
+	if badOctet := serve(a, "GET", "/api/omni/direct-stream?url="+url.QueryEscape("https://cdn.example/stream/rawbin")+"&grab=1", "", true); badOctet.Code != 502 {
+		t.Fatalf("expected 502 for extension-less application/octet-stream, got %d", badOctet.Code)
+	}
+	if badExt := serve(a, "GET", "/api/omni/direct-stream?url="+url.QueryEscape("https://cdn.example/page.html")+"&grab=1", "", true); badExt.Code != 422 {
+		t.Fatalf("expected 422 for .html even with grab=1, got %d", badExt.Code)
 	}
 }

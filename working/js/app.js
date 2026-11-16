@@ -1,32 +1,32 @@
-import { TranscribeStudio } from './transcribe-studio.js?v=2026.11.16.1';
-import { importOfflineModel, MODEL } from './offline-model.js?v=2026.11.16.1';
-import { AiPolicy } from './ai-policy.js?v=2026.11.16.1';
-import { LyricAlignment } from './lyric-alignment.js?v=2026.11.16.1';
-import { fetch } from './network-policy.js?v=2026.11.16.1';
+import { TranscribeStudio } from './transcribe-studio.js?v=2026.11.16.2';
+import { importOfflineModel, MODEL } from './offline-model.js?v=2026.11.16.2';
+import { AiPolicy } from './ai-policy.js?v=2026.11.16.2';
+import { LyricAlignment } from './lyric-alignment.js?v=2026.11.16.2';
+import { fetch } from './network-policy.js?v=2026.11.16.2';
 /**
  * NTK SoundLab Studio - Universal Media Downloader & Neural Stem Separator
  * Main Application Orchestrator
  */
 
-import { SoundLabAPI } from './soundlab-api.js?v=2026.11.16.1';
-import { VideoDemuxer } from './video-demuxer.js?v=2026.11.16.1';
-import { SunoAPI } from './suno-api.js?v=2026.11.16.1';
-import { CryptoEngine } from './crypto-engine.js?v=2026.11.16.1';
-import { AudioConverter } from './audio-converter.js?v=2026.11.16.1';
-import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.16.1';
-import { ID3Writer } from './id3-writer.js?v=2026.11.16.1';
-import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.1';
-import { VaultDB } from './vault-db.js?v=2026.11.16.1';
-import { StemEngine } from './stem-engine.js?v=2026.11.16.1';
-import { StemMixer } from './stem-mixer.js?v=2026.11.16.1';
-import { AudioFXEngine } from './audio-fx.js?v=2026.11.16.1';
-import { ZipPackager } from './zip-packager.js?v=2026.11.16.1';
-import { VideoGenerator } from './video-generator.js?v=2026.11.16.1';
-import { BookmarkletEngine } from './bookmarklet.js?v=2026.11.16.1';
-import { StorageManager } from './storage.js?v=2026.11.16.1';
-import { PlayerEngine } from './player.js?v=2026.11.16.1';
-import { TutorialManager } from './tutorial.js?v=2026.11.16.1';
-import { ImageCropper } from './image-cropper.js?v=2026.11.16.1';
+import { SoundLabAPI } from './soundlab-api.js?v=2026.11.16.2';
+import { VideoDemuxer } from './video-demuxer.js?v=2026.11.16.2';
+import { SunoAPI } from './suno-api.js?v=2026.11.16.2';
+import { CryptoEngine } from './crypto-engine.js?v=2026.11.16.2';
+import { AudioConverter } from './audio-converter.js?v=2026.11.16.2';
+import { Mp3Encoder } from './mp3-encoder.js?v=2026.11.16.2';
+import { ID3Writer } from './id3-writer.js?v=2026.11.16.2';
+import { LyricsUtils } from './lyrics-utils.js?v=2026.11.16.2';
+import { VaultDB } from './vault-db.js?v=2026.11.16.2';
+import { StemEngine } from './stem-engine.js?v=2026.11.16.2';
+import { StemMixer } from './stem-mixer.js?v=2026.11.16.2';
+import { AudioFXEngine } from './audio-fx.js?v=2026.11.16.2';
+import { ZipPackager } from './zip-packager.js?v=2026.11.16.2';
+import { VideoGenerator } from './video-generator.js?v=2026.11.16.2';
+import { BookmarkletEngine } from './bookmarklet.js?v=2026.11.16.2';
+import { StorageManager } from './storage.js?v=2026.11.16.2';
+import { PlayerEngine } from './player.js?v=2026.11.16.2';
+import { TutorialManager } from './tutorial.js?v=2026.11.16.2';
+import { ImageCropper } from './image-cropper.js?v=2026.11.16.2';
 
 class App {
   constructor() {
@@ -71,6 +71,7 @@ class App {
     this.transcribe = new TranscribeStudio(this);
     this.setupUIBindings();
     this.setupBookmarklet();
+    this.setupGrabberBridge();
     this.setupDropzone();
     this.setupTrimCanvasInteractions();
     this.setupPwa();
@@ -172,15 +173,20 @@ class App {
 
   setupPwa() {
     if ('serviceWorker' in navigator && (location.protocol === 'http:' || location.protocol === 'https:')) {
-      navigator.serviceWorker.register('./sw.js?v=2026.11.16.1', { updateViaCache: 'none' }).catch((err) => {
+      navigator.serviceWorker.register('./sw.js?v=2026.11.16.2', { updateViaCache: 'none' }).catch((err) => {
         console.warn('Service worker registration skipped:', err);
       });
     }
 
     const btn = document.getElementById('btnInstallPwa');
+    const grabberBtn = document.getElementById('btnOpenBrowserGrabber');
     const isAndroidNative = !!window.AndroidStudio || document.body.dataset.screen === 'library';
     const isDesktopApp = location.port === '47831' || location.search.includes('desktop=1');
     const isStandalonePwa = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    if (grabberBtn && window.AndroidStudio) {
+      grabberBtn.style.display = 'none';
+    }
 
     // Only show "Install App" if running in an uninstalled web browser tab
     if (btn) {
@@ -236,6 +242,64 @@ class App {
 
   async handleDeepLinkParams() {
     try {
+      if (window.location.hash && window.location.hash.includes('grab=')) {
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+        const grabB64 = hashParams.get('grab');
+        if (grabB64) {
+          try {
+            const payload = JSON.parse(decodeURIComponent(escape(atob(grabB64))));
+            const targetUrl = String(payload?.url || '').trim();
+            if (/^https?:\/\//i.test(targetUrl)) {
+              let resolved = null;
+              try {
+                resolved = await SoundLabAPI.resolveUrl(targetUrl);
+              } catch {
+                const parsed = new URL(targetUrl);
+                const extMatch = parsed.pathname.match(/\.(mp3|wav|m4a|aac|mp4|webm|flac|ogg|opus)$/i);
+                const ext = extMatch ? extMatch[1].toLowerCase() : (String(payload?.ext || 'mp3').toLowerCase());
+                const id = `direct-${crypto.randomUUID()}`;
+                const caps = this.helperStatus || await SoundLabAPI.checkLocalHelper().catch(() => null);
+                const hasSameOriginBackend = Boolean(caps?.active && caps.server !== 'Local Python Helper');
+                const proxiedUrl = `/api/omni/direct-stream?url=${encodeURIComponent(targetUrl)}&grab=1`;
+                resolved = {
+                  type: 'single',
+                  uuid: id,
+                  id,
+                  title: payload.title || 'Captured Media',
+                  artist: payload.artist || 'Browser Grabber',
+                  duration: 0,
+                  imageLarge: payload.cover || '',
+                  imageThumb: payload.cover || '',
+                  streamUrl: hasSameOriginBackend ? proxiedUrl : targetUrl,
+                  url: payload.pageUrl || targetUrl,
+                  platform: 'Browser Grabber',
+                  hasVideo: ['mp4', 'webm', 'mov'].includes(ext),
+                  hasAudio: true,
+                  hasStem: true,
+                  tags: `Captured • ${ext.toUpperCase()}`
+                };
+              }
+              if (resolved) {
+                if (payload.title) resolved.title = payload.title;
+                if (payload.artist) resolved.artist = payload.artist;
+                if (payload.cover) {
+                  resolved.imageLarge = payload.cover;
+                  resolved.imageThumb = payload.cover;
+                }
+                resolved.playerMode = 'custom';
+                resolved.hasStem = true;
+                StorageManager.upsertSong(resolved);
+                this.renderSongs();
+                this.showToast(`Captured "${resolved.title}" ready in Studio!`, 'emerald');
+              }
+            }
+          } catch (err) {}
+          const cleanUrl = window.location.origin + window.location.pathname + window.location.search;
+          window.history.replaceState({}, document.title, cleanUrl);
+          return;
+        }
+      }
+
       const params = new URLSearchParams(window.location.search);
       const songParam = params.get('song');
       const openAction = params.get('open');
@@ -289,10 +353,82 @@ class App {
     } catch (e) {}
   }
 
+  setupGrabberBridge() {
+    window.__ntkSoundLabBridgeReady = true;
+    window.addEventListener('message', (event) => {
+      if (event.source !== window || event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (!data || data.source !== 'ntk-soundlab-grabber-ext') return;
+      if (data.type === 'NTK_SOUNDLAB_BRIDGE_PING') {
+        this.updateExtensionStatusBadge(true);
+        window.postMessage({ source: 'ntk-soundlab-app', type: 'NTK_SOUNDLAB_BRIDGE_PONG' }, window.location.origin);
+      } else if (data.type === 'NTK_SOUNDLAB_EXT_IMPORT' && data.payload) {
+        void this.importGrabbedMedia(data.payload);
+      }
+    });
+
+    if (document.documentElement.dataset.ntkGrabberExt) {
+      this.updateExtensionStatusBadge(true);
+    }
+    window.postMessage({ source: 'ntk-soundlab-app', type: 'NTK_SOUNDLAB_APP_READY' }, window.location.origin);
+  }
+
+  updateExtensionStatusBadge(installed) {
+    const el = document.getElementById('extInstalledBadge');
+    if (!el) return;
+    if (installed) {
+      el.textContent = 'Chrome/Edge Grabber Connected ✓';
+      el.style.color = '#6ee7b7';
+      el.style.borderColor = 'rgba(16,185,129,0.5)';
+      el.style.background = 'rgba(16,185,129,0.16)';
+    }
+  }
+
+  async importGrabbedMedia(payload) {
+    try {
+      const rawBytes = payload.bytes instanceof ArrayBuffer
+        ? payload.bytes
+        : ArrayBuffer.isView(payload.bytes)
+          ? payload.bytes.buffer
+          : null;
+      if (!rawBytes || rawBytes.byteLength === 0 || rawBytes.byteLength > 250 * 1024 * 1024) {
+        throw new Error('Captured media buffer is empty or exceeds 250 MB.');
+      }
+      const mimeType = String(payload.mimeType || 'audio/mpeg').split(';')[0].trim().toLowerCase();
+      if (!mimeType.startsWith('audio/') && !mimeType.startsWith('video/') && mimeType !== 'application/ogg') {
+        throw new Error(`Unsupported grabbed media type: ${mimeType}`);
+      }
+      const cleanName = String(payload.fileName || 'Captured_Media.mp3').replace(/[<>:"/\\|?*\x00-\x1f]+/g, '_').slice(0, 120);
+      const file = new File([rawBytes], cleanName, { type: mimeType });
+      const cover = /^https?:\/\//i.test(String(payload.coverUrl || '')) ? payload.coverUrl : '';
+      const sourceUrl = /^https?:\/\//i.test(String(payload.sourceUrl || '')) ? payload.sourceUrl : '';
+      const overrides = {
+        title: String(payload.title || '').trim() || cleanName.replace(/\.[^/.]+$/, ''),
+        artist: String(payload.artist || '').trim() || 'Browser Grabber',
+        imageLarge: cover,
+        imageThumb: cover,
+        url: sourceUrl,
+        platform: 'Browser Grabber',
+        tags: `Browser Grabber • ${mimeType}`
+      };
+
+      if (VideoDemuxer.isVideo(file) || mimeType.startsWith('video/')) {
+        await this.importVideoFile(file, overrides);
+      } else {
+        await this.importAudioFile(file, overrides);
+      }
+    } catch (err) {
+      this.showToast(`Could not import grabbed media: ${err.message}`, 'rose');
+    }
+  }
+
   setupBookmarklet() {
     const magicBtn = document.getElementById('sunoMagicBookmarklet');
     if (magicBtn) {
       magicBtn.href = BookmarkletEngine.getBookmarkletUrl();
+    }
+    if (document.documentElement.dataset.ntkGrabberExt) {
+      this.updateExtensionStatusBadge(true);
     }
   }
 
@@ -451,30 +587,31 @@ class App {
     event.target.value = '';
   }
 
-  async importVideoFile(file) {
+  async importVideoFile(file, overrides = null) {
     try {
-      this.showToast(`Demuxing video "${file.name}"...`, 'cyan');
+      this.showToast(`Demuxing video "${overrides?.title || file.name}"...`, 'cyan');
       const meta = await VideoDemuxer.demux(file, (pct, msg) => {
         if (pct < 100) this.showToast(msg, 'cyan');
       });
 
-      const title = file.name.replace(/\.[^/.]+$/, '');
+      const title = (overrides && overrides.title) || file.name.replace(/\.[^/.]+$/, '');
       const pseudoUuid = 'video-' + Date.now().toString(16) + '-' + Math.random().toString(16).slice(2, 6);
       const wavBytes = AudioConverter.encodeWavArrayBuffer(meta.audioBuffer);
 
       const songObj = {
         uuid: pseudoUuid,
         title,
-        artist: 'Local Video Demux',
+        artist: (overrides && overrides.artist) || 'Local Video Demux',
         prompt: '',
-        tags: `Video Track • ${meta.width}x${meta.height}`,
+        tags: (overrides && overrides.tags) || `Video Track • ${meta.width}x${meta.height}`,
         duration: meta.duration,
         model: `${Math.round(meta.audioBuffer.sampleRate / 100) / 10}kHz Stereo`,
         streamUrl: '',
-        imageLarge: meta.thumbnailDataUrl,
-        imageThumb: meta.thumbnailDataUrl,
+        imageLarge: (overrides && overrides.imageLarge) || meta.thumbnailDataUrl,
+        imageThumb: (overrides && overrides.imageThumb) || meta.thumbnailDataUrl,
         videoUrl: '',
-        platform: 'Video File',
+        url: (overrides && overrides.url) || '',
+        platform: (overrides && overrides.platform) || 'Video File',
         hasVideo: true,
         hasStem: true,
         showDetails: false,
@@ -495,25 +632,28 @@ class App {
     }
   }
 
-  async importAudioFile(file) {
+  async importAudioFile(file, overrides = null) {
     try {
-      this.showToast(`Importing "${file.name}" into Studio...`, 'emerald');
+      this.showToast(`Importing "${overrides?.title || file.name}" into Studio...`, 'emerald');
       const arrayBuf = await file.arrayBuffer();
       const audioBuffer = await AudioConverter.decodeAudioData(arrayBuf);
-      const title = file.name.replace(/\.[^/.]+$/, '');
+      const title = (overrides && overrides.title) || file.name.replace(/\.[^/.]+$/, '');
       const pseudoUuid = 'local-' + Date.now().toString(16) + '-' + Math.random().toString(16).slice(2, 6);
 
       const songObj = {
         uuid: pseudoUuid,
         title,
+        artist: (overrides && overrides.artist) || 'Local Audio File',
         prompt: '',
-        tags: 'Local Audio Track',
+        tags: (overrides && overrides.tags) || 'Local Audio Track',
         duration: audioBuffer.duration,
         model: `${Math.round(audioBuffer.sampleRate / 100) / 10}kHz Stereo`,
         streamUrl: '',
-        imageLarge: '',
+        imageLarge: (overrides && overrides.imageLarge) || '',
+        imageThumb: (overrides && overrides.imageThumb) || '',
         videoUrl: '',
-        platform: 'Audio File',
+        url: (overrides && overrides.url) || '',
+        platform: (overrides && overrides.platform) || 'Audio File',
         hasStem: true,
         showDetails: false,
         playerMode: 'custom'

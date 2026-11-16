@@ -1,6 +1,6 @@
 # Deploy the PHP package
 
-Use `NTK_SoundLab_Studio_AlwaysData-2026.11.16.1.zip` from the [release page](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.1).
+Use `NTK_SoundLab_Studio_AlwaysData-2026.11.16.2.zip` from the [release page](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.2).
 
 The archive contains Laravel 13, production Composer dependencies and the shared browser app. It has passed a local startup and database migration test. The target AlwaysData account still needs its own checks.
 
@@ -17,7 +17,7 @@ Check these capabilities on the hosting plan before uploading. Server extraction
 Extract the archive into a directory such as `/home/username/soundlab`.
 
 ```sh
-unzip -q NTK_SoundLab_Studio_AlwaysData-2026.11.16.1.zip -d /home/username/soundlab
+unzip -q NTK_SoundLab_Studio_AlwaysData-2026.11.16.2.zip -d /home/username/soundlab
 cd /home/username/soundlab
 cp .env.example .env
 ```

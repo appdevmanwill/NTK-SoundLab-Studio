@@ -6,8 +6,8 @@
     },
     {
         "path":  "index.html",
-        "bytes":  183587,
-        "sha256":  "212b6e9edb747ef8d269c7c50d91d19118a1ef43a02e8163c85813d366760f06"
+        "bytes":  186250,
+        "sha256":  "58d1e924e5cb989a0556916202dc3b4e006bfe73ad915826c88dd862214fd716"
     },
     {
         "path":  "LICENSE",
@@ -27,7 +27,7 @@
     {
         "path":  "sw.js",
         "bytes":  4709,
-        "sha256":  "055b21d28be99eaa443888247533d206e4a5a2ba4d73973418d81321bb9c3a1c"
+        "sha256":  "a07607bcaa76a6e8b04ab2e4f9abb1f65959da64d4262ebc823fea98e85fc067"
     },
     {
         "path":  "THIRD_PARTY_NOTICES.md",
@@ -86,8 +86,8 @@
     },
     {
         "path":  "js/app.js",
-        "bytes":  220812,
-        "sha256":  "cd6c7f7a2f3ceed225d1c5aa85e2f175692c52fd196c3bc4849583077c334fbe"
+        "bytes":  227847,
+        "sha256":  "8f65d7a23f6bec0f7ebe88c1e953a5c43c91d5b83c7182eddb442ecb04174b3d"
     },
     {
         "path":  "js/audio-converter.js",
@@ -97,12 +97,12 @@
     {
         "path":  "js/audio-fx.js",
         "bytes":  7866,
-        "sha256":  "da43eb7350f68d2ab1849f98df6451675169b20a3184cc8cc6b07fd5be4c36bd"
+        "sha256":  "3f4880d53781370fedf5d694d795f68d8aed77947faaad7d7e77452289d652af"
     },
     {
         "path":  "js/bookmarklet.js",
-        "bytes":  12480,
-        "sha256":  "b8033b0e634f4593cb9bdc416a8c1a80b2cd21910b427919c2279ca1ccf53c04"
+        "bytes":  18404,
+        "sha256":  "6dcfd8f86e18625f0f36ea11c096dd3652f8aa610f2eb082f063bddf50755319"
     },
     {
         "path":  "js/crypto-engine.js",
@@ -122,7 +122,7 @@
     {
         "path":  "js/lyric-alignment.js",
         "bytes":  9819,
-        "sha256":  "bffdac8a3462741348145d5c7d11801851c270c416e74f94448160f372a2d234"
+        "sha256":  "e7128dd0276c580f2fd5a307d0cbb7183c6b0a0c332547642462c11a6237325d"
     },
     {
         "path":  "js/lyrics-utils.js",
@@ -142,27 +142,27 @@
     {
         "path":  "js/offline-model.js",
         "bytes":  4351,
-        "sha256":  "5c0968bd8d5109bcce453a80bb5f5f06d26251052129f3c6bd9f009297a0ec34"
+        "sha256":  "b070ca349eb550af914b52138b90410eadea393c823127f5976c7df163a08385"
     },
     {
         "path":  "js/player.js",
         "bytes":  8078,
-        "sha256":  "68885b5f07665ca1a5a50c1c76e41390917eb4992b8ca73d0268b91dcf8d68b4"
+        "sha256":  "f5db4af85bfd79ba8e7cea9ce2afa3340fa70fdd56cb0c23d134f3dd8fe346dd"
     },
     {
         "path":  "js/soundlab-api.js",
-        "bytes":  22961,
-        "sha256":  "31920514e1f98947541fffcf9bb989afe10142d138363ff5008020dc0d761003"
+        "bytes":  22986,
+        "sha256":  "6035bb52ce1f8121ec7749ad1da75a915d2fe27619384841296d9a2acbb48516"
     },
     {
         "path":  "js/stem-engine.js",
         "bytes":  18546,
-        "sha256":  "9c7c35f0001c70acaaac481bff74570461cd2e3abd0e111faac3697bd5e9c5b3"
+        "sha256":  "04cb5b545d81d479902ef857625f7613a6eaf04b407110f59894f3f27c482881"
     },
     {
         "path":  "js/stem-mixer.js",
         "bytes":  11455,
-        "sha256":  "f093a35b12ab34a4c050e557e4e0ca977c0e629c262221bb00e0de2bca5bd810"
+        "sha256":  "79041dea20f2ad02b6e2f805451fd428ee059c6199bbb7c3c439736eaecbfa38"
     },
     {
         "path":  "js/storage.js",
@@ -172,17 +172,17 @@
     {
         "path":  "js/suno-api.js",
         "bytes":  19808,
-        "sha256":  "dff2a9e013d59a683d4e53d66a2f24870dc6322bcdd2b488732f1c6852ea6095"
+        "sha256":  "fc7943973ce87810e361f3d4b4870156f39ba5c90717acde8e669e48ccaa4a59"
     },
     {
         "path":  "js/transcribe-engine.js",
         "bytes":  9737,
-        "sha256":  "7be772e6544bf29d28e77acc342f775097b41ddeed82e3c7d98ff7b3a95e77c0"
+        "sha256":  "66c3e7509c91ae632a886d806d7a56c37cede9492fed33be3dbb6a1994eca65b"
     },
     {
         "path":  "js/transcribe-studio.js",
         "bytes":  16504,
-        "sha256":  "10753444e8ec515ff541d3aacfc0e5f0a5502faabdf75a60a5537e7b9df34659"
+        "sha256":  "8a16aaa2801654c5a412afc1c429b55fafff687ba739c5fedc47a33c7c461e88"
     },
     {
         "path":  "js/transcript-store.js",
@@ -197,22 +197,22 @@
     {
         "path":  "js/vault-db.js",
         "bytes":  14686,
-        "sha256":  "92f88ac459af6184b3d26e0abb768e2d915a3a026b0ce6c62bce1fa0ffd6b521"
+        "sha256":  "bf3015ac46fa568607620f9b0a5ac0c8b430f745f14358f79b3aa02f345fea0a"
     },
     {
         "path":  "js/video-demuxer.js",
         "bytes":  4999,
-        "sha256":  "7f8b24563a37f98ebdbff8317445ad9ffcfdaf073dc4aadf496ef7632b6b6ca8"
+        "sha256":  "52edee592ca920b86a110c9434be22f6e8cb639f184358ecab7e57fd79e12984"
     },
     {
         "path":  "js/video-generator.js",
         "bytes":  126003,
-        "sha256":  "2eb815f2d18c3f0d9a0085ad396dafcb7925d6924f2c2c7c453df56839cdfd45"
+        "sha256":  "5d24c82724508e3634151c621723beb22911a32e9304a574f3f83b8e8979cfcf"
     },
     {
         "path":  "js/zip-packager.js",
         "bytes":  10328,
-        "sha256":  "9416cdc1ab478974f8d9ac7e85db369631e9231df331ec24c690c35e5d27e598"
+        "sha256":  "0b884b54bd198a6525e66b2a42967c8a87fe305e3d5c6636de0632bab53827b4"
     },
     {
         "path":  "lib/jszip.min.js",

@@ -974,6 +974,29 @@ func isDirectMediaExt(ext string) bool {
 	return false
 }
 
+var explicitMediaMimes = map[string]bool{
+	"audio/mpeg":      true,
+	"audio/mp3":       true,
+	"audio/mp4":       true,
+	"audio/m4a":       true,
+	"audio/x-m4a":     true,
+	"audio/aac":       true,
+	"audio/x-aac":     true,
+	"audio/aacp":      true,
+	"audio/wav":       true,
+	"audio/x-wav":     true,
+	"audio/wave":      true,
+	"audio/ogg":       true,
+	"audio/opus":      true,
+	"audio/flac":      true,
+	"audio/x-flac":    true,
+	"audio/webm":      true,
+	"video/mp4":       true,
+	"video/webm":      true,
+	"video/quicktime": true,
+	"application/ogg": true,
+}
+
 var audioStreamMimes = map[string]bool{
 	"audio/mpeg":               true,
 	"audio/mp3":                true,
@@ -993,6 +1016,7 @@ var audioStreamMimes = map[string]bool{
 	"audio/webm":               true,
 	"video/mp4":                true,
 	"video/webm":               true,
+	"video/quicktime":          true,
 	"application/ogg":          true,
 	"application/octet-stream": true,
 	"binary/octet-stream":      true,
@@ -1070,7 +1094,7 @@ func (a *desktopApp) routes() http.Handler {
 		if !method(w, r, "GET") {
 			return
 		}
-		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11.16.1", "persistent_origin": true})
+		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11.16.2", "persistent_origin": true})
 	}
 	mux.HandleFunc("/api/desktop/status", status)
 	mux.HandleFunc("/api/health", status)
@@ -1311,9 +1335,15 @@ func (a *desktopApp) routes() http.Handler {
 			apiError(w, 400, err.Error())
 			return
 		}
-		if !isDirectMediaExt(path.Ext(u.Path)) {
-			apiError(w, 422, "Only direct audio/video media files can be streamed through this endpoint")
-			return
+		ext := strings.ToLower(path.Ext(u.Path))
+		isGrab := r.URL.Query().Get("grab") == "1"
+		allowedMimes := audioStreamMimes
+		if !isDirectMediaExt(ext) {
+			if !isGrab || ext != "" {
+				apiError(w, 422, "Only direct audio/video media files can be streamed through this endpoint")
+				return
+			}
+			allowedMimes = explicitMediaMimes
 		}
 		client := *a.client
 		baseCheck := a.client.CheckRedirect
@@ -1332,7 +1362,7 @@ func (a *desktopApp) routes() http.Handler {
 			}
 			return nil
 		}
-		a.proxyValidatedMedia(w, r, &client, u.String(), audioStreamMimes, "", 512<<20)
+		a.proxyValidatedMedia(w, r, &client, u.String(), allowedMimes, "", 512<<20)
 	})
 	mux.HandleFunc("/api/omni/resolve", a.resolveMedia)
 	mux.HandleFunc("/api/omni/download", func(w http.ResponseWriter, r *http.Request) {

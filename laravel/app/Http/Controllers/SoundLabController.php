@@ -287,8 +287,9 @@ class SoundLabController extends Controller
         if (! is_string($url) || trim($url) === '') {
             return response()->json(['error' => "Missing 'url' query parameter."], 400);
         }
+        $grab = $request->query('grab') === '1';
 
-        return $this->streamTempBufferedMedia($request, fn (?string $range, string $tmp) => $this->mediaService->fetchDirectMedia($url, $range, $tmp));
+        return $this->streamTempBufferedMedia($request, fn (?string $range, string $tmp) => $this->mediaService->fetchDirectMedia($url, $range, $tmp, $grab));
     }
 
     /** @param callable(?string, string): array{status: int, headers: array<string, string>, content_type: string} $fetcher */

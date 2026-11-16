@@ -1,0 +1,262 @@
+{
+  "version": "2026.11.16.2",
+  "applicationId": "com.ntkhub.soundlabstudio",
+  "mode": "release",
+  "apk": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T062932551874Z\\NTKSoundLab-2026.11.16.2-release.apk",
+  "sha256": "b35603f70b05346334612b8b050bafac3c0308e955a56fe3e18cf359b23cb79a",
+  "bytes": 5932170,
+  "minSdk": 29,
+  "targetSdk": 36,
+  "assets": [
+    {
+      "path": "404.html",
+      "sha256": "f75d1957d4205cc4c7b8449b15de280921e62724a55c0f60d63295f8ec9a3a5e"
+    },
+    {
+      "path": "index.html",
+      "sha256": "58d1e924e5cb989a0556916202dc3b4e006bfe73ad915826c88dd862214fd716"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "a92e55aee69ddeb525767e19e3cf5a14eac8c6cc8dfba68536074d9078b6c304"
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "f124aa0d56f366818e7b69e47ca22c469143ef788c925f5f9cbf2b64f535ee9c"
+    },
+    {
+      "path": "robots.txt",
+      "sha256": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95"
+    },
+    {
+      "path": "sw.js",
+      "sha256": "a07607bcaa76a6e8b04ab2e4f9abb1f65959da64d4262ebc823fea98e85fc067"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "e2a2e8c84194e30857bf52343afa713c709435b8872b290eb9108c82b9a77f7c"
+    },
+    {
+      "path": "assets/icon.svg",
+      "sha256": "9e1bfe8b1bad7654f181746f641168d821da7f192d2ee536983bc46a8c5052df"
+    },
+    {
+      "path": "assets/icons/icon-192.png",
+      "sha256": "22e791eb318a140968d16357be505563a0adc06b337e9815340e813054089d41"
+    },
+    {
+      "path": "assets/icons/icon-512.png",
+      "sha256": "343aa5ff23edd513b55f193eb462a01cb39f56ea4eec9e221c49bb6b14b450cc"
+    },
+    {
+      "path": "css/components.css",
+      "sha256": "f60cfc6556d4ea9d32e2c20bed3fedbebdaf163d2b148fdda9619ee06b2b8c3f"
+    },
+    {
+      "path": "css/player.css",
+      "sha256": "f7e61abf28ec577a5603113666a6469a36cc8e12a2b5fac11d3ae41a5687995c"
+    },
+    {
+      "path": "css/style.css",
+      "sha256": "9c5f9179cad07dce0f9c761e0f8f0a619f6598cc26fce604d5b7986f2f048856"
+    },
+    {
+      "path": "css/transcribe.css",
+      "sha256": "23fddb702ea4dd435e98077bb7630ee2c0df6c3177aeb2bf51013699dd6d1f9d"
+    },
+    {
+      "path": "css/tutorial.css",
+      "sha256": "ab3b662b9a533b295307cc2e08a22067402ef51f687fa4d3b2028e813722de23"
+    },
+    {
+      "path": "css/visualizer.css",
+      "sha256": "99d828cda99953e0a51d26a31807834e38cadb99431e74da6df552e3e9c52980"
+    },
+    {
+      "path": "js/ai-policy.js",
+      "sha256": "4f0a12c234fccdd376f8a3bc78555cc310badc058452c527f7e32f257cb2ede8"
+    },
+    {
+      "path": "js/app.js",
+      "sha256": "8f65d7a23f6bec0f7ebe88c1e953a5c43c91d5b83c7182eddb442ecb04174b3d"
+    },
+    {
+      "path": "js/audio-converter.js",
+      "sha256": "cff000597a3f9f11729d7a7b9155671e6c965b79b06a91c5315886184bc36060"
+    },
+    {
+      "path": "js/audio-fx.js",
+      "sha256": "3f4880d53781370fedf5d694d795f68d8aed77947faaad7d7e77452289d652af"
+    },
+    {
+      "path": "js/bookmarklet.js",
+      "sha256": "6dcfd8f86e18625f0f36ea11c096dd3652f8aa610f2eb082f063bddf50755319"
+    },
+    {
+      "path": "js/crypto-engine.js",
+      "sha256": "f6f8f80af2b8ed2c645e5e55e843f668d73b03d5358f61ad5fd5434ce4845ba0"
+    },
+    {
+      "path": "js/id3-writer.js",
+      "sha256": "52793f107086b35322291d37def6dfaf2c033b75e6a5caf3607e6d41b5457ac7"
+    },
+    {
+      "path": "js/image-cropper.js",
+      "sha256": "e412f8f9f2faf1190efaa702cb65e6de93f89ef87cb378bc7af5460b4502bdc3"
+    },
+    {
+      "path": "js/lyric-alignment.js",
+      "sha256": "e7128dd0276c580f2fd5a307d0cbb7183c6b0a0c332547642462c11a6237325d"
+    },
+    {
+      "path": "js/lyrics-utils.js",
+      "sha256": "1a33a7551ef6781887c6220d1539f0ac9ccd956b7dc288879b3a7fd951688715"
+    },
+    {
+      "path": "js/mp3-encoder.js",
+      "sha256": "a55c191d1c1bf2b924b811a96b7a09620075e1a17a15bf5e887dcfd1621bb480"
+    },
+    {
+      "path": "js/network-policy.js",
+      "sha256": "3f9476cc7ba3cc1c509a3ade61b09e3aee473e3c411b0247fd74e4577bc24310"
+    },
+    {
+      "path": "js/offline-model.js",
+      "sha256": "b070ca349eb550af914b52138b90410eadea393c823127f5976c7df163a08385"
+    },
+    {
+      "path": "js/player.js",
+      "sha256": "f5db4af85bfd79ba8e7cea9ce2afa3340fa70fdd56cb0c23d134f3dd8fe346dd"
+    },
+    {
+      "path": "js/soundlab-api.js",
+      "sha256": "6035bb52ce1f8121ec7749ad1da75a915d2fe27619384841296d9a2acbb48516"
+    },
+    {
+      "path": "js/stem-engine.js",
+      "sha256": "04cb5b545d81d479902ef857625f7613a6eaf04b407110f59894f3f27c482881"
+    },
+    {
+      "path": "js/stem-mixer.js",
+      "sha256": "79041dea20f2ad02b6e2f805451fd428ee059c6199bbb7c3c439736eaecbfa38"
+    },
+    {
+      "path": "js/storage.js",
+      "sha256": "aead365bf2baeb17ae5c478552684d2f3aada2cbcab2b75dab8cee3de0f38c22"
+    },
+    {
+      "path": "js/suno-api.js",
+      "sha256": "fc7943973ce87810e361f3d4b4870156f39ba5c90717acde8e669e48ccaa4a59"
+    },
+    {
+      "path": "js/transcribe-engine.js",
+      "sha256": "66c3e7509c91ae632a886d806d7a56c37cede9492fed33be3dbb6a1994eca65b"
+    },
+    {
+      "path": "js/transcribe-studio.js",
+      "sha256": "8a16aaa2801654c5a412afc1c429b55fafff687ba739c5fedc47a33c7c461e88"
+    },
+    {
+      "path": "js/transcript-store.js",
+      "sha256": "50ef899795ae261d777350fc27dccacf57e573f15df2f01a3fedfd47b7460c17"
+    },
+    {
+      "path": "js/tutorial.js",
+      "sha256": "22b99f7448b2190e1e71ae91d77a427e517420cdc383a88eb4dfca36feb91950"
+    },
+    {
+      "path": "js/vault-db.js",
+      "sha256": "bf3015ac46fa568607620f9b0a5ac0c8b430f745f14358f79b3aa02f345fea0a"
+    },
+    {
+      "path": "js/video-demuxer.js",
+      "sha256": "52edee592ca920b86a110c9434be22f6e8cb639f184358ecab7e57fd79e12984"
+    },
+    {
+      "path": "js/video-generator.js",
+      "sha256": "5d24c82724508e3634151c621723beb22911a32e9304a574f3f83b8e8979cfcf"
+    },
+    {
+      "path": "js/zip-packager.js",
+      "sha256": "0b884b54bd198a6525e66b2a42967c8a87fe305e3d5c6636de0632bab53827b4"
+    },
+    {
+      "path": "lib/jszip.min.js",
+      "sha256": "acc7e41455a80765b5fd9c7ee1b8078a6d160bbbca455aeae854de65c947d59e"
+    },
+    {
+      "path": "lib/lame.all.js",
+      "sha256": "026bd88846040f357a937cd85821a48492a362eff0812cda734f23fca55fea3b"
+    },
+    {
+      "path": "lib/demucs-web/constants.js",
+      "sha256": "be28bc4ae2d3cf7b962e158f6668221d357ad38a6d4fdc8e41d48a3c6a82c634"
+    },
+    {
+      "path": "lib/demucs-web/fft.js",
+      "sha256": "d9fa28b25c7f4a0c6ee10b42d4229d8dbe9d9fefe46c780263c8b9a700e96b80"
+    },
+    {
+      "path": "lib/demucs-web/index.js",
+      "sha256": "56955e92089ff8413632bbb13d87f478a59287b6087efba3bb98dc59b96b494f"
+    },
+    {
+      "path": "lib/demucs-web/LICENSE.txt",
+      "sha256": "6308e6a36849d68f43a83a9dadc09b698d2c46947249eb0aa7e098f5bc1b970c"
+    },
+    {
+      "path": "lib/demucs-web/processor.js",
+      "sha256": "f869b9310efe86539c501a1f12deec639b4620ab5396bd4dcd1ee54b62c66c96"
+    },
+    {
+      "path": "lib/licenses/JSZip.txt",
+      "sha256": "f68719af8e77fe691d97cc27f8fa6775189414cd78c6664c8c983c791046b591"
+    },
+    {
+      "path": "lib/licenses/lamejs.txt",
+      "sha256": "c21f921f7bb620734e444305036d1ff4f0102e61f7cda876af1d2a66d759fe88"
+    },
+    {
+      "path": "lib/mediabunny/LICENSE.txt",
+      "sha256": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04"
+    },
+    {
+      "path": "lib/mediabunny/mediabunny.js",
+      "sha256": "7898aa3e638df09ac3f59bfcbdef2757bbbd1a78f24d3339247a07e674a7877d"
+    },
+    {
+      "path": "lib/mediabunny/NOTICE.txt",
+      "sha256": "ed305d35d4d84515e9031c0ff9363b2b5f8af8d390053db68ce475517b2a4992"
+    },
+    {
+      "path": "lib/onnxruntime/1.20.1/LICENSE.txt",
+      "sha256": "c250d6278f0b47a6439fb7592b08b58a55eb9f535aa49a1db63211c3f982b674"
+    },
+    {
+      "path": "lib/onnxruntime/1.20.1/ort-wasm-simd-threaded.jsep.mjs",
+      "sha256": "882573cadb80a55793e1e1285d043291e02d615c5912fabb58c5f0758287e9b6"
+    },
+    {
+      "path": "lib/onnxruntime/1.20.1/ort-wasm-simd-threaded.jsep.wasm",
+      "sha256": "185b0861a6cd6cbdfb057289338090436483cc59e10a7bc83bd167b15531a51b"
+    },
+    {
+      "path": "lib/onnxruntime/1.20.1/ort.webgpu.min.js",
+      "sha256": "e12eeed3b0cfa6c40830a8aa1bded7488762cab67803243a198cbc7c55d9d44c"
+    },
+    {
+      "path": "lib/onnxruntime/1.20.1/ThirdPartyNotices.txt",
+      "sha256": "fac5bb85f568b38fd8f3a6aea32737985841f23a1a43e9ce952f79474f883aa9"
+    }
+  ],
+  "signingVerification": "Verifies\nVerified using v1 scheme (JAR signing): false\nVerified using v2 scheme (APK Signature Scheme v2): false\nVerified using v3 scheme (APK Signature Scheme v3): true\nVerified using v3.1 scheme (APK Signature Scheme v3.1): false\nVerified using v4 scheme (APK Signature Scheme v4): false\nVerified for SourceStamp: false\nNumber of signers: 1\nSigner #1 certificate DN: CN=NTK Hub SoundLab Studio, O=NTK Hub, C=NG\nSigner #1 certificate SHA-256 digest: ed7bae786aa659a6794985e346c070a9ef713dcd52982cb87f006a162bfd715d\nSigner #1 certificate SHA-1 digest: 7dd7d24d8f7206361786de695ba4cfec7fc9863c\nSigner #1 certificate MD5 digest: d79e06aea25476546726802e0764eb2e\nSigner #1 key algorithm: RSA\nSigner #1 key size (bits): 3072\nSigner #1 public key SHA-256 digest: 2192e8a57d8a67309deb3483135a4c8ea08e3a08c64f01f22d1d69b3a383304b\nSigner #1 public key SHA-1 digest: 9d7014535c6059ce4d25ce2f868cff9fd3205964\nSigner #1 public key MD5 digest: f9e18c5e66732dd736d3c5045a4e8f95\n",
+  "buildHost": "Windows; installed Android SDK36.1.0/platform36.1; JDK21",
+  "bundle": {
+    "aab": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T062932551874Z\\NTKSoundLab-2026.11.16.2-release.aab",
+    "sha256": "450e586d95319c9a01d0b8cbe395a8d11196e39c816250dd359acc4d973b8c67",
+    "bytes": 5988779,
+    "certificate": "C:\\Users\\NTK\\Projects\\NTK Projects\\NTK SoundLab Studio\\android\\build\\release-20261116T062932551874Z\\NTKSoundLab-upload-certificate.pem",
+    "bundletool": "1.18.3",
+    "bundletoolSha256": "a099cfa1543f55593bc2ed16a70a7c67fe54b1747bb7301f37fdfd6d91028e29"
+  }
+}
