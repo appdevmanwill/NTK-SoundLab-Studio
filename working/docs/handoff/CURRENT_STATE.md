@@ -7,6 +7,7 @@
 - VERIFIED: x64 RPM and portable package headless startup and ARM64 DEB under QEMU. The ARM64 portable binary matched the DEB payload. Flatpak bundle built, installed, and started headlessly inside its sandbox. Native desktop browser launch on a target Linux distribution and physical ARM64 remain to verify.
 - Safari feasibility: iOS lacks the network API used by the grabber, so porting requires a separate capture approach and Apple device acceptance. Advanced live separation is outside this file-based implementation.
 - Beginner, multi-host and publishing guides are under docs/. The live Firebase browser app was reachable in BrowserOS Neo. Alternative host recipes need live tests. The shipping older Windows, Android, PWA and PHP files carry forward.
+- VERIFIED: GitHub preview v2026.11.17.1 is public. All 20 remote asset hashes and sizes match the release files. The 18-download checksum catalog passed again after nine superseded local copies were recycled. Bundletool validated the signed API 36 Android AAB. Firefox Android lint reported zero errors and the same two ONNX warnings as desktop. The QA Android emulator did not complete boot, and no physical phone was attached.
 - Source base and rollback: commit 3b23ad9 and GitHub preview v2026.11.16.4. Test fixture output and screenshots are in the ignored working/EVIDENCE/completion-2026-11-17 folder. Keep publisher authentication and private keys outside the repository.
 
 ## Desktop and Media Grabber release 2026.11.16.4
