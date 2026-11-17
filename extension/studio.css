@@ -1,0 +1,18 @@
+main { max-width: 920px; }
+fieldset { margin: 20px 0 0; min-width: 0; border: 1px solid #52637b; border-radius: 12px; padding: 16px; }
+legend { padding: 0 8px; font-weight: 700; }
+label { margin-top: 12px; }
+canvas, audio { width: 100%; }
+canvas { background: #0b101a; border-radius: 6px; }
+input[type=file] { padding: 8px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 0 12px; }
+.status { margin-top: 16px; min-height: 34px; }
+.track { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid #334155; }
+.track strong { min-width: 100px; }
+.track input, .track button { min-height: 38px; }
+.track input[type=range] { flex: 1 1 130px; width: auto; min-width: 100px; padding: 0; }
+.track button[aria-pressed=true] { background: #fde68a; color: #422006; }
+a { color: #67e8f9; }
+details { margin-top: 16px; }
+summary { cursor: pointer; }
+#capture { margin-top: 12px; }

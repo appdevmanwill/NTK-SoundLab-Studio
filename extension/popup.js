@@ -122,13 +122,14 @@ function renderStreams(streams) {
       ['original', item.isManifest ? 'Save stream' : 'Original'],
       ['mp3', 'MP3 320k'],
       ['wav', 'WAV 24-bit'],
+      ['studio', 'Trim or split audio'],
     ];
     if (item.kind === 'video' || item.isManifest) formats.unshift(['video', 'Save video']);
     const downloadButtons = formats.map(([format, label]) => {
       const button = document.createElement('button');
       button.className = 'btn';
       button.textContent = label;
-      button.disabled = Boolean(item.isSegment);
+      button.disabled = Boolean(item.isSegment || (format === 'studio' && item.ext === 'mpd'));
       button.onclick = async () => {
         try {
           const result = await browserApi.runtime.sendMessage({
@@ -155,8 +156,19 @@ function renderStreams(streams) {
   }
 }
 
-document.getElementById('btnRecord').addEventListener('click', async () => {
+const recordButton = document.getElementById('btnRecord');
+if (!navigator.mediaDevices?.getDisplayMedia || /Android/i.test(navigator.userAgent)) {
+  recordButton.disabled = true;
+  recordButton.nextElementSibling.textContent = 'Playback recording is available on supported desktop browsers. File downloads and the audio studio are separate tools.';
+}
+recordButton.addEventListener('click', async () => {
   await browserApi.tabs.create({ url: browserApi.runtime.getURL('record.html') });
+});
+
+document.getElementById('btnStudio').addEventListener('click', async () => {
+  try {
+    await browserApi.tabs.create({ url: browserApi.runtime.getURL('studio.html') });
+  } catch (error) { setStatus(error.message, true); }
 });
 
 async function init() {

@@ -1,6 +1,6 @@
 # Install SoundLab
 
-The current desktop preview is **2026.11.16.4**. Android, web and PHP use **2026.11.16.3**. The four Media Grabber packages use release **2026.11.16.4**, extension version **1.1.0**. Get the files from the [GitHub release](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.4).
+Get the current files from the [GitHub preview](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.17.1). The Media Grabber is **1.2.0**, and the new Linux packages use **2026.11.17.1**. The Windows and original Linux downloads are **2026.11.16.4**. Android, web and PHP are **2026.11.16.3**.
 
 ## Windows
 
@@ -24,15 +24,17 @@ Use the AAB if you are preparing a Play Console release. The public upload certi
 
 Use the AppImage for a single downloadable file, or the `.deb` for Debian and Ubuntu. Both need an installed browser. [Linux instructions](LINUX/README-LINUX.md)
 
+For Fedora-style RPM installation, ARM64, a portable archive or the Flatpak preview, see the [additional Linux packages](../desktop/linux/README-EXTRA.md). Check your processor type before downloading.
+
 ## Browser Grabber
 
-Use the package for Chrome, Firefox, Opera or Microsoft Edge under `SOFTWARE/EXTENSION`. Original-quality file downloads, 320 kbps MP3, 24-bit WAV and supported video/HLS exports are available. Firefox currently installs as a temporary unsigned add-on. [Installation and format guide](../extension/README.md)
+Choose your browser's ZIP from the release. Brave and Vivaldi can try the Chrome ZIP. The editor adds trimming, tagging and stem separation. Firefox currently installs as a temporary unsigned add-on. The Firefox Android ZIP is for development testing. [Installation and format guide](../extension/README.md)
 
 ## Web and PHP hosting
 
 The static ZIP contains the browser app. Extract it and serve the files over HTTPS or localhost. A web server is required for browser storage, modules and offline caching.
 
-The AlwaysData ZIP contains the Laravel backend, production PHP dependencies and browser assets. It needs PHP 8.4.1 or later within the supported Composer range. [PHP setup](../DEPLOY_MANUAL/ALWAYSDATA_DEPLOYMENT.md)
+The Laravel hosting ZIP contains the PHP server, production dependencies and browser assets. It needs PHP 8.4.1 or later within the supported Composer range. [Hosting choices](../docs/HOSTING.md)
 
 ## Check a download
 

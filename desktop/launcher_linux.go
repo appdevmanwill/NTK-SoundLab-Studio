@@ -16,6 +16,11 @@ func linuxBrowserArgs(appURL, dataDir string) []string {
 }
 
 func launchBrowser(appURL, dataDir string) error {
+	// In Flatpak, xdg-open routes through the desktop portal. The host browser
+	// owns its profile, and the app does not need permission to run host commands.
+	if fileExists("/.flatpak-info") {
+		return startLinuxBrowser("xdg-open", appURL)
+	}
 	// An explicit executable override is useful for distro-specific installations.
 	// This is a path, never a shell command, and browser sandboxing stays enabled.
 	candidates := []string{"google-chrome-stable", "google-chrome", "chromium", "chromium-browser", "microsoft-edge-stable", "microsoft-edge", "brave-browser"}

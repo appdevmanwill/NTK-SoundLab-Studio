@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SoundLab Studio</title>
+  <link rel="stylesheet" href="export.css">
+  <link rel="stylesheet" href="studio.css">
+  <script src="lib/lame.all.js" defer></script>
+  <script type="module" src="studio.mjs"></script>
+</head>
+<body>
+<main>
+  <header><img src="icons/icon-48.png" width="36" height="36" alt="">NTK Hub</header>
+  <h1>SoundLab Studio</h1>
+  <p>Edit or split up to 2 minutes of audio at a time. Processing stays on this device.</p>
+  <label for="file">Choose an audio or video file</label>
+  <input type="file" id="file" accept="audio/*,video/*,.mkv,.flac">
+  <button id="capture" hidden>Load captured audio</button>
+  <div class="status">
+    <progress id="progress" max="100" hidden aria-label="Processing progress"></progress>
+    <p id="status" role="status" aria-live="polite">Choose a file to begin.</p>
+    <button id="cancel" class="secondary" hidden>Cancel</button>
+  </div>
+  <fieldset id="editor" disabled>
+    <legend>Trim and export</legend>
+    <p id="loadedFile" class="muted" hidden></p>
+    <canvas id="wave" width="860" height="100" role="img" aria-label="Waveform with selected time range"></canvas>
+    <div class="grid">
+      <label>Start (seconds)<input id="from" type="number" min="0" step="any" value="0"></label>
+      <label>End (seconds)<input id="to" type="number" min="0" step="any" value="0"></label>
+      <label>Fade in (seconds)<input id="fadeIn" type="number" min="0" step=".1" value="0"></label>
+      <label>Fade out (seconds)<input id="fadeOut" type="number" min="0" step=".1" value="0"></label>
+      <label>Sound preset<select id="preset"></select></label>
+      <label class="check"><input id="normalize" type="checkbox"> Normalize peaks</label>
+    </div>
+    <details>
+      <summary>MP3 tags and cover art</summary>
+      <div class="grid">
+        <label>Title<input id="title" maxlength="120"></label>
+        <label>Artist<input id="artist" maxlength="120"></label>
+        <label>Album<input id="album" maxlength="120"></label>
+        <label>Cover art (JPEG or PNG)<input id="cover" type="file" accept="image/jpeg,image/png"></label>
+      </div>
+    </details>
+    <div class="actions">
+      <button id="preview">Preview selection</button>
+      <button id="wav">Save WAV</button>
+      <button id="mp3">Save tagged MP3</button>
+    </div>
+    <audio id="player" controls hidden></audio>
+  </fieldset>
+  <fieldset id="stemTools">
+    <legend>Separate stems</legend>
+    <p class="muted">Import the 180 MB HTDemucs model once. It is saved in this browser profile for offline use.</p>
+    <a id="modelLink" target="_blank" rel="noreferrer">Download verified model</a>
+    <label for="model">Import the model file</label>
+    <input type="file" id="model" accept=".onnx">
+    <label for="stemMode">Tracks</label>
+    <select id="stemMode"><option value="2-stem">Vocals and instrumental</option><option value="4-stem">Vocals, drums, bass and other</option></select>
+    <div class="actions"><button id="split" disabled>Split selection</button></div>
+    <section id="mix" hidden>
+      <h2>Stem mixer</h2>
+      <div class="actions">
+        <button id="mixPlay">Play mix</button>
+        <button id="backing" class="secondary">Mute vocals</button>
+        <button id="mixSave">Save mix (WAV)</button>
+      </div>
+      <div id="tracks"></div>
+    </section>
+  </fieldset>
+</main>
+</body>
+</html>

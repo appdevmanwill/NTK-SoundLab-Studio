@@ -6,7 +6,13 @@
 9430b1f8325316d4d6ffe754f7493b2dd5ca5c4fa04646f5469d24503d7ad0e3  NTKSoundLab-Static-2026.11.16.3.zip
 2326c384efb3e88c58db95a67f391465359dc7e7c4104cd54d2e11012daf5a18  NTK_SoundLab_Studio_AlwaysData-2026.11.16.3.zip
 81ec7dbc5cdc33522f29ebfc138e9e3f5cd9b297fbe6b57abc23d0ec0a8b6325  NTKSoundLab-2026.11.16.3.aab
-be6467ac9d181cc617b45f5dc3350797f8f91b7443b35a77a953dfda4e589b23  NTKSoundLab-Browser-Grabber-Chrome-2026.11.16.4.zip
-8e85b9a5e0f6562f6715c8d0b39206816b311a2ffd23ca32e6644648f3766358  NTKSoundLab-Browser-Grabber-Firefox-2026.11.16.4.zip
-be6467ac9d181cc617b45f5dc3350797f8f91b7443b35a77a953dfda4e589b23  NTKSoundLab-Browser-Grabber-Opera-2026.11.16.4.zip
-be6467ac9d181cc617b45f5dc3350797f8f91b7443b35a77a953dfda4e589b23  NTKSoundLab-Browser-Grabber-Edge-2026.11.16.4.zip
+91c814edf6960eedd580fac42fc93729eff8d7a95ccfede54ce7bb966d12e8cc  ntk-soundlab-studio-2026.11.17.1-1.x86_64.rpm
+fbb630eba2a1942ebb3bfa92590c0e82cd538e9eb85dbe270d77fd6160a1d745  ntk-soundlab_2026.11.17.1-1_arm64.deb
+f548db01449cb37201b954be5159ca617a20d65407415c51bffced002aba6d0e  NTKSoundLab-2026.11.17.1-linux-amd64.tar.gz
+854a87d344c271ded4b8b83aa820c1c2b0d99cea5fa596c102d15f81b2c5db62  NTKSoundLab-2026.11.17.1-linux-arm64.tar.gz
+88b861593142d42ecfd96681d44c0c64f303dd3953b3abad7e11e19b4d1f17f8  NTKSoundLab-2026.11.17.1-x86_64.flatpak
+4bcf006f610156670bdd154ded5bf7ffe0f5e05fd27053e2594df7780a68326e  NTKSoundLab-Browser-Grabber-Chrome-2026.11.17.1.zip
+99f18f2ace8949fb51b92283b65dbcbda293c28b0e8102a97b84b7a1579c3fb0  NTKSoundLab-Browser-Grabber-Firefox-2026.11.17.1.zip
+f90f92c5e7dfaab930b8fcae931696be04f7f9f0234aa9bfbbdf65838176bf01  NTKSoundLab-Browser-Grabber-Opera-2026.11.17.1.zip
+b2edc4fb2944bbfe8ca9e1b2c3e4b053d819fccc8ca963010a8665ecbbd7d7ea  NTKSoundLab-Browser-Grabber-Edge-2026.11.17.1.zip
+c4108ab137a091d97eb751cc2774e7c767bad07f5914a0fc3daca0e66906fd88  NTKSoundLab-Browser-Grabber-Firefox-Android-2026.11.17.1.zip

@@ -68,6 +68,9 @@ SOFTWARE/**/*.aab
 SOFTWARE/**/*.AppImage
 SOFTWARE/**/*.deb
 SOFTWARE/**/*.zip
+SOFTWARE/**/*.rpm
+SOFTWARE/**/*.tar.gz
+SOFTWARE/**/*.flatpak
 DEPLOY_MANUAL/*.zip
 
 # Evidence & Local Test Workspaces (chrome binaries, temporary run logs)

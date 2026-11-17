@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>tech.ntkhub.SoundLabStudio</id>
+  <name>NTK SoundLab Studio</name>
+  <summary>Edit and mix audio and create karaoke videos</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <developer id="tech.ntkhub"><name>NTK Hub</name></developer>
+  <description>
+    <p>Import a recording, trim or mix it, add lyrics, and export audio or a karaoke video. The studio opens in your browser and processes local recordings on your device.</p>
+  </description>
+  <launchable type="desktop-id">tech.ntkhub.SoundLabStudio.desktop</launchable>
+  <url type="homepage">https://github.com/appdevmanwill/NTK-SoundLab-Studio</url>
+  <content_rating type="oars-1.1"/>
+</component>

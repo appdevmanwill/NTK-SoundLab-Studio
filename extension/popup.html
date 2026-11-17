@@ -11,7 +11,7 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      width: 410px;
+      width: min(410px, 100vw);
       min-height: 260px;
       max-height: 560px;
       background: #0a0e17;
@@ -166,6 +166,7 @@
 
   <p class="quality-note">Original keeps source quality. MP3 uses 320 kbps. WAV uses 24-bit PCM. Select the source player’s highest quality before capturing.</p>
   <div class="item"><button id="btnRecord" class="btn">Record playback with sound</button><p class="quality-note">For storyboards and pages without a complete video file. Choose the playing tab and share its audio.</p></div>
+  <button id="btnStudio" class="btn btn-primary">Open SoundLab Studio</button>
   <div id="statusLine" class="status" role="status" aria-live="polite"></div>
   <div id="streamsList" class="streams"></div>
 

@@ -17,6 +17,7 @@ const RUNTIME_FILES = [
   new URL('ort-wasm-simd-threaded.jsep.wasm', ORT_DIRECTORY).href,
 ];
 const LEGACY_MODEL_ID = 'htdemucs_embedded_v1';
+const bundledExtension = ['chrome-extension:', 'moz-extension:'].includes(location.protocol);
 
 async function verifyModel(buffer) {
   if (buffer.byteLength !== MODEL.bytes) {
@@ -32,7 +33,7 @@ async function verifyModel(buffer) {
 
 async function cacheRuntime() {
   // Native Android serves this runtime directly from bundled app assets.
-  if (window.AndroidStudio || location.port === '47831') return;
+  if (window.AndroidStudio || location.port === '47831' || bundledExtension) return;
   if (!globalThis.caches) throw new Error('This browser cannot prepare the offline neural runtime.');
   const cache = await caches.open(RUNTIME_CACHE);
   const matches = await Promise.all(RUNTIME_FILES.map(url => cache.match(url)));
@@ -83,6 +84,7 @@ export async function getVerifiedModel(onProgress) {
     }
   }
 
+  if (bundledExtension) throw new Error('Import the verified HTDemucs model file to separate stems.');
   const sidecar = new URL(`../models/${MODEL.filename}`, import.meta.url).href;
   const local = await fetch(sidecar, { method: 'HEAD', timeoutMs: 3000 }).catch(() => null);
   if (local?.ok && Number(local.headers.get('Content-Length')) === MODEL.bytes) {

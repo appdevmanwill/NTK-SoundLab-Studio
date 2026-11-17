@@ -1,8 +1,8 @@
-import { Input, UrlSource, ALL_FORMATS, AudioBufferSink, Output, StreamTarget, Conversion, Mp4OutputFormat, WavOutputFormat } from './lib/mediabunny.js';
+import { Input, UrlSource, BlobSource, ALL_FORMATS, AudioBufferSink, Output, StreamTarget, Conversion, Mp4OutputFormat, WavOutputFormat } from './lib/mediabunny.js';
 import { mediaUrl } from './media-utils.mjs';
 
-export async function inspectMedia(url, signal) {
-  const source = new UrlSource(mediaUrl(url), {
+export async function inspectMedia(media, signal) {
+  const source = media instanceof Blob ? new BlobSource(media) : new UrlSource(mediaUrl(media), {
     requestInit: { credentials: 'include' },
     maxCacheSize: 16 * 1024 * 1024,
     getRetryDelay: attempt => attempt < 2 ? attempt + 1 : null,

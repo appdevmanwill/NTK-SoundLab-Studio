@@ -186,7 +186,7 @@ export class AudioConverter {
    * @returns {AudioBuffer}
    */
   static mixStems(stems, gains = { vocals: 1, drums: 1, bass: 1, other: 1 }, preventClipping = true) {
-    const refBuf = stems.vocals || stems.drums || stems.bass || stems.other;
+    const refBuf = Object.values(stems).find(buffer => buffer && typeof buffer.getChannelData === 'function');
     if (!refBuf) throw new Error('No stem buffers available to mix.');
 
     const ctx = AudioConverter.getAudioContext();
@@ -197,10 +197,9 @@ export class AudioConverter {
     const outL = mixed.getChannelData(0);
     const outR = mixed.getChannelData(1);
 
-    const keys = ['vocals', 'drums', 'bass', 'other'];
-    for (const key of keys) {
+    for (const [key, gain] of Object.entries(gains)) {
       const buf = stems[key];
-      const g = typeof gains[key] === 'number' ? gains[key] : 0;
+      const g = Number.isFinite(gain) ? gain : 0;
       if (!buf || g === 0) continue;
 
       const inL = buf.getChannelData(0);

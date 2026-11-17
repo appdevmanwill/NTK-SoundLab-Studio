@@ -360,7 +360,8 @@ browserApi.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
           format: ['original', 'video', 'mp3', 'wav'].includes(msg.format) ? msg.format : 'original',
           createdAt: Date.now(),
         } });
-        await browserApi.tabs.create({ url: browserApi.runtime.getURL('export.html') + '#' + id });
+        const page = msg.format === 'studio' ? 'studio.html' : 'export.html';
+        await browserApi.tabs.create({ url: browserApi.runtime.getURL(page) + '#' + id });
         sendResponse({ ok: true });
       } catch (error) { sendResponse({ ok: false, error: error.message }); }
     })();

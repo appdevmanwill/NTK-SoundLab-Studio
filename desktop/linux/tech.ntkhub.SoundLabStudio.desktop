@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=NTK SoundLab Studio
+Comment=Edit audio, mix stems and make karaoke videos
+Exec=ntk-soundlab-studio
+Icon=tech.ntkhub.SoundLabStudio
+Terminal=false
+Categories=AudioVideo;Audio;AudioVideoEditing;
+Keywords=music;audio;karaoke;stems;
+StartupWMClass=NTKSoundLabStudio

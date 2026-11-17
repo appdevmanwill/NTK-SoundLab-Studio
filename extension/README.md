@@ -11,9 +11,13 @@ Use the ZIP named for your browser and extract it into a folder you intend to ke
 | Chrome | Open `chrome://extensions`, enable Developer mode, choose Load unpacked and select the extracted folder. |
 | Microsoft Edge | Open `edge://extensions`, enable Developer mode, choose Load unpacked and select the extracted folder. |
 | Opera | Open `opera://extensions`, enable Developer mode, choose Load unpacked and select the extracted folder. Enable access to the media website if Opera asks. |
+| Brave desktop | Extract the Chrome ZIP. Open `brave://extensions`, enable Developer mode, then choose Load unpacked and select the extracted folder. |
+| Vivaldi desktop | Extract the Chrome ZIP. Open `vivaldi://extensions`, enable Developer mode, then choose Load unpacked and select the extracted folder. |
 | Firefox 142+ | Open `about:debugging#/runtime/this-firefox`, choose Load Temporary Add-on and select `manifest.json` in the Firefox folder. Firefox removes temporary add-ons when it restarts. |
 
 The Firefox preview is unsigned. Permanent Firefox installation requires Mozilla signing. Browser-store publication is pending.
+
+The Firefox Android package is for development testing. Use the Android app or browser editor for normal phone use until the extension has been signed and tested on a phone. Mobile playback recording is disabled.
 
 ## Save a recording or video
 
@@ -50,6 +54,16 @@ Select a complete media file, choose your SoundLab website or desktop destinatio
 
 The desktop app uses a dedicated Chrome profile. Install the extension in the browser profile you use to play the source media. When the grabber and desktop window use different profiles, save the file and import it through SoundLab's Import Video or Audio button.
 
+## Trim, tag or split audio in the extension
+
+Choose **Open SoundLab Studio** and select an audio or video file. For a complete capture, choose **Trim or split audio** on its card, then select **Load captured audio**. The editor takes mono or stereo clips up to two minutes at up to 96 kHz.
+
+Enter a start and end time while looking at the waveform. Preview the result, add fades or normalize the peak level, and save a copy. The studio saves edited 16-bit WAV or 320 kbps MP3. Expand **MP3 tags and cover art** to set the title, artist, album and image. The grabber's existing **WAV 24-bit** option is available for conversion without editing.
+
+To separate stems, download the pinned 180 MB model using the link in the studio. Import that file once. The extension verifies and saves it locally in your browser profile. Choose **Vocals and instrumental** or **Vocals, drums, bass and other**, then **Split selection**. Play the mix, mute or solo tracks, and save individual WAVs or the whole mix. Cancellation takes effect at the next processing step.
+
+The model is optional. Trimming and tagging work without it. Keep the studio tab open during processing, and save the files before closing it.
+
 ## Permissions and privacy
 
 The grabber watches media response headers and inspects media elements in tabs where access is allowed. It keeps captured URLs in session storage, which is cleared when the browser session ends. Signed media URLs may contain temporary playback tokens. Clear a tab's capture list when you finish.
@@ -58,6 +72,6 @@ Downloads go directly from the source site to your computer. MP3, WAV and video 
 
 ## Development
 
-`python extension/build.py 2026.11.16.4` creates four packages in `SOFTWARE/EXTENSION`. The Chromium browsers share the same runtime. Firefox uses a module background script and its own manifest identity.
+`python extension/build.py 2026.11.17.1` creates four packages in `SOFTWARE/EXTENSION`. Add `--mobile-preview` for the unsigned Firefox Android test package. For an unpacked build, use `--stage PATH --browser Chrome`. This copies the studio modules and runtime from the shared source. Firefox uses a module background script and its own manifest identity.
 
 Media container handling uses the bundled Mediabunny 1.65.0 module under MPL-2.0. MP3 encoding uses the existing lamejs library. License and source notices are included in `lib/`.

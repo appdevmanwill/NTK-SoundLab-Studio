@@ -1,6 +1,6 @@
 # Deploy the PHP package
 
-Use `NTK_SoundLab_Studio_AlwaysData-2026.11.16.3.zip` from the [release page](https://github.com/appdevmanwill/NTK-SoundLab-Studio/releases/tag/v2026.11.16.3).
+Use the **PHP hosting ZIP** from the [current download list](../README.md#download). Any PHP host that meets the requirements below can be considered. The example uses AlwaysData. See [hosting choices](../docs/HOSTING.md) for static hosting and other PHP plans.
 
 The archive contains Laravel 13, production Composer dependencies and the shared browser app. It has passed a local startup and database migration test. The target AlwaysData account still needs its own checks.
 
@@ -40,7 +40,7 @@ touch database/database.sqlite
 php artisan migrate --force
 ```
 
-In the AlwaysData site settings, choose the matching PHP version and set the root to `/home/username/soundlab/public`. Use the actual account name and installation path.
+In your site's settings, choose the matching PHP version and set its web root to the extracted app's `public` folder, for example `/home/username/soundlab/public`. Use your provider's site settings and your actual installation path.
 
 ## Updating an existing installation
 

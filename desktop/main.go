@@ -1094,7 +1094,7 @@ func (a *desktopApp) routes() http.Handler {
 		if !method(w, r, "GET") {
 			return
 		}
-		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": "2026.11.16.4", "persistent_origin": true})
+		jsonResponse(w, 200, map[string]any{"status": "ok", "mode": "desktop-native", "version": desktopVersion, "persistent_origin": true})
 	}
 	mux.HandleFunc("/api/desktop/status", status)
 	mux.HandleFunc("/api/health", status)

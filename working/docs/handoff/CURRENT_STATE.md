@@ -1,5 +1,14 @@
 # NTK SoundLab Studio · delivery state
 
+## Media Grabber 1.2.0 and Linux packages · 17 November 2026
+
+- Extension adds an editor tab for imports and captures. It trims clips up to two minutes, previews fades and presets, writes tagged 320 kbps MP3 and 16-bit WAV, and reuses the verified optional 180 MB HTDemucs model for offline two/four-stem separation, mixing and exports. The grabber still offers 24-bit WAV conversion separately.
+- VERIFIED: Chrome, Edge, Brave and Opera trim and tagged MP3 tests. Chromium passed actual captured MP4 → studio, 375-pixel viewport, offline separation after model import and a non-silent instrumental mix. Firefox temporary add-on passed actual stem separation and lint reported zero errors and two bundled ONNX warnings. Vivaldi automation could not complete the run. Mobile-specific Firefox ZIP is a development candidate requiring signing and phone tests.
+- VERIFIED: x64 RPM and portable package headless startup and ARM64 DEB under QEMU. The ARM64 portable binary matched the DEB payload. Flatpak bundle built and its app metadata composed. Native desktop browser launch on a target Linux distribution and physical ARM64 remain to verify.
+- Safari feasibility: iOS lacks the network API used by the grabber, so porting requires a separate capture approach and Apple device acceptance. Advanced live separation is outside this file-based implementation.
+- Beginner, multi-host and publishing guides are under docs/. The live Firebase browser app was reachable in BrowserOS Neo. Alternative host recipes need live tests. The shipping older Windows, Android, PWA and PHP files carry forward.
+- Source base and rollback: commit 3b23ad9 and GitHub preview v2026.11.16.4. Test fixture output and screenshots are in the ignored working/EVIDENCE/completion-2026-11-17 folder. Keep publisher authentication and private keys outside the repository.
+
 ## Desktop and Media Grabber release 2026.11.16.4
 
 - Desktop Windows uses Chrome; Linux prefers Chrome. Windows and Linux builds/tests passed. Existing desktop profile and saved library were retained; a synthetic Edge-to-Chrome library check passed.
